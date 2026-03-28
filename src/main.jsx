@@ -1,8 +1,15 @@
-/**
- * @file main.jsx
- * @description React application entry point — mounts the root <App /> into the DOM.
- * Wraps the tree with React Query's QueryClientProvider and the global error boundary.
- * @note Keep this file thin; all meaningful setup belongs in App.jsx or dedicated providers.
- */
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import { GoogleOAuthProvider } from '@react-oauth/google'
+import './index.css'
+import App from './App.jsx'
 
-export default {};
+const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID_PLACEHOLDER';
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <GoogleOAuthProvider clientId={clientId}>
+      <App />
+    </GoogleOAuthProvider>
+  </StrictMode>,
+)
