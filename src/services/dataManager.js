@@ -1,140 +1,98 @@
 /**
  * DataManager.js
  * 
- * Simulates a high-performance backend (50-100 updates/sec).
- * Now supports multiple symbols individually.
+ * Production Binance WebSocket Integration & REST Interface.
+ * Real-time order books, trades, and tickers mapped seamlessly to frontend.
  */
 
 class DataManager {
   constructor() {
-    this.subscribers = new Map(); // Map<Symbol, Set<Callback>>
+    this.subscribers = new Map();
     this.buffers = {};
     
-    // Configurable symbols
-    const symbols = [
-        { pair: 'BTC/USDT', basePrice: 68142.00, volume: 3474 },
-        { pair: 'ETH/USDT', basePrice: 3412.50, volume: 15320 },
-        { pair: 'SOL/USDT', basePrice: 142.10, volume: 450123 },
-        { pair: 'SYN/USD', basePrice: 15302.50, volume: 45012 },
-        { pair: 'DOGE/USDT', basePrice: 0.162, volume: 9945012 },
-        { pair: 'ADA/USDT', basePrice: 0.58, volume: 1245012 },
-        { pair: 'XRP/USDT', basePrice: 0.61, volume: 545012 }
+    // Configurable standard symbols (SYN/USDT instead of SYN/USD to ensure live connection via Binance)
+    this.basePairs = [
+        'BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'SYN/USDT', 'DOGE/USDT', 'ADA/USDT', 'XRP/USDT'
     ];
 
-    symbols.forEach(s => {
-        this.buffers[s.pair] = {
-            ticker: {
-                symbol: s.pair,
-                price: s.basePrice,
-                change: (Math.random() * 5) - 2.5,
-                high: s.basePrice * 1.05,
-                low: s.basePrice * 0.95,
-                volume: s.volume,
-            },
+    this.basePairs.forEach(pair => {
+        this.buffers[pair] = {
+            ticker: { symbol: pair, price: 0, change: 0, high: 0, low: 0, volume: 0 },
             orderBook: { bids: [], asks: [] },
-            latestTrades: [],
-            chartCandle: {
-                time: Math.floor(Date.now() / 1000),
-                open: s.basePrice,
-                high: s.basePrice,
-                low: s.basePrice,
-                close: s.basePrice
-            }
+            latestTrades: []
         };
-        this.subscribers.set(s.pair, new Set());
-        this.initOrderBook(s.pair);
+        this.subscribers.set(pair, new Set());
     });
 
-    this.startMockWebSocket();
+    this.connectWebSockets();
     this.startFlushLoop();
   }
 
-  initOrderBook(symbol) {
-    let currentPrice = this.buffers[symbol].ticker.price;
-    const isCrypto = symbol.includes('USDT') && currentPrice < 10;
-    const step = isCrypto ? currentPrice * 0.001 : currentPrice * 0.0005;
-    
-    const bids = [];
-    const asks = [];
-    let bidTotal = 0;
-    let askTotal = 0;
-    
-    for (let i = 0; i < 20; i++) {
-        // Bids go down
-        const bidPrice = +(currentPrice - (i * step) - (Math.random()*step)).toFixed(4);
-        const bidSize = +(Math.random() * 5).toFixed(3);
-        bidTotal += bidSize;
-        bids.push({ price: bidPrice, size: bidSize, total: bidTotal });
-
-        // Asks go up
-        const askPrice = +(currentPrice + (i * step) + (Math.random()*step)).toFixed(4);
-        const askSize = +(Math.random() * 5).toFixed(3);
-        askTotal += askSize;
-        asks.push({ price: askPrice, size: askSize, total: askTotal });
-    }
-    
-    this.buffers[symbol].orderBook.bids = bids;
-    this.buffers[symbol].orderBook.asks = asks;
+  formatSymbol(pair) {
+     return pair.replace('/', '').toLowerCase();
   }
 
-  startMockWebSocket() {
-    setInterval(() => {
-      Object.keys(this.buffers).forEach(symbol => {
-          this.simulateIncomingTick(symbol);
+  connectWebSockets() {
+      const streams = [];
+      this.basePairs.forEach(pair => {
+         const sym = this.formatSymbol(pair);
+         streams.push(`${sym}@ticker`);
+         streams.push(`${sym}@depth20@100ms`);
+         streams.push(`${sym}@trade`);
       });
-    }, 15); // Slightly slower to accommodate multiple syms easily
-  }
 
-  simulateIncomingTick(symbol) {
-    const buffer = this.buffers[symbol];
-    const isCrypto = symbol.includes('USDT') && buffer.ticker.price < 5;
-    const volatility = isCrypto ? buffer.ticker.price * 0.005 : buffer.ticker.price * 0.001;
-    
-    const change = (Math.random() - 0.5) * volatility;
-    let newPrice = buffer.ticker.price + change;
-    if (newPrice < 0.0001) newPrice = 0.0001;
-    newPrice = +newPrice.toFixed(4);
-    
-    buffer.ticker.price = newPrice;
-    
-    // Update candle
-    const candle = buffer.chartCandle;
-    const now = Math.floor(Date.now() / 1000);
-    
-    if (now > candle.time + 60) {
-        buffer.chartCandle = {
-            time: now,
-            open: newPrice,
-            high: newPrice,
-            low: newPrice,
-            close: newPrice
-        };
-    } else {
-        candle.close = newPrice;
-        if (newPrice > candle.high) candle.high = newPrice;
-        if (newPrice < candle.low) candle.low = newPrice;
-    }
+      // Using data-stream.binance.vision to bypass regional ISP blocks of stream.binance.com
+      const wsUrl = `wss://data-stream.binance.vision:9443/stream?streams=${streams.join('/')}`;
+      this.ws = new WebSocket(wsUrl);
 
-    if (Math.random() < 0.1) {
-        buffer.latestTrades.unshift({
-            price: newPrice,
-            size: +(Math.random() * 2).toFixed(3),
-            time: Date.now(),
-            isBuyerMaker: Math.random() > 0.5
-        });
-        if (buffer.latestTrades.length > 30) {
-            buffer.latestTrades.pop();
-        }
-    }
+      this.ws.onmessage = (event) => {
+         const message = JSON.parse(event.data);
+         if (!message.data) return;
+         
+         const streamName = message.stream;
+         const data = message.data;
 
-    if (Math.random() < 0.2) {
-       if (buffer.orderBook.bids.length > 0) {
-         buffer.orderBook.bids[0].size = +(Math.random() * 5).toFixed(3);
-       }
-       if (buffer.orderBook.asks.length > 0) {
-         buffer.orderBook.asks[0].size = +(Math.random() * 5).toFixed(3);
-       }
-    }
+         const pair = this.basePairs.find(p => this.formatSymbol(p) === streamName.split('@')[0]);
+         if (!pair) return;
+
+         const buffer = this.buffers[pair];
+
+         if (streamName.includes('@ticker')) {
+            buffer.ticker.price = parseFloat(data.c);
+            buffer.ticker.change = parseFloat(data.P);
+            buffer.ticker.high = parseFloat(data.h);
+            buffer.ticker.low = parseFloat(data.l);
+            buffer.ticker.volume = parseFloat(data.v);
+         } 
+         else if (streamName.includes('@depth20')) {
+            let bidTotal = 0;
+            buffer.orderBook.bids = data.bids.map(b => {
+                const size = parseFloat(b[1]);
+                bidTotal += size;
+                return { price: parseFloat(b[0]), size, total: bidTotal };
+            });
+            let askTotal = 0;
+            buffer.orderBook.asks = data.asks.map(a => {
+                const size = parseFloat(a[1]);
+                askTotal += size;
+                return { price: parseFloat(a[0]), size, total: askTotal };
+            });
+         }
+         else if (streamName.includes('@trade')) {
+            buffer.latestTrades.unshift({
+                price: parseFloat(data.p),
+                size: parseFloat(data.q),
+                time: data.T,
+                isBuyerMaker: data.m
+            });
+            if (buffer.latestTrades.length > 30) buffer.latestTrades.pop();
+         }
+      };
+      
+      this.ws.onclose = () => {
+         console.warn("Binance WS Closed. Reconnecting in 3s...");
+         setTimeout(() => this.connectWebSockets(), 3000);
+      };
   }
 
   startFlushLoop() {
@@ -142,11 +100,14 @@ class DataManager {
       Object.keys(this.buffers).forEach(symbol => {
           const subs = this.subscribers.get(symbol);
           if (subs && subs.size > 0) {
-              const snapshot = { ...this.buffers[symbol] };
-              subs.forEach(cb => cb(snapshot));
+              // Ensure we have a valid price before emitting to prevent NaN crashes on bootup
+              if (this.buffers[symbol].ticker.price > 0) {
+                  const snapshot = { ...this.buffers[symbol] };
+                  subs.forEach(cb => cb(snapshot));
+              }
           }
       });
-    }, 50);
+    }, 50); // High-performance 50ms flush
   }
 
   subscribe(symbol, callback) {
@@ -156,11 +117,37 @@ class DataManager {
     }
     const subs = this.subscribers.get(symbol);
     subs.add(callback);
-    callback({ ...this.buffers[symbol] });
+    
+    if (this.buffers[symbol].ticker.price > 0) {
+        callback({ ...this.buffers[symbol] });
+    }
     
     return () => {
       subs.delete(callback);
     };
+  }
+
+  async fetchHistoricalKlines(symbol, timeframe) {
+      const intervalMap = { '1s': '1s', '15m': '15m', '1H': '1h', '4H': '4h', '1D': '1d', '1W': '1w' };
+      const interval = intervalMap[timeframe] || '1d';
+      const formattedSymbol = this.formatSymbol(symbol).toUpperCase();
+      
+      try {
+          // Using data-api.binance.vision to bypass regional ISP blocks
+          const res = await fetch(`https://data-api.binance.vision/api/v3/klines?symbol=${formattedSymbol}&interval=${interval}&limit=500`);
+          const data = await res.json();
+          
+          return data.map(d => ({
+              time: Math.floor(d[0] / 1000),
+              open: parseFloat(d[1]),
+              high: parseFloat(d[2]),
+              low: parseFloat(d[3]),
+              close: parseFloat(d[4])
+          }));
+      } catch (err) {
+          console.error("Error fetching historical klines", err);
+          return [];
+      }
   }
 }
 

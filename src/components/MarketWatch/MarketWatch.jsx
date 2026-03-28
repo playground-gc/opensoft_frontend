@@ -4,14 +4,14 @@ import { dataManager } from '../../services/dataManager';
 
 export default function MarketWatch({ activeSymbol, comparisonSymbols, onSelectSymbol, onToggleComparison }) {
     const [search, setSearch] = useState('');
-    const tabs = ['Favorites', 'All', 'Spot', 'Futures'];
-    const [activeTab, setActiveTab] = useState('Spot');
+    const tabs = ['Favorites', 'All'];
+    const [activeTab, setActiveTab] = useState('All');
 
     const [assets, setAssets] = useState([]);
 
     useEffect(() => {
         const unsubs = [];
-        const basePairs = ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'SYN/USD', 'DOGE/USDT', 'ADA/USDT', 'XRP/USDT'];
+        const basePairs = ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'SYN/USDT', 'DOGE/USDT', 'ADA/USDT', 'XRP/USDT'];
         
         const tickDataMap = {};
         basePairs.forEach(pair => {

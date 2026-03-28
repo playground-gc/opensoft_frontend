@@ -123,27 +123,44 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
         });
 
         const unsubs = [];
+        let currentBar = null;
+
+        dataManager.fetchHistoricalKlines(symbol, activeTimeframe).then(historicalData => {
+            if (historicalData.length > 0 && seriesRef.current) {
+                seriesRef.current.setData(historicalData);
+                currentBar = { ...historicalData[historicalData.length - 1] };
+            }
+        });
 
         unsubs.push(dataManager.subscribe(symbol, (data) => {
-            if (seriesRef.current) {
+            if (seriesRef.current && currentBar) {
+                 const price = data.ticker.price;
+                 currentBar.close = price;
+                 currentBar.high = Math.max(currentBar.high, price);
+                 currentBar.low = Math.min(currentBar.low, price);
+                 
                  if (chartType === 'Area' || chartType === 'Line') {
-                     seriesRef.current.update({
-                         time: data.chartCandle.time,
-                         value: data.chartCandle.close
-                     });
+                     seriesRef.current.update({ time: currentBar.time, value: currentBar.close });
                  } else {
-                     seriesRef.current.update(data.chartCandle);
+                     seriesRef.current.update(currentBar);
                  }
             }
         }));
 
+        const compCurrentBars = {};
         comparisonSymbols.forEach(sym => {
+            dataManager.fetchHistoricalKlines(sym, activeTimeframe).then(historicalData => {
+               if (historicalData.length > 0 && compSeriesRefs.current[sym]) {
+                   const closeOnly = historicalData.map(d => ({ time: d.time, value: d.close }));
+                   compSeriesRefs.current[sym].setData(closeOnly);
+                   compCurrentBars[sym] = { ...closeOnly[closeOnly.length - 1] };
+               }
+            });
+
             unsubs.push(dataManager.subscribe(sym, (data) => {
-                if (compSeriesRefs.current[sym]) {
-                    compSeriesRefs.current[sym].update({
-                        time: data.chartCandle.time,
-                        value: data.chartCandle.close
-                    });
+                if (compSeriesRefs.current[sym] && compCurrentBars[sym]) {
+                    compCurrentBars[sym].value = data.ticker.price;
+                    compSeriesRefs.current[sym].update(compCurrentBars[sym]);
                 }
             }));
         });
@@ -157,7 +174,7 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
             chart.remove();
             compSeriesRefs.current = {};
         };
-    }, [symbol, comparisonSymbols, chartType]);
+    }, [symbol, comparisonSymbols, chartType, activeTimeframe]);
 
     const colors = ['#FCD535', '#2962FF', '#E040FB'];
 

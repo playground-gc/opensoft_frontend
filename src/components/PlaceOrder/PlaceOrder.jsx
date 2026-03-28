@@ -43,18 +43,6 @@ export default function PlaceOrder({ symbol }) {
 
     return (
         <div style={styles.container}>
-            {/* Top Row: Spot / Cross / Isolated / Grid  */}
-            <div style={styles.marginStrip}>
-                {['Spot', 'Cross', 'Isolated', 'Grid'].map(t => (
-                    <span 
-                        key={t}
-                        style={{...styles.marginTab, color: marginMode === t ? 'white' : 'var(--color-text-muted)'}}
-                        onClick={() => setMarginMode(t)}
-                    >
-                        {t}
-                    </span>
-                ))}
-            </div>
 
             {/* Second Row: Limit / Market / Stop Limit */}
             <div style={styles.tabsStrip}>
@@ -67,7 +55,6 @@ export default function PlaceOrder({ symbol }) {
                        {t}
                     </span>
                  ))}
-                 <span style={{...styles.tab, color: 'var(--color-text-muted)'}}>OCO ▼</span>
             </div>
 
             <div style={styles.formsContainer}>
