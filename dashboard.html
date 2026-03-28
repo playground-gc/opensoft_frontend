@@ -1,1261 +1,3433 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Synthetic Bull — Professional Trading Terminal</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&display=swap" rel="stylesheet"/>
-<style>
-/* ─── TOKENS (Golden Ratio: 1.618) ─── */
-:root{
-  --phi:1.618;
-  --bg:#05070e;
-  --surface:#0a0d1a;
-  --raised:#0f1220;
-  --glass:rgba(10,13,26,0.72);
-  --border:rgba(255,255,255,0.055);
-  --border-gold:rgba(232,160,32,0.18);
-  --brand:#e8a020;
-  --brand-dim:rgba(232,160,32,0.08);
-  --brand-glow:rgba(232,160,32,0.18);
-  --bull:#18c96a;
-  --bear:#e83535;
-  /* Text hierarchy — brightness proportional */
-  --t1:#f0f2fc;   /* headings: 94% */
-  --t2:#b8bdd4;   /* body: 72% */
-  --t3:#6e7896;   /* sub: 43% */
-  --t4:#2d3554;   /* faint: 18% */
-  /* Golden Ratio spacing */
-  --s1:8px;   /* base */
-  --s2:13px;  /* ×1.618 */
-  --s3:21px;
-  --s4:34px;
-  --s5:55px;
-  --s6:89px;
-  --s7:144px;
-  /* Type scale (adjusted for readability) */
-  --fs-xs:11px;
-  --fs-sm:13px;
-  --fs-base:15px;
-  --fs-md:18px;
-  --fs-lg:24px;
-  --fs-xl:36px;
-  --fs-2xl:55px;
-  --fs-3xl:72px;
-  --fs-4xl:96px;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif !important;}
-html{overflow:hidden;height:100%}
-body{
-  background:var(--bg);
-  color:var(--t1);
-  font-family:'IBM Plex Mono',monospace;
-  height:100%;
-  overflow:hidden;
-  cursor:none;
-}
-::-webkit-scrollbar{display:none}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Synthetic Bull — Professional Trading Terminal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=IBM+Plex+Mono:wght@300;400;500;600&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Tenor+Sans&display=swap"
+    rel="stylesheet" />
+  <!-- LENIS SMOOTH SCROLL CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.13/dist/lenis.css">
+  <style>
+    /* ─── TOKENS (Golden Ratio: 1.618) ─── */
+    :root {
+      --phi: 1.618;
+      --bg: #05070e;
+      --surface: #0a0d1a;
+      --raised: #0f1220;
+      --glass: rgba(10, 13, 26, 0.72);
+      --border: rgba(255, 255, 255, 0.055);
+      --border-gold: rgba(232, 160, 32, 0.18);
+      --brand: #e8a020;
+      --brand-dim: rgba(232, 160, 32, 0.08);
+      --brand-glow: rgba(232, 160, 32, 0.18);
+      --bull: #18c96a;
+      --bear: #e83535;
+      /* Text hierarchy — brightness proportional */
+      --t1: #f0f2fc;
+      /* headings: 94% */
+      --t2: #b8bdd4;
+      /* body: 72% */
+      --t3: #6e7896;
+      /* sub: 43% */
+      --t4: #2d3554;
+      /* faint: 18% */
+      /* Golden Ratio spacing */
+      --s1: 8px;
+      /* base */
+      --s2: 13px;
+      /* ×1.618 */
+      --s3: 21px;
+      --s4: 34px;
+      --s5: 55px;
+      --s6: 89px;
+      --s7: 144px;
+      /* Type scale (adjusted for readability) */
+      --fs-xs: 14px;
+      --fs-sm: 16px;
+      --fs-base: 18px;
+      --fs-md: 22px;
+      --fs-lg: 28px;
+      --fs-xl: 40px;
+      --fs-2xl: 60px;
+      --fs-3xl: 78px;
+      --fs-4xl: 104px;
+    }
 
-/* ─── CURSOR ─── */
-#cur{position:fixed;width:6px;height:6px;background:var(--brand);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen;transition:width .15s,height .15s,opacity .2s}
-#cur-ring{position:fixed;width:28px;height:28px;border:1px solid rgba(232,160,32,.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .28s,height .28s,border-color .2s,transform .28s}
+    /* ─── MOBILE SCALING (Golden Ratio Reductions) ─── */
+    @media (max-width: 1024px) {
+      :root {
+        --s4: 26px;
+        --s5: 42px;
+        --s6: 68px;
+        --s7: 110px;
+        --fs-xl: 32px;
+        --fs-2xl: 46px;
+        --fs-3xl: 58px;
+        --fs-4xl: 74px;
+      }
+    }
 
-/* ─── FULL-PAGE SCROLL CONTAINER ─── */
-#scroll-container{
-  height:100vh;
-  overflow-y:scroll;
-  scroll-snap-type:y mandatory;
-  scroll-behavior:smooth;
-  overflow-x:hidden;
-}
-#scroll-container::-webkit-scrollbar{display:none}
+    @media (max-width: 768px) {
+      :root {
+        --s4: 22px;
+        --s5: 36px;
+        --s6: 58px;
+        --s7: 94px;
+        --fs-xs: 13px;
+        --fs-sm: 15px;
+        --fs-base: 17px;
+        --fs-lg: 24px;
+        --fs-xl: 30px;
+        --fs-2xl: 40px;
+        --fs-3xl: 48px;
+        --fs-4xl: 62px;
+      }
+    }
 
-/* ─── EACH PANEL ─── */
-.panel{
-  min-height:100vh;
-  padding-top:70px;
-  padding-bottom:30px;
-  width:100%;
-  scroll-snap-align:start;
-  scroll-snap-stop:always;
-  position:relative;
-  overflow:hidden;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-/* ─── NAV ─── */
-nav{
-  position:fixed;top:0;left:0;right:0;z-index:800;
-  height:55px;display:flex;align-items:center;justify-content:space-between;
-  padding:0 var(--s6);
-  background:rgba(5,7,14,0.7);
-  backdrop-filter:blur(32px);
-  border-bottom:1px solid var(--border);
-}
-.logo{font-family:'Archivo Black',sans-serif;font-size:var(--fs-sm);letter-spacing:.18em;text-transform:uppercase;color:var(--t1);text-decoration:none;display:flex;align-items:center;gap:var(--s2)}
-.logo b{color:var(--brand)}
-.nav-links{display:flex;gap:var(--s5);list-style:none}
-.nav-links a{font-size:var(--fs-xs);letter-spacing:.18em;text-transform:uppercase;color:var(--t3);text-decoration:none;transition:color .2s}
-.nav-links a:hover{color:var(--t1)}
-.nav-right{display:flex;gap:var(--s2)}
-.nbtn{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:.12em;padding:9px 20px;border-radius:3px;cursor:none;transition:all .2s;text-transform:uppercase;border:none;perspective:600px;position:relative;overflow:hidden;}
-.nbtn-ghost{background:transparent;border:1px solid var(--border);color:var(--t3)}
-.nbtn-ghost:hover{border-color:rgba(255,255,255,.2);color:var(--t2)}
-.nbtn-brand{background:var(--brand);color:#000;font-weight:700}
-.nbtn-brand:hover{background:#f5b833;transform:translateY(-1px);box-shadow:0 8px 30px rgba(232,160,32,.3)}
+    html {
+      overflow: hidden;
+      height: 100%
+    }
 
-/* ─── BUTTON TILT ANIMATION (JS-driven, no keyframe needed) ─── */
-.btn-flip-inner{
-  display:inline-flex;align-items:center;gap:6px;
-  transform-origin:center center;
-  transform-style:preserve-3d;
-  will-change:transform;
-  /* transitions set dynamically by JS */
-}
-/* Gradient shimmer overlay during flip */
-.nbtn::after,.hbtn::after{
-  content:'';
-  position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(255,255,255,0.18) 0%,rgba(232,160,32,0.35) 50%,rgba(255,255,255,0.18) 100%);
-  opacity:0;pointer-events:none;
-  transition:opacity 0.12s;
-}
-.nbtn.btn-shimmer::after,.hbtn.btn-shimmer::after{opacity:1;}
+    body {
+      background: var(--bg);
+      color: var(--t1);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      height: 100%;
+      overflow: hidden;
+      cursor: none;
+    }
 
-/* ─── CARD EDGE CORNER GLOW ─── */
-.card-edge-top,.card-edge-bottom,.card-edge-left,.card-edge-right{
-  position:absolute;z-index:10;pointer-events:none;opacity:0;
-  transition:opacity 0.4s ease;
-}
-.card-edge-top{top:0;left:8%;right:8%;height:2px;background:linear-gradient(90deg,transparent,var(--brand),rgba(255,200,80,0.9),var(--brand),transparent);border-radius:2px;}
-.card-edge-bottom{bottom:0;left:8%;right:8%;height:2px;background:linear-gradient(90deg,transparent,var(--brand),rgba(255,200,80,0.9),var(--brand),transparent);border-radius:2px;}
-.card-edge-left{top:8%;bottom:8%;left:0;width:2px;background:linear-gradient(180deg,transparent,var(--brand),rgba(255,200,80,0.9),var(--brand),transparent);border-radius:2px;}
-.card-edge-right{top:8%;bottom:8%;right:0;width:2px;background:linear-gradient(180deg,transparent,var(--brand),rgba(255,200,80,0.9),var(--brand),transparent);border-radius:2px;}
-.metric-card:hover .card-edge-top,.metric-card:hover .card-edge-bottom,.metric-card:hover .card-edge-left,.metric-card:hover .card-edge-right,
-.bot-card:hover .card-edge-top,.bot-card:hover .card-edge-bottom,.bot-card:hover .card-edge-left,.bot-card:hover .card-edge-right,
-.facc:hover .card-edge-top,.facc:hover .card-edge-bottom,.facc:hover .card-edge-left,.facc:hover .card-edge-right{
-  opacity:1;
-}
+    ::-webkit-scrollbar {
+      display: none
+    }
 
-/* ─── SCROLL INDICATOR ─── */
-#scroll-dots{
-  position:fixed;right:var(--s4);top:50%;transform:translateY(-50%);
-  z-index:700;display:flex;flex-direction:column;gap:var(--s2);
-}
-.sdot{
-  width:4px;height:4px;border-radius:50%;background:var(--t4);
-  transition:background .3s,transform .3s,height .3s;
-  cursor:none;
-}
-.sdot.active{background:var(--brand);height:18px;border-radius:2px}
+    /* ─── CURSOR ─── */
+    #cur {
+      position: fixed;
+      width: 6px;
+      height: 6px;
+      background: var(--brand);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 11000;
+      transform: translate(-50%, -50%);
+      mix-blend-mode: screen;
+      transition: width .15s, height .15s, opacity .2s
+    }
 
-/* ─── TICKER ─── */
-.ticker-bar{
-  position:fixed;bottom:0;left:0;right:0;z-index:800;
-  height:24px;background:rgba(5,7,14,0.85);backdrop-filter:blur(20px);
-  border-top:1px solid var(--border);overflow:hidden;display:flex;align-items:center;
-}
-@keyframes tickScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.ticker-inner{animation:tickScroll 60s linear infinite;white-space:nowrap;display:flex;align-items:center}
-.ticker-inner:hover{animation-play-state:paused}
-.tick-item{display:inline-flex;align-items:center;gap:var(--s1);padding:0 var(--s4);border-right:1px solid var(--border);font-size:11px;letter-spacing:.05em;font-weight:500}
-.tick-sym{color:var(--t3)}.tick-px{color:var(--t2);font-weight:600}.tick-up{color:var(--bull)}.tick-dn{color:var(--bear)}
+    #cur-ring {
+      position: fixed;
+      width: 28px;
+      height: 28px;
+      border: 1px solid rgba(232, 160, 32, .5);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 10999;
+      transform: translate(-50%, -50%);
+      transition: width .28s, height .28s, border-color .2s, transform .28s
+    }
 
-/* ─── COMMON ─── */
-.eyebrow{
-  font-family:'IBM Plex Mono',monospace;
-  font-size:var(--fs-xs);letter-spacing:.28em;text-transform:uppercase;
-  color:var(--brand);display:inline-flex;align-items:center;gap:var(--s3);
-  margin-bottom:var(--s3);
-}
-.eyebrow::before{content:'';width:var(--s4);height:1px;background:var(--brand);opacity:.45}
+    /* ─── TOUCH INTERACTION: HIDE CUSTOM CURSOR ─── */
+    @media (pointer: coarse) {
+      #cur, #cur-ring {
+        display: none !important;
+      }
+      body {
+        cursor: auto !important;
+      }
+      button, a {
+        cursor: pointer !important;
+      }
+    }
+    
+    @media (max-width: 1024px) {
+        #scroll-dots {
+            display: none;
+        }
+    }
 
-/* ─── PANEL 1 — HERO ─── */
-#p-hero{background:var(--bg)}
-.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(232,160,32,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(232,160,32,.018) 1px,transparent 1px);background-size:55px 55px;mask-image:radial-gradient(ellipse 90% 80% at 50% 40%,black,transparent 78%)}
-.hero-vignette{position:absolute;inset:0;background:radial-gradient(ellipse 60% 55% at 50% 35%,rgba(232,160,32,.04),transparent 70%)}
-.hero-line{position:absolute;left:50%;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,rgba(232,160,32,.06) 30%,rgba(232,160,32,.06) 70%,transparent);transform:translateX(-50%)}
+    /* ─── FULL-PAGE SCROLL CONTAINER ─── */
+    #scroll-container {
+      height: 100vh;
+      overflow-y: auto;
+      scroll-behavior: initial;
+      /* Lenis handles this */
+      overflow-x: hidden;
+      will-change: transform;
+    }
 
-.hero-inner{
-  position:relative;z-index:2;
-  width:100%;max-width:1400px;
-  padding:0 var(--s6);
-  display:grid;
-  grid-template-columns:1fr 0.618fr;/* Golden ratio split */
-  gap:var(--s6);
-  align-items:center;
-}
+    #scroll-container::-webkit-scrollbar {
+      display: none
+    }
 
-/* Hero type — exaggerated golden scale */
-.hero-kicker{
-  font-family:'IBM Plex Mono',monospace;
-  font-size:var(--fs-xs);letter-spacing:.28em;text-transform:uppercase;
-  color:var(--brand);display:flex;align-items:center;gap:var(--s3);
-  margin-bottom:var(--s4);
-}
-.hero-kicker::before{content:'';width:var(--s3);height:1px;background:var(--brand);opacity:.5}
+    /* ─── EACH PANEL ─── */
+    .panel {
+      min-height: 100vh;
+      padding-top: 92px;
+      /* Fixed: Increased from 40px to resolve nav clipping */
+      padding-bottom: 44px;
+      /* Fixed: Increased from 15px to resolve ticker clipping */
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-h1.hero-title{
-  font-family:'Playfair Display',serif;
-  font-size:clamp(52px,7.2vw,var(--fs-4xl));
-  font-weight:400;
-  line-height:.88;
-  letter-spacing:-.025em;
-  color:var(--t1);
-  margin-bottom:var(--s4);
-}
-h1.hero-title em{font-style:italic;color:var(--brand);display:block}
-h1.hero-title strong{
-  font-family:'Archivo Black',sans-serif;
-  font-size:.52em;
-  letter-spacing:.05em;
-  font-weight:900;
-  display:block;
-  margin-top:var(--s2);
-  color:var(--t2); /* dimmer — hierarchy */
-  line-height:1.15;
-}
+    @media (max-width: 768px) {
+      .panel {
+        padding-top: 84px;
+        padding-bottom: 38px;
+        height: auto;
+        min-height: 100svh;
+      }
+    }
 
-.hero-sub{
-  font-family:'Tenor Sans',serif;
-  font-size:clamp(12px,1.1vw,16px);
-  line-height:1.85;
-  color:var(--t3);/* intentionally dim */
-  max-width:420px;
-  margin-bottom:var(--s5);
-}
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 800;
+      height: 55px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--s6);
+      background: rgba(5, 7, 14, 0.7);
+      backdrop-filter: blur(32px);
+      border-bottom: 1px solid var(--border);
+    }
 
-.live-pip{display:inline-flex;align-items:center;gap:var(--s1);font-size:8px;letter-spacing:.16em;color:var(--t3);background:rgba(24,201,106,.06);border:1px solid rgba(24,201,106,.15);padding:5px 12px;border-radius:100px;margin-bottom:var(--s4)}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.12}}
-.ldot{width:5px;height:5px;border-radius:50%;background:var(--bull);animation:blink 1.8s infinite;flex-shrink:0}
-.ldot.amb{background:var(--brand)}
+    .logo {
+      font-family: 'Inter', sans-serif;
+      font-weight: 900;
+      font-size: var(--fs-sm);
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--t1);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: var(--s2)
+    }
 
-.hbtns{display:flex;gap:var(--s2);flex-wrap:wrap}
-.hbtn{
-  font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
-  letter-spacing:.1em;text-transform:uppercase;
-  padding:14px 24px;border-radius:3px;
-  cursor:none;display:flex;align-items:center;gap:8px;
-  transition:all .25s;border:none;
-  position:relative;overflow:hidden;perspective:600px;
-}
-.hbtn.pri{background:var(--brand);color:#000}
-.hbtn.pri:hover{background:#f5b833;transform:translateY(-2px);box-shadow:0 16px 48px rgba(232,160,32,.3)}
-.hbtn.sec{background:transparent;border:1px solid var(--border);color:var(--t2)}
-.hbtn.sec:hover{border-color:rgba(255,255,255,.2);color:var(--t1)}
-.hbtn.out{background:transparent;border:1px solid var(--border-gold);color:var(--brand)}
-.hbtn.out:hover{background:var(--brand-dim);border-color:rgba(232,160,32,.45)}
+    .logo b {
+      color: var(--brand)
+    }
 
-.hero-stats{
-  display:flex;gap:var(--s5);
-  margin-top:var(--s5);
-  padding-top:var(--s4);
-  border-top:1px solid var(--border);
-}
-.stat-val{font-family:'Inter',sans-serif;font-size:var(--fs-xl);font-weight:700;color:var(--t1);line-height:1}
-.stat-val.up{color:var(--bull)}.stat-val.br{color:var(--brand)}
-.stat-lbl{font-size:11px;letter-spacing:.14em;color:var(--t3);margin-top:6px;text-transform:uppercase;font-weight:500}
+    .nav-links {
+      display: flex;
+      gap: var(--s5);
+      list-style: none
+    }
 
-/* ─── TERMINAL ─── */
-.terminal{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:10px;
-  overflow:hidden;
-  box-shadow:0 60px 160px rgba(0,0,0,.85),0 0 80px rgba(232,160,32,.04);
-}
-.tbar{display:flex;align-items:center;gap:6px;padding:10px var(--s3);background:var(--bg);border-bottom:1px solid var(--border)}
-.mdot{width:8px;height:8px;border-radius:50%}
-.ttitle{font-size:8px;color:var(--t3);letter-spacing:.12em;margin:0 auto}
-.ob-row{display:flex;align-items:center;padding:3px var(--s2);position:relative;font-family:'IBM Plex Mono',monospace}
-.ob-bar{position:absolute;top:0;right:0;bottom:0}
-.ob-px{font-size:9px;width:58px;z-index:1;position:relative}
-.ob-sz{font-size:9px;color:var(--t3);margin-left:auto;z-index:1;position:relative}
+    .nav-links a {
+      font-size: var(--fs-xs);
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--t3);
+      text-decoration: none;
+      transition: color .2s
+    }
 
-/* ─── PANEL TRANSITIONS ─── */
-@keyframes fadeUp{from{opacity:0;transform:translateY(44px)}to{opacity:1;transform:translateY(0)}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.panel-content{opacity:0;transform:translateY(40px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}
-.panel.visible .panel-content{opacity:1;transform:translateY(0)}
-.panel-content.d1{transition-delay:.08s}
-.panel-content.d2{transition-delay:.18s}
-.panel-content.d3{transition-delay:.3s}
-.panel-content.d4{transition-delay:.42s}
+    .nav-links a:hover {
+      color: var(--t1)
+    }
 
-/* ─── PANEL 2 — FEATURES ─── */
-#p-features{background:var(--surface);border-bottom:1px solid var(--border)}
-.features-inner{width:100%;max-width:1400px;padding:0 var(--s6)}
-.features-header{margin-bottom:var(--s5)}
-.section-title{
-  font-family:'Playfair Display',serif;
-  font-size:clamp(38px,5vw,82px);
-  font-weight:400;line-height:.9;letter-spacing:-.018em;
-  color:var(--t1);
-}
-.section-title em{font-style:italic;color:var(--brand)}
-.section-title strong{font-family:'Archivo Black',sans-serif;font-weight:900;font-size:.75em;letter-spacing:.04em;color:var(--t2)}
-.section-sub{
-  font-family:'Tenor Sans',serif;font-size:clamp(11px,1vw,14px);
-  line-height:1.9;color:var(--t3);max-width:400px;margin-top:var(--s3)
-}
+    @media (max-width: 1024px) {
+      .nav-links {
+        display: none;
+      }
 
-/* ACCORDION FEATURES — golden proportions */
-.feat-accordion{display:flex;gap:2px;height:min(360px,42vh);background:var(--border);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:var(--s5)}
-.facc{
-  flex:1;background:var(--raised);padding:var(--s4) var(--s3);
-  position:relative;overflow:hidden;
-  transition:flex .6s cubic-bezier(.16,1,.3,1),background .35s,box-shadow .4s;
-  cursor:none;
-}
-/* Radial light burst for feature cards */
-.facc-glow{
-  position:absolute;
-  top:50%;left:50%;
-  width:0;height:0;
-  border-radius:50%;
-  background:radial-gradient(circle, rgba(232,160,32,0.20) 0%, rgba(232,160,32,0.06) 45%, transparent 70%);
-  transform:translate(-50%,-50%);
-  transition:width 0.65s cubic-bezier(.16,1,.3,1), height 0.65s cubic-bezier(.16,1,.3,1), opacity 0.55s;
-  opacity:0;
-  pointer-events:none;
-  z-index:0;
-}
-.facc:hover .facc-glow{width:600px;height:600px;opacity:1;}
-.facc:hover{flex:2.618;background:var(--surface);box-shadow:inset 0 0 40px rgba(232,160,32,0.06)}
-.facc-num{font-size:7px;color:var(--t4);letter-spacing:.24em;margin-bottom:var(--s3);white-space:nowrap}
-.facc-icon{width:34px;height:34px;border-radius:6px;background:var(--brand-dim);border:1px solid rgba(232,160,32,.12);display:flex;align-items:center;justify-content:center;margin-bottom:var(--s3);color:var(--brand);flex-shrink:0}
-.facc-name{
-  font-family:'Archivo Black',sans-serif;
-  font-size:clamp(9px,0.9vw,11.5px);
-  letter-spacing:.08em;
-  color:var(--t2);
-  margin-bottom:var(--s2);
-  line-height:1.45;
-  transition:color .3s;
-  writing-mode:initial;
-}
-.facc:hover .facc-name{color:var(--t1)}
-.facc-desc{
-  font-family:'Tenor Sans',serif;
-  font-size:clamp(10px,0.9vw,13px);
-  line-height:1.85;
-  color:var(--t3);
-  opacity:0;max-height:0;overflow:hidden;
-  transition:opacity .4s .1s,max-height .55s .05s;
-}
-.facc:hover .facc-desc{opacity:1;max-height:200px}
-.facc-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:auto;padding-top:var(--s2)}
-.tag{font-size:7.5px;letter-spacing:.14em;padding:3px 8px;border-radius:2px;background:var(--brand-dim);border:1px solid rgba(232,160,32,.1);color:var(--brand);white-space:nowrap}
-.facc-inner{height:100%;display:flex;flex-direction:column}
-.facc-accent{position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--brand),transparent);opacity:0;transition:opacity .35s}
-.facc:hover .facc-accent{opacity:.5}
-.facc-big{
-  font-family:'Playfair Display',serif;font-style:italic;
-  font-size:min(9vw,120px);font-weight:400;
-  color:rgba(232,160,32,.032);
-  position:absolute;right:8px;bottom:-16px;line-height:1;
-  pointer-events:none;transition:color .35s;
-}
-.facc:hover .facc-big{color:rgba(232,160,32,.09)}
+      nav {
+        padding: 0 var(--s4);
+      }
+    }
 
-/* ─── PANEL 3 — PERFORMANCE / METRICS ─── */
-#p-performance{background:var(--bg)}
-.perf-inner{width:100%;max-width:1400px;padding:0 var(--s6);display:grid;grid-template-columns:0.618fr 1fr;gap:var(--s7);align-items:center}
-.metrics-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--s3)}
-.metric-card{
-  background:var(--surface);border:1px solid var(--border);border-radius:8px;
-  padding:var(--s4) var(--s4);position:relative;overflow:hidden;
-  transition:border-color .4s,transform .4s,box-shadow .4s;
-}
-.metric-card::after{content:'';position:absolute;top:0;left:var(--s4);right:var(--s4);height:1px;background:linear-gradient(90deg,transparent,var(--brand),transparent);opacity:.35}
-/* Radial light burst from center */
-.metric-card::before{
-  content:'';
-  position:absolute;
-  top:50%;left:50%;
-  width:0;height:0;
-  border-radius:50%;
-  background:radial-gradient(circle, rgba(232,160,32,0.22) 0%, rgba(232,160,32,0.08) 40%, transparent 70%);
-  transform:translate(-50%,-50%);
-  transition:width 0.55s cubic-bezier(.16,1,.3,1), height 0.55s cubic-bezier(.16,1,.3,1), opacity 0.55s;
-  opacity:0;
-  pointer-events:none;
-  z-index:0;
-}
-.metric-card:hover::before{
-  width:340px;height:340px;
-  opacity:1;
-}
-.metric-card:hover{border-color:rgba(232,160,32,0.55);transform:translateY(-6px) scale(1.025);box-shadow:0 24px 70px rgba(0,0,0,.6),0 0 60px rgba(232,160,32,0.12)}
-.metric-num{
-  font-family:'Playfair Display',serif;
-  font-size:clamp(36px,3.5vw,55px);
-  font-weight:400;font-style:italic;
-  color:var(--t1);line-height:.9;
-}
-.metric-unit{font-family:'IBM Plex Mono',monospace;font-size:var(--fs-base);color:var(--brand);margin-left:2px}
-.metric-label{font-family:'Archivo Black',sans-serif;font-size:8.5px;letter-spacing:.12em;margin:var(--s2) 0 var(--s1);color:var(--t2)}
-.metric-desc{font-family:'Tenor Sans',serif;font-size:11px;line-height:1.75;color:var(--t3)}
+    /* ─── MOBILE MENU OVERLAY ─── */
+    #mobile-menu {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      padding: var(--s7) var(--s5);
+      gap: var(--s4);
+      transform: translateX(100%);
+      transition: transform 0.6s cubic-bezier(.16, 1, .3, 1);
+    }
 
-/* ─── PANEL 4 — BOTS ─── */
-#p-bots{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-.bots-inner{width:100%;max-width:1400px;padding:0 var(--s6);display:grid;grid-template-columns:0.618fr 1fr;gap:var(--s7);align-items:center}
-.bots-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)}
-.bot-card{
-  background:var(--raised);border:1px solid var(--border);border-radius:10px;
-  overflow:hidden;transition:border-color .4s,transform .4s,box-shadow .4s;
-  position:relative;
-}
-/* Radial light burst for bot cards */
-.bot-card::before{
-  content:'';
-  position:absolute;
-  top:50%;left:50%;
-  width:0;height:0;
-  border-radius:50%;
-  background:radial-gradient(circle, rgba(232,160,32,0.18) 0%, rgba(232,160,32,0.06) 40%, transparent 70%);
-  transform:translate(-50%,-50%);
-  transition:width 0.6s cubic-bezier(.16,1,.3,1), height 0.6s cubic-bezier(.16,1,.3,1), opacity 0.55s;
-  opacity:0;
-  pointer-events:none;
-  z-index:0;
-}
-.bot-card:hover::before{
-  width:500px;height:500px;
-  opacity:1;
-}
-.bot-card:hover{
-  border-color:rgba(232,160,32,0.55);
-  transform:scale(1.022);
-  box-shadow:0 20px 60px rgba(0,0,0,.5), 0 0 50px rgba(232,160,32,0.10);
-}
-.bot-hdr{display:flex;align-items:center;gap:var(--s2);padding:var(--s3) var(--s4);background:var(--bg);border-bottom:1px solid var(--border)}
-.bot-name{font-family:'Archivo Black',sans-serif;font-size:9px;letter-spacing:.12em;color:var(--t2)}
-.bot-badge{margin-left:auto;font-size:7.5px;letter-spacing:.14em;padding:2px 8px;border-radius:100px;background:rgba(24,201,106,.07);border:1px solid rgba(24,201,106,.18);color:var(--bull)}
-.bot-body{padding:var(--s3)}
-.bot-stats{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);margin-bottom:var(--s3)}
-.bot-sl{font-size:8px;color:var(--t3);margin-bottom:3px;letter-spacing:.08em}
-.bot-sv{font-family:'Playfair Display',serif;font-size:var(--fs-xl);font-weight:500;color:var(--t1)}
-.bot-sv.bull{color:var(--bull)}.bot-sv.br{color:var(--brand)}
-.feed-lbl{font-size:7.5px;letter-spacing:.2em;color:var(--t3);text-transform:uppercase;margin-bottom:var(--s2)}
-.trade-row{display:flex;align-items:center;gap:var(--s1);padding:6px 0;border-bottom:1px solid var(--border);font-size:9px}
-.trade-row:last-child{border:none}
-.tside{padding:2px 6px;border-radius:2px;font-size:7.5px;font-weight:700;letter-spacing:.1em}
-.tside.buy{background:rgba(24,201,106,.09);color:var(--bull)}.tside.sell{background:rgba(232,53,53,.09);color:var(--bear)}
-.tpx{color:var(--t2);flex:1}.tqty{color:var(--t3)}.ttime{color:var(--t4);margin-left:auto}
+    #mobile-menu.open {
+      transform: translateX(0);
+    }
 
-/* ─── PANEL 5 — DEPTH ─── */
-#p-depth{background:var(--bg)}
-.depth-inner{width:100%;max-width:1400px;padding:0 var(--s6);display:grid;grid-template-columns:1fr 1fr;gap:var(--s7);align-items:center}
-.depth-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
-.depth-hdr{display:flex;align-items:center;justify-content:space-between;padding:var(--s2) var(--s4);border-bottom:1px solid var(--border);font-size:8.5px;color:var(--t3);letter-spacing:.1em}
+    .m-link {
+      font-family: 'Archivo Black', sans-serif;
+      font-size: var(--fs-lg);
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      color: var(--t1);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: var(--s3);
+      transition: color .3s;
+    }
 
-/* ─── PANEL 6 — CTA ─── */
-#p-cta{background:var(--bg)}
-.cta-inner{width:100%;max-width:1400px;padding:0 var(--s6);text-align:center;position:relative;z-index:1}
-.cta-glow{position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 50% 50%,rgba(232,160,32,.05),transparent);pointer-events:none}
-.cta-title{
-  font-family:'Playfair Display',serif;
-  font-size:clamp(48px,6.5vw,var(--fs-3xl));
-  font-weight:400;font-style:italic;
-  line-height:.9;
-  color:var(--t1);
-  margin-bottom:var(--s4);
-}
-.cta-sub{font-family:'Tenor Sans',serif;font-size:clamp(12px,1.1vw,15px);line-height:1.9;color:var(--t3);max-width:360px;margin:0 auto var(--s5)}
-.cta-ring{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(70vw,700px);height:min(70vw,700px);border-radius:50%;border:1px solid rgba(232,160,32,.04);animation:ringPulse 4s ease-in-out infinite}
-.cta-ring2{animation-delay:.8s;width:min(55vw,550px);height:min(55vw,550px)}
-.cta-ring3{animation-delay:1.6s;width:min(40vw,400px);height:min(40vw,400px)}
-@keyframes ringPulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.5}50%{transform:translate(-50%,-50%) scale(1.04);opacity:.2}}
+    .m-link:hover {
+      color: var(--brand);
+    }
 
-/* ─── PANEL 7 — FOOTER ─── */
-#p-footer{background:var(--surface);height:auto;min-height:100vh}
-footer{width:100%;max-width:1400px;margin:0 auto;padding:var(--s7) var(--s6) var(--s5)}
-.ft-grid{display:grid;grid-template-columns:1.618fr 1fr 1fr 1fr;gap:var(--s6);padding-bottom:var(--s5);border-bottom:1px solid var(--border)}
-.ft-logo{font-family:'Archivo Black',sans-serif;font-size:var(--fs-sm);letter-spacing:.16em;text-transform:uppercase;color:var(--t2);margin-bottom:var(--s3);display:flex;align-items:center;gap:var(--s1)}
-.ft-logo b{color:var(--brand)}
-.ft-about{font-family:'Tenor Sans',serif;font-size:11px;line-height:1.9;color:var(--t3);max-width:200px}
-.ft-col-title{font-size:7.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--t3);margin-bottom:var(--s4)}
-.ft-links{list-style:none;display:flex;flex-direction:column;gap:var(--s2)}
-.ft-links a{font-family:'Tenor Sans',serif;font-size:11.5px;color:var(--t4);text-decoration:none;transition:color .2s}
-.ft-links a:hover{color:var(--t2)}
-.ft-bottom{display:flex;align-items:center;justify-content:space-between;padding-top:var(--s4);font-size:8px;color:var(--t4)}
-.ft-bottom a{color:var(--t4);text-decoration:none;transition:color .2s}.ft-bottom a:hover{color:var(--t3)}
+    .m-close {
+      position: absolute;
+      top: var(--s4);
+      right: var(--s4);
+      background: transparent;
+      border: none;
+      color: var(--t3);
+      cursor: pointer;
+    }
 
-/* ─── MARQUEE ─── */
-.mqwrap{overflow:hidden;padding:var(--s5) 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--bg)}
-@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.mqtrack{display:flex;animation:marquee 28s linear infinite;white-space:nowrap}
-.mqtrack:hover{animation-play-state:paused}
+    .hamburger {
+      display: none;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 5px;
+    }
 
-@keyframes textSpin {
-  0% { transform: perspective(400px) rotateY(0deg); }
-  100% { transform: perspective(400px) rotateY(360deg); }
-}
-.btn-text { display: inline-block; transition: transform 0.6s; }
-.btn-text.spin { animation: textSpin 0.6s ease-in-out; }
-.mqitem{
-  font-family:'Playfair Display',serif;
-  font-size:clamp(28px,3.5vw,55px);
-  font-weight:400;font-style:italic;
-  color:var(--t4);padding:0 var(--s4);
-  transition:color .3s;cursor:none;
-}
-.mqitem:hover{color:var(--brand)}
-.mqsep{font-family:'IBM Plex Mono',monospace;font-size:var(--fs-sm);color:var(--brand);display:inline;padding:0 4px;opacity:.35}
+    @media (max-width: 1024px) {
+      .hamburger {
+        display: block;
+      }
+    }
 
-/* ─── RESPONSIVE ─── */
-@media(max-width:1024px){
-  .hero-inner,.perf-inner,.bots-inner,.depth-inner{grid-template-columns:1fr;gap:var(--s5)}
-  .metrics-grid{grid-template-columns:1fr 1fr}
-  .bots-grid{grid-template-columns:1fr}
-  .ft-grid{grid-template-columns:1fr 1fr;gap:var(--s4)}
-  nav{padding:0 var(--s4)}
-  .features-inner,.perf-inner,.bots-inner,.depth-inner,footer{padding:0 var(--s4)}
-}
-@media(max-width:768px){
-  .metrics-grid{grid-template-columns:1fr}
-  .feat-accordion{flex-direction:column;height:auto}
-  .facc{flex:none !important}
-  .facc-desc{opacity:1;max-height:none}
-  .hero-stats{gap:var(--s4);flex-wrap:wrap}
-  .ft-grid{grid-template-columns:1fr}
-  #scroll-dots{display:none}
-}
-canvas{display:block}
-</style>
+    .nav-right {
+      display: flex;
+      gap: var(--s2)
+    }
+
+    .nbtn {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: .12em;
+      padding: 9px 20px;
+      border-radius: 3px;
+      cursor: none;
+      transition: all .2s;
+      text-transform: uppercase;
+      border: none;
+      perspective: 600px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nbtn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--t3)
+    }
+
+    .nbtn-ghost:hover {
+      border-color: rgba(255, 255, 255, .2);
+      color: var(--t2)
+    }
+
+    .nbtn-brand {
+      background: var(--brand);
+      color: #000;
+      font-weight: 700
+    }
+
+    .nbtn-brand:hover {
+      background: #f5b833;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(232, 160, 32, .3)
+    }
+
+    /* ─── BUTTON TILT ANIMATION (JS-driven, no keyframe needed) ─── */
+    .btn-flip-inner {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transform-origin: center center;
+      transform-style: preserve-3d;
+      will-change: transform;
+      /* transitions set dynamically by JS */
+    }
+
+    /* Gradient shimmer overlay during flip */
+    .nbtn::after,
+    .hbtn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(232, 160, 32, 0.35) 50%, rgba(255, 255, 255, 0.18) 100%);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.12s;
+    }
+
+    .nbtn.btn-shimmer::after,
+    .hbtn.btn-shimmer::after {
+      opacity: 1;
+    }
+
+    /* ─── CARD EDGE CORNER GLOW ─── */
+    .card-edge-top,
+    .card-edge-bottom,
+    .card-edge-left,
+    .card-edge-right {
+      position: absolute;
+      z-index: 10;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .card-edge-top {
+      top: 0;
+      left: 8%;
+      right: 8%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--brand), rgba(255, 200, 80, 0.9), var(--brand), transparent);
+      border-radius: 2px;
+    }
+
+    .card-edge-bottom {
+      bottom: 0;
+      left: 8%;
+      right: 8%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--brand), rgba(255, 200, 80, 0.9), var(--brand), transparent);
+      border-radius: 2px;
+    }
+
+    .card-edge-left {
+      top: 8%;
+      bottom: 8%;
+      left: 0;
+      width: 2px;
+      background: linear-gradient(180deg, transparent, var(--brand), rgba(255, 200, 80, 0.9), var(--brand), transparent);
+      border-radius: 2px;
+    }
+
+    .card-edge-right {
+      top: 8%;
+      bottom: 8%;
+      right: 0;
+      width: 2px;
+      background: linear-gradient(180deg, transparent, var(--brand), rgba(255, 200, 80, 0.9), var(--brand), transparent);
+      border-radius: 2px;
+    }
+
+    .metric-card:hover .card-edge-top,
+    .metric-card:hover .card-edge-bottom,
+    .metric-card:hover .card-edge-left,
+    .metric-card:hover .card-edge-right,
+    .bot-card:hover .card-edge-top,
+    .bot-card:hover .card-edge-bottom,
+    .bot-card:hover .card-edge-left,
+    .bot-card:hover .card-edge-right,
+    .facc:hover .card-edge-top,
+    .facc:hover .card-edge-bottom,
+    .facc:hover .card-edge-left,
+    .facc:hover .card-edge-right {
+      opacity: 1;
+    }
+
+    /* ─── SCROLL INDICATOR ─── */
+    #preloader.ignition .thruster {
+      height: 100px;
+      opacity: 1;
+      animation: flamePulse 0.05s infinite alternate;
+    }
+
+    #preloader.launch .thruster {
+      height: 400px;
+      width: 6px;
+      opacity: 1;
+      box-shadow: 0 0 60px var(--brand);
+    }
+
+    @keyframes flamePulse {
+      from {
+        opacity: 0.8;
+        transform: translateX(-50%) scaleX(0.8);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(-50%) scaleX(1.4);
+      }
+    }
+
+    /* Launch Pad */
+    .launch-pad {
+      width: 140px;
+      height: 1px;
+      background: var(--t4);
+      opacity: 0.3;
+      margin-top: 20px;
+      position: relative;
+      transition: opacity 0.5s;
+    }
+
+    #preloader.launch .launch-pad {
+      opacity: 0;
+    }
+
+    #scroll-dots {
+      position: fixed;
+      right: var(--s4);
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 700;
+      display: flex;
+      flex-direction: column;
+      gap: var(--s2);
+    }
+
+    .sdot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--t4);
+      transition: background .3s, transform .3s, height .3s;
+      cursor: none;
+    }
+
+    .sdot.active {
+      background: var(--brand);
+      height: 18px;
+      border-radius: 2px
+    }
+
+    /* ─── TICKER ─── */
+    .ticker-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 800;
+      height: 24px;
+      background: rgba(5, 7, 14, 0.85);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+
+    @keyframes tickScroll {
+      from {
+        transform: translateX(0)
+      }
+
+      to {
+        transform: translateX(-50%)
+      }
+    }
+
+    .ticker-inner {
+      animation: tickScroll 60s linear infinite;
+      white-space: nowrap;
+      display: flex;
+      align-items: center
+    }
+
+    .ticker-inner:hover {
+      animation-play-state: paused
+    }
+
+    .tick-item {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--s1);
+      padding: 0 var(--s4);
+      border-right: 1px solid var(--border);
+      font-size: 13px;
+      letter-spacing: .05em;
+      font-weight: 500
+    }
+
+    .tick-sym {
+      color: var(--t3)
+    }
+
+    .tick-px {
+      color: var(--t2);
+      font-weight: 600
+    }
+
+    .tick-up {
+      color: var(--bull)
+    }
+
+    .tick-dn {
+      color: var(--bear)
+    }
+
+    /* ─── COMMON ─── */
+    .eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: var(--fs-xs);
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      color: var(--brand);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--s3);
+      margin-bottom: var(--s3);
+    }
+
+    .eyebrow::before {
+      content: '';
+      width: var(--s4);
+      height: 1px;
+      background: var(--brand);
+      opacity: .45
+    }
+
+    /* ─── PANEL 1 — HERO ─── */
+    #p-hero {
+      background: var(--bg)
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(232, 160, 32, .018) 1px, transparent 1px), linear-gradient(90deg, rgba(232, 160, 32, .018) 1px, transparent 1px);
+      background-size: 55px 55px;
+      mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black, transparent 78%)
+    }
+
+    .hero-vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 55% at 50% 35%, rgba(232, 160, 32, .04), transparent 70%)
+    }
+
+    .hero-line {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, rgba(232, 160, 32, .06) 30%, rgba(232, 160, 32, .06) 70%, transparent);
+      transform: translateX(-50%)
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 1400px;
+      padding: 0 var(--s6);
+      display: grid;
+      grid-template-columns: 1fr 0.618fr;
+      /* Golden ratio split */
+      gap: var(--s6);
+      align-items: center;
+    }
+
+    @media (max-width: 1024px) {
+      .hero-inner {
+        grid-template-columns: 1fr;
+        gap: var(--s5);
+        text-align: center;
+      }
+
+      .hero-sub {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .hbtns {
+        justify-content: center;
+      }
+
+      .hero-stats {
+        justify-content: center;
+      }
+    }
+
+    /* Hero type — exaggerated golden scale */
+    .hero-kicker {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: var(--fs-xs);
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      color: var(--brand);
+      display: flex;
+      align-items: center;
+      gap: var(--s3);
+      margin-bottom: var(--s4);
+    }
+
+    .hero-kicker::before {
+      content: '';
+      width: var(--s3);
+      height: 1px;
+      background: var(--brand);
+      opacity: .5
+    }
+
+    h1.hero-title {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(55px, 8.5vw, 110px);
+      font-weight: 900;
+      line-height: .9;
+      letter-spacing: -.05em;
+      color: var(--t1);
+      margin-bottom: var(--s4);
+    }
+
+    h1.hero-title em {
+      font-style: normal;
+      color: var(--brand);
+      display: block;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .02em;
+    }
+
+    h1.hero-title strong {
+      font-family: 'Inter', sans-serif;
+      font-size: .42em;
+      letter-spacing: .05em;
+      font-weight: 800;
+      display: block;
+      margin-top: var(--s2);
+      color: var(--t2);
+      line-height: 1.15;
+      text-transform: uppercase;
+    }
+
+    .hero-sub {
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      font-size: clamp(14px, 1.3vw, 18px);
+      line-height: 1.85;
+      color: var(--t3);
+      /* intentionally dim */
+      max-width: 420px;
+      margin-bottom: var(--s5);
+    }
+
+    .live-pip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--s1);
+      font-size: 10px;
+      letter-spacing: .16em;
+      color: var(--t3);
+      background: rgba(24, 201, 106, .06);
+      border: 1px solid rgba(24, 201, 106, .15);
+      padding: 5px 12px;
+      border-radius: 100px;
+      margin-bottom: var(--s4)
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .12
+      }
+    }
+
+    .ldot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--bull);
+      animation: blink 1.8s infinite;
+      flex-shrink: 0
+    }
+
+    .ldot.amb {
+      background: var(--brand)
+    }
+
+    .hbtns {
+      display: flex;
+      gap: var(--s2);
+      flex-wrap: wrap
+    }
+
+    .hbtn {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 14px 24px;
+      border-radius: 3px;
+      cursor: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all .25s;
+      border: none;
+      position: relative;
+      overflow: hidden;
+      perspective: 600px;
+    }
+
+    .hbtn.pri {
+      background: var(--brand);
+      color: #000
+    }
+
+    .hbtn.pri:hover {
+      background: #f5b833;
+      transform: translateY(-2px);
+      box-shadow: 0 16px 48px rgba(232, 160, 32, .3)
+    }
+
+    .hbtn.sec {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--t2)
+    }
+
+    .hbtn.sec:hover {
+      border-color: rgba(255, 255, 255, .2);
+      color: var(--t1)
+    }
+
+    .hbtn.out {
+      background: transparent;
+      border: 1px solid var(--border-gold);
+      color: var(--brand)
+    }
+
+    .hbtn.out:hover {
+      background: var(--brand-dim);
+      border-color: rgba(232, 160, 32, .45)
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: var(--s5);
+      margin-top: var(--s5);
+      padding-top: var(--s4);
+      border-top: 1px solid var(--border);
+    }
+
+    .stat-val {
+      font-family: 'Inter', sans-serif;
+      font-size: var(--fs-xl);
+      font-weight: 700;
+      color: var(--t1);
+      line-height: 1
+    }
+
+    .stat-val.up {
+      color: var(--bull)
+    }
+
+    .stat-val.br {
+      color: var(--brand)
+    }
+
+    .stat-lbl {
+      font-size: 11px;
+      letter-spacing: .14em;
+      color: var(--t3);
+      margin-top: 6px;
+      text-transform: uppercase;
+      font-weight: 500
+    }
+
+    /* ─── TERMINAL ─── */
+    .terminal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 60px 160px rgba(0, 0, 0, .85), 0 0 80px rgba(232, 160, 32, .04);
+    }
+
+    .tbar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px var(--s3);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border)
+    }
+
+    .mdot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%
+    }
+
+    .ttitle {
+      font-size: 8px;
+      color: var(--t3);
+      letter-spacing: .12em;
+      margin: 0 auto
+    }
+
+    .ob-row {
+      display: flex;
+      align-items: center;
+      padding: 3px var(--s2);
+      position: relative;
+      font-family: 'IBM Plex Mono', monospace
+    }
+
+    .ob-bar {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0
+    }
+
+    .ob-px {
+      font-size: 9px;
+      width: 58px;
+      z-index: 1;
+      position: relative
+    }
+
+    .ob-sz {
+      font-size: 9px;
+      color: var(--t3);
+      margin-left: auto;
+      z-index: 1;
+      position: relative
+    }
+
+    /* ─── PANEL TRANSITIONS ─── */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(52px) scale(.98);
+        filter: blur(4px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0)
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    .panel-content {
+      opacity: 0;
+      transform: translateY(54px) scale(0.985);
+      filter: blur(5px);
+      transition: opacity 1.15s cubic-bezier(.16, 1, .3, 1),
+        transform 1.15s cubic-bezier(.16, 1, .3, 1),
+        filter 1s cubic-bezier(.16, 1, .3, 1);
+    }
+
+    .panel.visible .panel-content {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0)
+    }
+
+    .panel-content.d1 {
+      transition-delay: .1s
+    }
+
+    .panel-content.d2 {
+      transition-delay: .25s
+    }
+
+    .panel-content.d3 {
+      transition-delay: .42s
+    }
+
+    .panel-content.d4 {
+      transition-delay: .58s
+    }
+
+    /* ─── PANEL 2 — FEATURES ─── */
+    #p-features {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border)
+    }
+
+    .features-inner {
+      width: 100%;
+      max-width: 1400px;
+      padding: 0 var(--s6)
+    }
+
+    .features-header {
+      margin-bottom: var(--s4)
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(38px, 5vw, 82px);
+      font-weight: 400;
+      line-height: .9;
+      letter-spacing: -.018em;
+      color: var(--t1);
+    }
+
+    .section-title em {
+      font-style: italic;
+      color: var(--brand)
+    }
+
+    .section-title strong {
+      font-family: 'Archivo Black', sans-serif;
+      font-weight: 900;
+      font-size: .75em;
+      letter-spacing: .04em;
+      color: var(--t2)
+    }
+
+    .section-sub {
+      font-family: 'Tenor Sans', serif;
+      font-size: clamp(14px, 1.2vw, 17px);
+      line-height: 1.95;
+      color: var(--t3);
+      max-width: 480px;
+      margin-top: var(--s3)
+    }
+    
+    @media (max-width: 768px) {
+      .section-sub {
+        font-size: 14px;
+        max-width: 100%;
+        line-height: 1.8;
+      }
+    }
+
+    /* ACCORDION FEATURES — golden proportions */
+    .feat-accordion {
+      display: flex;
+      gap: 4px;
+      height: min(440px, 60vh);
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: var(--s3)
+    }
+
+    .facc {
+      flex: 1;
+      background: var(--raised);
+      padding: var(--s4) var(--s3);
+      position: relative;
+      overflow: hidden;
+      transition: flex .6s cubic-bezier(.16, 1, .3, 1), background .35s, box-shadow .4s;
+      cursor: none;
+    }
+
+    .facc:hover {
+      flex: 5;
+      animation: faccFloat 2.4s ease-in-out infinite;
+      background: var(--surface);
+      box-shadow: inset 0 0 40px rgba(232, 160, 32, 0.06);
+      overflow-y: auto;
+    }
+
+    /* Radial light burst for feature cards */
+    .facc-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(232, 160, 32, 0.20) 0%, rgba(232, 160, 32, 0.06) 45%, transparent 70%);
+      transform: translate(-50%, -50%);
+      transition: width 0.65s cubic-bezier(.16, 1, .3, 1), height 0.65s cubic-bezier(.16, 1, .3, 1), opacity 0.55s;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .facc:hover .facc-glow {
+      width: 600px;
+      height: 600px;
+      opacity: 1;
+    }
+
+    .facc:hover {
+      flex: 2.618;
+      background: var(--surface);
+      box-shadow: inset 0 0 40px rgba(232, 160, 32, 0.06)
+    }
+
+    @media (max-width: 768px) {
+      .feat-accordion {
+        flex-direction: column;
+        height: auto;
+        gap: 1px;
+      }
+
+      .facc {
+        flex: none;
+        width: 100%;
+        min-height: 200px;
+        padding: var(--s4) var(--s3);
+      }
+
+      .facc:hover {
+        flex: none;
+        animation: none;
+      }
+
+      .facc-big {
+        opacity: 0.1 !important;
+        font-size: 80px !important;
+      }
+    }
+
+    .facc-num {
+      font-size: 12px;
+      color: var(--t3);
+      letter-spacing: .2em;
+      margin-bottom: var(--s3);
+      white-space: nowrap;
+      font-weight: 500
+    }
+
+    .facc-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 6px;
+      background: var(--brand-dim);
+      border: 1px solid rgba(232, 160, 32, .12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: var(--s3);
+      color: var(--brand);
+      flex-shrink: 0
+    }
+
+    .facc-name {
+      font-size: clamp(12px, 1.05vw, 14px);
+      letter-spacing: .06em;
+      color: var(--t2);
+      font-weight: 600;
+      margin-bottom: var(--s2);
+      line-height: 1.45;
+      transition: color .3s;
+    }
+
+    .facc:hover .facc-name {
+      color: var(--t1)
+    }
+
+    .facc-desc {
+      font-size: clamp(12px, 0.85vw, 14px);
+      line-height: 1.6;
+      color: var(--t3);
+      opacity: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: opacity .4s .1s, max-height .55s .05s, margin .4s;
+    }
+
+    .facc:hover .facc-desc {
+      opacity: 1;
+      max-height: 600px;
+      margin-bottom: var(--s4)
+    }
+
+    .facc-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: auto;
+      padding-top: var(--s2)
+    }
+
+    .tag {
+      font-size: 7.5px;
+      letter-spacing: .14em;
+      padding: 3px 8px;
+      border-radius: 2px;
+      background: var(--brand-dim);
+      border: 1px solid rgba(232, 160, 32, .1);
+      color: var(--brand);
+      white-space: nowrap
+    }
+
+    .facc-inner {
+      height: 100%;
+      display: flex;
+      flex-direction: column
+    }
+
+    .facc-accent {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--brand), transparent);
+      opacity: 0;
+      transition: opacity .35s
+    }
+
+    .facc:hover .facc-accent {
+      opacity: .5
+    }
+
+    .facc-big {
+      font-style: normal;
+      font-size: min(9vw, 120px);
+      font-weight: 900;
+      color: rgba(232, 160, 32, .018);
+      position: absolute;
+      right: 8px;
+      bottom: -16px;
+      line-height: 1;
+      pointer-events: none;
+      transition: color .35s;
+      /* Fade corners so big letters don't show sharp edges */
+      -webkit-mask-image: radial-gradient(ellipse 65% 65% at 55% 55%, black 0%, rgba(0, 0, 0, 0.45) 55%, transparent 82%);
+      mask-image: radial-gradient(ellipse 65% 65% at 55% 55%, black 0%, rgba(0, 0, 0, 0.45) 55%, transparent 82%);
+    }
+
+    .facc:hover .facc-big {
+      color: rgba(232, 160, 32, .06)
+    }
+
+    /* ─── FLOATING ANIMATION ─── */
+    @keyframes cardFloat {
+
+      0%,
+      100% {
+        transform: translateY(-8px) scale(1.025);
+        box-shadow: 0 28px 80px rgba(0, 0, 0, .65), 0 0 55px rgba(232, 160, 32, 0.14);
+      }
+
+      50% {
+        transform: translateY(-16px) scale(1.03);
+        box-shadow: 0 44px 110px rgba(0, 0, 0, .78), 0 0 80px rgba(232, 160, 32, 0.24);
+      }
+    }
+
+    @keyframes botCardFloat {
+
+      0%,
+      100% {
+        transform: translateY(-5px) scale(1.022);
+        box-shadow: 0 22px 65px rgba(0, 0, 0, .5), 0 0 45px rgba(232, 160, 32, 0.12);
+      }
+
+      50% {
+        transform: translateY(-13px) scale(1.026);
+        box-shadow: 0 38px 90px rgba(0, 0, 0, .65), 0 0 70px rgba(232, 160, 32, 0.22);
+      }
+    }
+
+    @keyframes faccFloat {
+
+      0%,
+      100% {
+        transform: translateY(0px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, .4), 0 0 30px rgba(232, 160, 32, 0.08);
+      }
+
+      50% {
+        transform: translateY(-8px);
+        box-shadow: 0 28px 70px rgba(0, 0, 0, .6), 0 0 55px rgba(232, 160, 32, 0.18);
+      }
+    }
+
+    /* ─── PANEL 3 — PERFORMANCE / METRICS ─── */
+    #p-performance {
+      background: var(--bg)
+    }
+
+    .perf-inner,
+    .bots-inner,
+    .depth-inner {
+      width: 100%;
+      max-width: 1400px;
+      padding: 0 var(--s6);
+      display: grid;
+      grid-template-columns: 0.618fr 1fr;
+      gap: var(--s7);
+      align-items: center
+    }
+
+    @media (max-width: 1024px) {
+
+      .perf-inner,
+      .bots-inner,
+      .depth-inner {
+        grid-template-columns: 1fr;
+        gap: var(--s5);
+      }
+
+      .metrics-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .bots-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .metrics-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: var(--s3)
+    }
+
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: var(--s4) var(--s4);
+      position: relative;
+      overflow: hidden;
+      transition: border-color .4s, transform .4s, box-shadow .4s;
+    }
+
+    .metric-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: var(--s4);
+      right: var(--s4);
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--brand), transparent);
+      opacity: .35
+    }
+
+    /* Radial light burst from center */
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(232, 160, 32, 0.22) 0%, rgba(232, 160, 32, 0.08) 40%, transparent 70%);
+      transform: translate(-50%, -50%);
+      transition: width 0.55s cubic-bezier(.16, 1, .3, 1), height 0.55s cubic-bezier(.16, 1, .3, 1), opacity 0.55s;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .metric-card:hover::before {
+      width: 340px;
+      height: 340px;
+      opacity: 1;
+    }
+
+    .metric-card:hover {
+      border-color: rgba(232, 160, 32, 0.6);
+      animation: cardFloat 2.6s ease-in-out infinite;
+    }
+
+    .metric-num {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(34px, 3.2vw, 52px);
+      font-weight: 800;
+      font-style: normal;
+      color: var(--t1);
+      line-height: .9;
+    }
+
+    .metric-unit {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: var(--fs-base);
+      color: var(--brand);
+      margin-left: 2px
+    }
+
+    .metric-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      margin: var(--s2) 0 var(--s1);
+      color: var(--t2)
+    }
+
+    .metric-desc {
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--t3)
+    }
+
+    /* ─── PANEL 4 — BOTS ─── */
+    #p-bots {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border)
+    }
+
+    .bots-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--s3)
+    }
+
+    .bot-card {
+      background: var(--raised);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      transition: border-color .4s, transform .4s, box-shadow .4s;
+      position: relative;
+    }
+
+    /* Radial light burst for bot cards */
+    .bot-card::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(232, 160, 32, 0.18) 0%, rgba(232, 160, 32, 0.06) 40%, transparent 70%);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s cubic-bezier(.16, 1, .3, 1), height 0.6s cubic-bezier(.16, 1, .3, 1), opacity 0.55s;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bot-card:hover::before {
+      width: 500px;
+      height: 500px;
+      opacity: 1;
+    }
+
+    .bot-card:hover {
+      border-color: rgba(232, 160, 32, 0.6);
+      animation: botCardFloat 2.8s ease-in-out infinite;
+    }
+
+    .bot-hdr {
+      display: flex;
+      align-items: center;
+      gap: var(--s2);
+      padding: var(--s3) var(--s4);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border)
+    }
+
+    .bot-name {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      color: var(--t2)
+    }
+
+    .bot-badge {
+      margin-left: auto;
+      font-size: 10px;
+      letter-spacing: .14em;
+      padding: 2px 8px;
+      border-radius: 100px;
+      background: rgba(24, 201, 106, .07);
+      border: 1px solid rgba(24, 201, 106, .18);
+      color: var(--bull)
+    }
+
+    .bot-body {
+      padding: var(--s3)
+    }
+
+    .bot-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--s3);
+      margin-bottom: var(--s3)
+    }
+
+    .bot-sl {
+      font-size: 11px;
+      color: var(--t3);
+      margin-bottom: 3px;
+      letter-spacing: .08em
+    }
+
+    .bot-sv {
+      font-family: 'Inter', sans-serif;
+      font-size: var(--fs-xl);
+      font-weight: 800;
+      color: var(--t1)
+    }
+
+    .bot-sv.bull {
+      color: var(--bull)
+    }
+
+    .bot-sv.br {
+      color: var(--brand)
+    }
+
+    .feed-lbl {
+      font-size: 10.5px;
+      letter-spacing: .2em;
+      color: var(--t3);
+      text-transform: uppercase;
+      margin-bottom: var(--s2)
+    }
+
+    .trade-row {
+      display: flex;
+      align-items: center;
+      gap: var(--s1);
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px
+    }
+
+    .trade-row:last-child {
+      border: none
+    }
+
+    .tside {
+      padding: 2px 6px;
+      border-radius: 2px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .1em
+    }
+
+    .tside.buy {
+      background: rgba(24, 201, 106, .09);
+      color: var(--bull)
+    }
+
+    .tside.sell {
+      background: rgba(232, 53, 53, .09);
+      color: var(--bear)
+    }
+
+    .tpx {
+      color: var(--t2);
+      flex: 1
+    }
+
+    .tqty {
+      color: var(--t3)
+    }
+
+    .ttime {
+      color: var(--t4);
+      margin-left: auto
+    }
+
+    /* ─── PANEL 5 — DEPTH ─── */
+    #p-depth {
+      background: var(--bg)
+    }
+
+    .depth-inner {
+      width: 100%;
+      max-width: 1400px;
+      padding: 0 var(--s6);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--s7);
+      align-items: center
+    }
+
+    .depth-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden
+    }
+
+    .depth-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--s2) var(--s4);
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--t3);
+      letter-spacing: .1em
+    }
+
+    @media (max-width: 768px) {
+        .cta-inner {
+            text-align: center;
+        }
+        .cta-title {
+            font-size: var(--fs-xl);
+            line-height: 1.1;
+        }
+        .cta-sub {
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .ft-grid {
+            grid-template-columns: 1fr !important;
+            gap: var(--s5) !important;
+            text-align: center;
+        }
+        .ft-logo {
+            justify-content: center;
+        }
+        .ft-bottom {
+            flex-direction: column;
+            gap: var(--s3);
+            text-align: center;
+        }
+    }
+
+    /* ─── PANEL 6 — CTA ─── */
+    #p-cta {
+      background: var(--bg)
+    }
+
+    .cta-inner {
+      width: 100%;
+      max-width: 1400px;
+      padding: 0 var(--s6);
+      text-align: center;
+      position: relative;
+      z-index: 1
+    }
+
+    .cta-glow {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 50% 60% at 50% 50%, rgba(232, 160, 32, .05), transparent);
+      pointer-events: none
+    }
+
+    .cta-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(48px, 6.5vw, var(--fs-3xl));
+      font-weight: 400;
+      font-style: italic;
+      line-height: .9;
+      color: var(--t1);
+      margin-bottom: var(--s4);
+    }
+
+    .cta-sub {
+      font-family: 'Tenor Sans', serif;
+      font-size: clamp(12px, 1.1vw, 15px);
+      line-height: 1.9;
+      color: var(--t3);
+      max-width: 360px;
+      margin: 0 auto var(--s5)
+    }
+
+    .cta-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(70vw, 700px);
+      height: min(70vw, 700px);
+      border-radius: 50%;
+      border: 1px solid rgba(232, 160, 32, .04);
+      animation: ringPulse 4s ease-in-out infinite
+    }
+
+    .cta-ring2 {
+      animation-delay: .8s;
+      width: min(55vw, 550px);
+      height: min(55vw, 550px)
+    }
+
+    .cta-ring3 {
+      animation-delay: 1.6s;
+      width: min(40vw, 400px);
+      height: min(40vw, 400px)
+    }
+
+    @keyframes ringPulse {
+
+      0%,
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: .5
+      }
+
+      50% {
+        transform: translate(-50%, -50%) scale(1.04);
+        opacity: .2
+      }
+    }
+
+    /* ─── PANEL 7 — FOOTER ─── */
+    #p-footer {
+      background: var(--surface);
+      height: auto;
+      min-height: 100vh
+    }
+
+    footer {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: var(--s7) var(--s6) var(--s5)
+    }
+
+    .ft-grid {
+      display: grid;
+      grid-template-columns: 1.618fr 1fr 1fr 1fr;
+      gap: var(--s6);
+      padding-bottom: var(--s5);
+      border-bottom: 1px solid var(--border)
+    }
+
+    .ft-logo {
+      font-family: 'Archivo Black', sans-serif;
+      font-size: var(--fs-sm);
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--t2);
+      margin-bottom: var(--s3);
+      display: flex;
+      align-items: center;
+      gap: var(--s1)
+    }
+
+    .ft-logo b {
+      color: var(--brand)
+    }
+
+    .ft-about {
+      font-family: 'Tenor Sans', serif;
+      font-size: 11px;
+      line-height: 1.9;
+      color: var(--t3);
+      max-width: 200px
+    }
+
+    .ft-col-title {
+      font-size: 7.5px;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+      color: var(--t3);
+      margin-bottom: var(--s4)
+    }
+
+    .ft-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--s2)
+    }
+
+    .ft-links a {
+      font-family: 'Tenor Sans', serif;
+      font-size: 11.5px;
+      color: var(--t4);
+      text-decoration: none;
+      transition: color .2s
+    }
+
+    .ft-links a:hover {
+      color: var(--t2)
+    }
+
+    .ft-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: var(--s4);
+      font-size: 8px;
+      color: var(--t4)
+    }
+
+    .ft-bottom a {
+      color: var(--t4);
+      text-decoration: none;
+      transition: color .2s
+    }
+
+    .ft-bottom a:hover {
+      color: var(--t3)
+    }
+
+    /* ─── MARQUEE ─── */
+    .mqwrap {
+      overflow: hidden;
+      padding: var(--s5) 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg)
+    }
+
+    @keyframes marquee {
+      from {
+        transform: translateX(0)
+      }
+
+      to {
+        transform: translateX(-50%)
+      }
+    }
+
+    .mqtrack {
+      display: flex;
+      animation: marquee 28s linear infinite;
+      white-space: nowrap
+    }
+
+    .mqtrack:hover {
+      animation-play-state: paused
+    }
+
+    @keyframes textSpin {
+      0% {
+        transform: perspective(400px) rotateY(0deg);
+      }
+
+      100% {
+        transform: perspective(400px) rotateY(360deg);
+      }
+    }
+
+    .btn-text {
+      display: inline-block;
+      transition: transform 0.6s;
+    }
+
+    .btn-text.spin {
+      animation: textSpin 0.6s ease-in-out;
+    }
+
+    .mqitem {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(28px, 3.5vw, 55px);
+      font-weight: 400;
+      font-style: italic;
+      color: var(--t4);
+      padding: 0 var(--s4);
+      transition: color .3s;
+      cursor: none;
+    }
+
+    .mqitem:hover {
+      color: var(--brand)
+    }
+
+    .mqsep {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: var(--fs-sm);
+      color: var(--brand);
+      display: inline;
+      padding: 0 4px;
+      opacity: .35
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media(max-width:1024px) {
+
+      .hero-inner,
+      .perf-inner,
+      .bots-inner,
+      .depth-inner {
+        grid-template-columns: 1fr;
+        gap: var(--s5)
+      }
+
+      .metrics-grid {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .bots-grid {
+        grid-template-columns: 1fr
+      }
+
+      .ft-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--s4)
+      }
+
+      nav {
+        padding: 0 var(--s4)
+      }
+
+      .features-inner,
+      .perf-inner,
+      .bots-inner,
+      .depth-inner,
+      footer {
+        padding: 0 var(--s4)
+      }
+    }
+
+    @media(max-width:768px) {
+      .metrics-grid {
+        grid-template-columns: 1fr
+      }
+
+      .feat-accordion {
+        flex-direction: column;
+        height: auto
+      }
+
+      .facc {
+        flex: none !important
+      }
+
+      .facc-desc {
+        opacity: 1;
+        max-height: none
+      }
+
+      .hero-stats {
+        gap: var(--s4);
+        flex-wrap: wrap
+      }
+
+      .ft-grid {
+        grid-template-columns: 1fr
+      }
+
+      #scroll-dots {
+        display: none
+      }
+    }
+
+    canvas {
+      display: block
+    }
+
+    /* ─── THE MARKET SINGULARITY — Ultra-Performance Canvas Preloader ─── */
+    #preloader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'IBM Plex Mono', monospace;
+      overflow: hidden;
+    }
+
+    #preloader.hide {
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s;
+    }
+
+    /* Canvas starfield — GPU accelerated, zero DOM particles */
+    #preloader-canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Ghostly Stampede: REMOVED */
+    .ghost-animal,
+    .market-union {
+      display: none !important;
+    }
+
+    /* Cinematic Zoom: Dashboard Entrance */
+    #app-view {
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(1.3);
+      filter: blur(20px);
+      width: 100%;
+      height: 100%;
+      will-change: transform, opacity;
+      transition: opacity 2.5s cubic-bezier(0.16, 1, 0.3, 1), transform 2.5s cubic-bezier(0.16, 1, 0.3, 1), filter 2.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #app-view.cinematic-reveal {
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1);
+      filter: blur(0);
+    }
+
+    /* Screen flash on transition */
+    #screen-flash {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: radial-gradient(ellipse at center, rgba(232, 160, 32, 0.95), rgba(255, 255, 255, 0.85));
+      opacity: 0;
+      pointer-events: none;
+      will-change: opacity;
+    }
+
+    #screen-flash.flash {
+      animation: screenFlash 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes screenFlash {
+      0% {
+        opacity: 0
+      }
+
+      8% {
+        opacity: 0.95
+      }
+
+      100% {
+        opacity: 0
+      }
+    }
+
+    /* Rocket Wrap: JS-DRIVEN PHYSICS (slow start → exponential blast-off) */
+    .rocket-wrap {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      will-change: transform, opacity;
+      transform: translateY(var(--ry, 0px));
+      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #preloader.ignition .rocket-head svg {
+      filter: drop-shadow(0 0 45px var(--brand)) brightness(1.55);
+    }
+
+    #preloader.fw-active .rocket-wrap {
+      opacity: 0;
+      transition: opacity 0.5s ease-out;
+    }
+
+    .mission-control {
+      text-align: center;
+      z-index: 10;
+      width: 100%;
+      max-width: 400px;
+      position: relative;
+      will-change: opacity;
+      transition: opacity 0.4s;
+    }
+
+    #preloader.fw-active .mission-control {
+      opacity: 0;
+    }
+
+    .thruster {
+      width: 3px;
+      height: 0;
+      background: linear-gradient(to bottom, #fff5cc, var(--brand), rgba(232, 160, 32, .3), transparent);
+      box-shadow: 0 0 20px var(--brand);
+      opacity: 0;
+      transition: height 0.35s cubic-bezier(.16, 1, .3, 1), opacity 0.3s, width 0.25s, box-shadow 0.25s;
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      will-change: height, opacity;
+      border-radius: 0 0 40px 40px;
+    }
+
+    #preloader.ignition .thruster {
+      height: 80px;
+      opacity: 1;
+      animation: flamePulse 0.1s infinite alternate;
+    }
+
+    #preloader.launch .thruster {
+      height: 280px;
+      width: 7px;
+      opacity: 1;
+      box-shadow: 0 0 60px var(--brand), 0 0 100px rgba(232, 160, 32, .4);
+    }
+
+    /* ─── OPTIMIZED FILM GRAIN (60fps Scrolling) ─── */
+    #grain {
+      position: fixed;
+      inset: -200%;
+      z-index: 9996;
+      pointer-events: none;
+      opacity: 0.042;
+      background-image: url("https://upload.wikimedia.org/wikipedia/commons/7/76/1k_pnt_noise.png");
+      background-repeat: repeat;
+      background-size: 256px 256px;
+      animation: grainMove 0.8s steps(6) infinite;
+      will-change: transform;
+    }
+
+    @keyframes grainMove {
+
+      0%,
+      100% {
+        transform: translate(0, 0)
+      }
+
+      10% {
+        transform: translate(-5%, -10%)
+      }
+
+      20% {
+        transform: translate(-15%, 5%)
+      }
+
+      30% {
+        transform: translate(7%, -25%)
+      }
+
+      40% {
+        transform: translate(-5%, 25%)
+      }
+
+      50% {
+        transform: translate(-15%, 10%)
+      }
+
+      60% {
+        transform: translate(15%, 0)
+      }
+
+      70% {
+        transform: translate(0, 15%)
+      }
+
+      80% {
+        transform: translate(3%, 35%)
+      }
+
+      90% {
+        transform: translate(-10%, 10%)
+      }
+    }
+
+    /* ─── ENHANCED NAV LINK HOVER ─── */
+    .nav-links a {
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--brand);
+      transition: width 0.35s cubic-bezier(.16, 1, .3, 1);
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    /* ─── EDITORIAL SECTION TITLES ─── */
+    .section-title {
+      font-family: 'Inter', sans-serif;
+      font-weight: 900;
+      letter-spacing: -.03em;
+      text-transform: uppercase;
+    }
+
+    .cta-title {
+      font-family: 'Inter', sans-serif;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -.02em;
+    }
+
+
+    /* ─── LAUNCH OVERLAY (Interaction Unlock) ─── */
+    #launch-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10001;
+      background: #05070e;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.8s cubic-bezier(.16, 1, .3, 1), visibility 0.8s;
+    }
+
+    #launch-overlay.fade-out {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .launch-grid {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(var(--border) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: 0.2;
+    }
+
+    .launch-title {
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.5em;
+      color: var(--t4);
+      text-transform: uppercase;
+      margin-bottom: var(--s5);
+      z-index: 1;
+      text-align: center;
+      padding: 0 var(--s4);
+    }
+
+    @media (max-width: 768px) {
+      .launch-title {
+        font-size: 11px;
+        letter-spacing: 0.3em;
+      }
+      .lbtn {
+        padding: var(--s3) var(--s4);
+        font-size: 12px;
+      }
+    }
+
+    .lbtn {
+      background: transparent;
+      border: 1px solid var(--brand);
+      color: var(--brand);
+      padding: var(--s3) var(--s6);
+      border-radius: 2px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 900;
+      font-size: 16px;
+      letter-spacing: 0.15em;
+      cursor: none;
+      transition: all 0.4s;
+      z-index: 1;
+      position: relative;
+      overflow: hidden;
+      text-transform: uppercase;
+    }
+
+    .lbtn:hover {
+      background: var(--brand);
+      color: #000;
+      box-shadow: 0 0 40px var(--brand-glow);
+    }
+
+    .lbtn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.6s;
+    }
+
+    .lbtn:hover::before {
+      transform: translateX(100%)
+    }
+  </style>
 </head>
+
 <body>
 
-<div id="cur"></div>
-<div id="cur-ring"></div>
+  <!-- SCREEN FLASH -->
+  <div id="screen-flash"></div>
 
-<!-- NAV -->
-<nav>
-  <a href="#" class="logo">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--brand)"><polygon points="12,2 22,22 2,22"/></svg>
-    Synthetic<b>Bull</b>
-  </a>
-  <ul class="nav-links">
-    <li><a href="#" onclick="goPanel(0)">Home</a></li>
-    <li><a href="#" onclick="goPanel(1)">Features</a></li>
-    <li><a href="#" onclick="goPanel(2)">Performance</a></li>
-    <li><a href="#" onclick="goPanel(3)">Live Bots</a></li>
-    <li><a href="#" onclick="goPanel(4)">Depth</a></li>
-  </ul>
-  <div class="nav-right">
-    <button class="nbtn nbtn-ghost">Sign In</button>
-    <button class="nbtn nbtn-brand"><span class="btn-text">Get Started Free</span></button>
-  </div>
-</nav>
+  <!-- FILM GRAIN OVERLAY -->
+  <div id="grain"></div>
 
-<!-- SCROLL DOTS -->
-<div id="scroll-dots"></div>
+  <!-- ROCKET BLAST-OFF PRELOADER -->
+  <div id="preloader">
+    <canvas id="preloader-canvas"></canvas>
 
-<!-- TICKER -->
-<div class="ticker-bar"><div class="ticker-inner" id="ticker"></div></div>
+    <div class="rocket-wrap">
+      <div class="rocket-head">
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="var(--brand)">
+          <polygon points="12,2 22,22 2,22" />
+        </svg>
+        <div class="thruster"></div>
+      </div>
+      <div class="launch-pad"></div>
+    </div>
 
-<!-- ═══════ SCROLL CONTAINER ═══════ -->
-<div id="scroll-container">
-
-<!-- ─── PANEL 1: HERO ─── -->
-<div class="panel" id="p-hero" data-index="0">
-  <div class="hero-grid"></div>
-  <div class="hero-vignette"></div>
-  <div class="hero-line"></div>
-  <div class="hero-inner">
-    <!-- LEFT -->
-    <div>
-      <div class="panel-content" style="transition-delay:.0s">
-        <div class="live-pip"><span class="ldot"></span>Markets Open · Live Feed Active</div>
-        <div class="hero-kicker">Professional Trading Terminal</div>
-        <h1 class="hero-title">
-          <em>Where every<br/>tick counts.</em>
-          <strong>Trade with<br/>precision.</strong>
-        </h1>
-        <p class="hero-sub">Real-time candlestick charts, live order book depth, algorithmic bot monitoring, and instant order execution — built for traders who refuse to lose their edge.</p>
-        <div class="hbtns">
-          <button class="hbtn pri">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-            <span class="btn-text">Get Started Free</span>
-          </button>
-          <button class="hbtn out">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-            Live Demo
-          </button>
-          <button class="hbtn sec">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            How It Works
-          </button>
-        </div>
-        <div class="hero-stats">
-          <div><div class="stat-val br">100<span style="font-family:'IBM Plex Mono';font-size:11px;font-weight:300">msg/s</span></div><div class="stat-lbl">Live Feed Speed</div></div>
-          <div><div class="stat-val">$100K</div><div class="stat-lbl">Starting Capital</div></div>
-          <div><div class="stat-val">1s</div><div class="stat-lbl">Chart Interval</div></div>
-          <div><div class="stat-val up">+2.34%</div><div class="stat-lbl">Session P&amp;L</div></div>
+    <div class="mission-control">
+      <div style="font-size:14px;letter-spacing:.15em;color:var(--t3);margin-bottom:var(--s3);font-family:'Inter', sans-serif;font-weight:800">MISSION: SYNTHETIC BULL
+      </div>
+      <div
+        style="font-size:36px;color:var(--t1);margin-bottom:var(--s2);font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.05em">
+        <span id="pl-counter">00</span><span style="font-size:24px;color:var(--brand)">%</span>
+      </div>
+      <!-- Progress Bar -->
+      <div
+        style="width:220px;height:2px;background:rgba(255,255,255,0.06);border-radius:2px;margin:0 auto var(--s3) auto;overflow:hidden">
+        <div id="pl-bar-fill"
+          style="height:100%;width:0%;background:linear-gradient(90deg,var(--brand),#FFD700);border-radius:2px;transition:width 0.1s linear;box-shadow:0 0 8px var(--brand)">
         </div>
       </div>
-    </div>
-    <!-- RIGHT: TERMINAL -->
-    <div class="panel-content" style="transition-delay:.2s">
-      <div class="terminal">
-        <div class="tbar">
-          <div class="mdot" style="background:#e83535"></div>
-          <div class="mdot" style="background:var(--brand)"></div>
-          <div class="mdot" style="background:var(--bull)"></div>
-          <div class="ttitle">SYNTHETIC BULL — Trading Terminal</div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 110px;gap:1px;background:var(--border)">
-          <div style="background:var(--raised);padding:12px">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-              <div style="font-size:9px;display:flex;align-items:center;gap:6px;color:var(--t2)">
-                SBTC/USDT
-                <span style="font-size:7px;background:var(--brand-dim);border:1px solid rgba(232,160,32,.18);color:var(--brand);padding:1px 5px;border-radius:2px">SYNTH</span>
-                <span style="color:var(--t4)">1s</span>
-              </div>
-              <div style="text-align:right">
-                <div id="h-price" style="font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--bull)">43,218.40</div>
-                <div id="h-chg" style="font-size:8px;color:var(--bull)">▲ +2.34%</div>
-              </div>
-            </div>
-            <canvas id="h-canvas" width="300" height="100" style="width:100%"></canvas>
-            <div style="display:flex;gap:4px;margin-top:6px">
-              <span style="font-size:7px;padding:2px 6px;border-radius:2px;background:var(--brand-dim);color:var(--brand)">1s</span>
-              <span style="font-size:7px;padding:2px 6px;border-radius:2px;color:var(--t3)">5s</span>
-              <span style="font-size:7px;padding:2px 6px;border-radius:2px;color:var(--t3)">1m</span>
-            </div>
-          </div>
-          <div style="background:var(--raised)">
-            <div style="display:flex;justify-content:space-between;padding:6px 8px;border-bottom:1px solid var(--border);font-size:7.5px;color:var(--t3)"><span>PRICE</span><span>SIZE</span></div>
-            <div id="h-asks"></div>
-            <div style="text-align:center;padding:3px;font-size:7.5px;color:var(--brand);border-top:1px solid var(--border);border-bottom:1px solid var(--border)" id="h-spread">Spread: 0.50</div>
-            <div id="h-bids"></div>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)">
-          <div style="background:var(--raised);padding:12px">
-            <div style="font-size:7px;color:var(--t4);letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px">Portfolio</div>
-            <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:8px;color:var(--t3)">Cash</span><span style="font-size:8.5px;color:var(--brand)">$94,820</span></div>
-            <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:8px;color:var(--t3)">Holdings</span><span style="font-size:8.5px;color:var(--t2)">0.1200 BTC</span></div>
-            <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:8px;color:var(--t3)">Equity</span><span id="eq-val" style="font-size:8.5px;color:var(--t2)">$100,006</span></div>
-            <div style="display:flex;justify-content:space-between"><span style="font-size:8px;color:var(--t3)">P&amp;L</span><span id="pnl-val" style="font-size:8.5px;color:var(--bull)">+$6.21</span></div>
-          </div>
-          <div style="background:var(--raised);padding:12px;overflow:hidden">
-            <div style="font-size:7px;color:var(--t4);letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px">Bots Live</div>
-            <div id="h-bots"></div>
-          </div>
-        </div>
-        <div style="background:linear-gradient(90deg,rgba(232,160,32,.12),rgba(232,160,32,.04));border-top:1px solid rgba(232,160,32,.16);padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
-          <div style="font-size:8px;color:var(--brand);letter-spacing:.14em">START TRADING IN 30 SECONDS</div>
-          <button style="font-size:10px;font-weight:700;letter-spacing:.12em;padding:6px 14px;background:var(--brand);color:#000;border:none;border-radius:2px;cursor:none;font-family:'IBM Plex Mono',monospace"><span class="btn-text">GET STARTED FREE</span></button>
-        </div>
+      <div class="mission-log-wrap"
+        style="font-size:12px;color:var(--t4);max-height:90px;overflow:hidden;width:280px;margin:0 auto;font-family:'IBM Plex Mono', monospace">
+        <div id="mission-log"></div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- ─── MARQUEE ─── -->
-<div class="mqwrap panel" id="p-marquee" data-index="1" style="height:auto;min-height:160px;scroll-snap-align:start">
-  <div style="width:100%">
-    <div class="mqtrack">
-      <span class="mqitem">Live Candlesticks</span><span class="mqsep">—</span>
-      <span class="mqitem">Order Book Depth</span><span class="mqsep">—</span>
-      <span class="mqitem">Algo Bot Monitor</span><span class="mqsep">—</span>
-      <span class="mqitem">Real-Time P&amp;L</span><span class="mqsep">—</span>
-      <span class="mqitem">Market Depth</span><span class="mqsep">—</span>
-      <span class="mqitem">Alpha Signals</span><span class="mqsep">—</span>
-      <span class="mqitem">Live Candlesticks</span><span class="mqsep">—</span>
-      <span class="mqitem">Order Book Depth</span><span class="mqsep">—</span>
-      <span class="mqitem">Algo Bot Monitor</span><span class="mqsep">—</span>
-      <span class="mqitem">Real-Time P&amp;L</span><span class="mqsep">—</span>
-      <span class="mqitem">Market Depth</span><span class="mqsep">—</span>
-      <span class="mqitem">Alpha Signals</span><span class="mqsep">—</span>
-    </div>
+
+  <!-- LAUNCH OVERLAY -->
+  <div id="launch-overlay">
+    <div class="launch-grid"></div>
+    <div class="launch-title">System Status: Ready for Ignition</div>
+    <button class="lbtn" onclick="startMission()">INITIALIZE TERMINAL</button>
   </div>
-</div>
 
-<!-- ─── PANEL 2: FEATURES ─── -->
-<div class="panel" id="p-features" data-index="1">
-  <div class="features-inner">
-    <div class="features-header">
-      <div class="panel-content">
-        <div class="eyebrow">What You Get</div>
-        <h2 class="section-title">Every edge,<br/><em>live &amp; instant.</em></h2>
-        <p class="section-sub">Five core modules — hover each one to reveal how it works. Built to stay fast at 100 market messages per second.</p>
-      </div>
-    </div>
-    <div class="feat-accordion panel-content d1">
-      <div class="facc" onmousemove="trackM(this,event)">
-        <div class="facc-glow"></div>
-        <div class="facc-inner">
-          <div class="facc-num">01 / CHARTS</div>
-          <div class="facc-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-          <div class="facc-name">LIVE CANDLESTICK CHARTS</div>
-          <div class="facc-desc">Watch every price move as it happens. Candles refresh on 1-second and 5-second intervals with zero delay. Zoom, switch timeframes, and read momentum with surgical clarity before the rest of the market catches on.</div>
-          <div class="facc-tags"><span class="tag">1s Candles</span><span class="tag">5s</span><span class="tag">OHLCV</span></div>
-        </div>
-        <div class="facc-big">01</div><div class="facc-accent"></div>
-      </div>
-      <div class="facc" onmousemove="trackM(this,event)">
-        <div class="facc-glow"></div>
-        <div class="facc-inner">
-          <div class="facc-num">02 / ORDER BOOK</div>
-          <div class="facc-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
-          <div class="facc-name">REAL-TIME DEPTH &amp; ORDER BOOK</div>
-          <div class="facc-desc">Every bid and ask streams live. Depth bars reveal exactly where buying and selling pressure is stacking — so you feel where the market is about to go before price moves. No interpretation needed.</div>
-          <div class="facc-tags"><span class="tag">Live Diffs</span><span class="tag">Depth Bars</span><span class="tag">Spread</span></div>
-        </div>
-        <div class="facc-big">02</div><div class="facc-accent"></div>
-      </div>
-      <div class="facc" onmousemove="trackM(this,event)">
-        <div class="facc-glow"></div>
-        <div class="card-edge-top"></div>
-        <div class="card-edge-bottom"></div>
-        <div class="facc-inner">
-          <div class="facc-num">03 / EXECUTION</div>
-          <div class="facc-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
-          <div class="facc-name">ONE-CLICK ORDER PLACEMENT</div>
-          <div class="facc-desc">Market or limit orders execute with a single click. Your position appears on screen immediately — ahead of the server round-trip. Failed orders roll back silently without disrupting your flow.</div>
-          <div class="facc-tags"><span class="tag">Market</span><span class="tag">Limit</span><span class="tag">Instant Fill</span></div>
-        </div>
-        <div class="facc-big">03</div><div class="facc-accent"></div>
-      </div>
-      <div class="facc" onmousemove="trackM(this,event)">
-        <div class="facc-glow"></div>
-        <div class="card-edge-top"></div>
-        <div class="card-edge-bottom"></div>
-        <div class="facc-inner">
-          <div class="facc-num">04 / PORTFOLIO</div>
-          <div class="facc-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
-          <div class="facc-name">LIVE P&amp;L DASHBOARD</div>
-          <div class="facc-desc">Cash, holdings, total equity and unrealised profit — all updating 10 times per second as the market moves. Fast enough to trade on. Stable enough to read clearly without the numbers blurring.</div>
-          <div class="facc-tags"><span class="tag">Real-Time P&amp;L</span><span class="tag">Equity</span></div>
-        </div>
-        <div class="facc-big">04</div><div class="facc-accent"></div>
-      </div>
-      <div class="facc" onmousemove="trackM(this,event)">
-        <div class="facc-glow"></div>
-        <div class="facc-inner">
-          <div class="facc-num">05 / AUTOMATION</div>
-          <div class="facc-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
-          <div class="facc-name">ALGORITHMIC BOT MONITOR</div>
-          <div class="facc-desc">Watch the Market Maker and Alpha Bot trade live — every entry and exit feeds your dashboard in real time. Track P&amp;L, win rate, and trade count without lifting a finger. Automation made transparent.</div>
-          <div class="facc-tags"><span class="tag">Market Maker</span><span class="tag">Alpha Bot</span><span class="tag">Win Rate</span></div>
-        </div>
-        <div class="facc-big">05</div><div class="facc-accent"></div>
-      </div>
-    </div>
-  </div>
-</div>
+  <!-- CURSOR -->
+  <div id="cur"></div>
+  <div id="cur-ring"></div>
 
-<!-- ─── PANEL 3: PERFORMANCE ─── -->
-<div class="panel" id="p-performance" data-index="2">
-  <div class="perf-inner">
-    <div>
-      <div class="panel-content">
-        <div class="eyebrow">Performance Benchmarks</div>
-        <h2 class="section-title">Numbers that<br/><em>don't lie.</em></h2>
-        <p class="section-sub">Six hard constraints that keep the terminal running at full speed in real market conditions — not just demos.</p>
-        <div style="margin-top:34px;display:flex;flex-direction:column;gap:13px">
-          <div style="display:flex;align-items:center;gap:13px">
-            <div style="width:34px;height:1px;background:var(--brand);opacity:.4"></div>
-            <span style="font-size:10px;color:var(--t3)">Sub-millisecond data routing</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:13px">
-            <div style="width:55px;height:1px;background:var(--brand);opacity:.6"></div>
-            <span style="font-size:10px;color:var(--t3)">60fps canvas rendering</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:13px">
-            <div style="width:89px;height:1px;background:var(--brand);opacity:.9"></div>
-            <span style="font-size:10px;color:var(--t3)">100 msg/s throughput</span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="metrics-grid panel-content d1">
-      <div class="metric-card">
-        <div class="metric-num">60<span class="metric-unit">fps</span></div>
-        <div class="metric-label">CHART REFRESH</div>
-        <div class="metric-desc">Smooth at any tick rate. Never falls behind.</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-num">O<span class="metric-unit">(1)</span></div>
-        <div class="metric-label">ORDER BOOK SPEED</div>
-        <div class="metric-desc">Constant-time updates no matter how fast prices move.</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-num">1<span class="metric-unit">ws</span></div>
-        <div class="metric-label">LIVE CONNECTION</div>
-        <div class="metric-desc">One stream — price, book, bots — all in sync.</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-num">10<span class="metric-unit">fps</span></div>
-        <div class="metric-label">P&amp;L UPDATE RATE</div>
-        <div class="metric-desc">Fast enough to trade on. Stable enough to read.</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-num">50<span class="metric-unit">rows</span></div>
-        <div class="metric-label">BOT FEED CAP</div>
-        <div class="metric-desc">Fluid at 100 automated trades per second.</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-num">0<span class="metric-unit">lag</span></div>
-        <div class="metric-label">CHART OVERHEAD</div>
-        <div class="metric-desc">Straight to GPU. Zero UI framework cycles.</div>
-      </div>
-    </div>
-  </div>
-</div>
+  <div id="app-view">
 
-<!-- ─── PANEL 4: BOTS ─── -->
-<div class="panel" id="p-bots" data-index="3">
-  <div class="bots-inner">
-    <div>
-      <div class="panel-content">
-        <div class="eyebrow">Automated Strategies</div>
-        <h2 class="section-title">Two bots.<br/><em>Always working.</em></h2>
-        <p class="section-sub">Watch the Market Maker and Alpha Bot trade live. Every entry, every exit — streaming to your dashboard in real time.</p>
-        <div style="margin-top:var(--s5);display:flex;flex-direction:column;gap:var(--s3)">
-          <div style="display:flex;align-items:center;gap:var(--s3);padding:var(--s3) var(--s4);background:rgba(24,201,106,.04);border:1px solid rgba(24,201,106,.1);border-radius:6px">
-            <span class="ldot"></span>
-            <div>
-              <div style="font-size:13px;letter-spacing:.1em;color:var(--t2);font-weight:700">MARKET MAKER</div>
-              <div style="font-size:14px;color:var(--bull);font-weight:600">+$1,240 today</div>
-            </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:var(--s3);padding:var(--s3) var(--s4);background:rgba(232,160,32,.04);border:1px solid rgba(232,160,32,.1);border-radius:6px">
-            <span class="ldot amb"></span>
-            <div>
-              <div style="font-size:13px;letter-spacing:.1em;color:var(--t2);font-weight:700">ALPHA BOT</div>
-              <div style="font-size:14px;color:var(--brand);font-weight:600">68.4% win rate</div>
-            </div>
-          </div>
-        </div>
+    <!-- NAV -->
+    <nav>
+      <a href="#" class="logo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--brand)">
+          <polygon points="12,2 22,22 2,22" />
+        </svg>
+        Synthetic<b>Bull</b>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#" onclick="goPanel(0)">Home</a></li>
+        <li><a href="#" onclick="goPanel(1)">Features</a></li>
+        <li><a href="#" onclick="goPanel(2)">Performance</a></li>
+        <li><a href="#" onclick="goPanel(3)">Live Bots</a></li>
+        <li><a href="#" onclick="goPanel(4)">Depth</a></li>
+      </ul>
+      <div class="nav-right">
+        <button class="nbtn nbtn-ghost" style="display:none">Sign In</button>
+        <button class="nbtn nbtn-brand"><span class="btn-text">Get Started</span></button>
+        <button class="hamburger" onclick="toggleMenu(true)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
       </div>
-    </div>
-    <div class="bots-grid panel-content d1">
-      <div class="bot-card">
-        <div class="bot-hdr"><div class="ldot"></div><div class="bot-name">MARKET MAKER BOT</div><div class="bot-badge">RUNNING</div></div>
-        <div class="bot-body">
-          <div class="bot-stats">
-            <div><div class="bot-sl">Session P&amp;L</div><div class="bot-sv bull">+$1,240</div></div>
-            <div><div class="bot-sl">Total Trades</div><div class="bot-sv">2,841</div></div>
-            <div><div class="bot-sl">Spread</div><div class="bot-sv br">$0.50</div></div>
-            <div><div class="bot-sl">Last Action</div><div class="bot-sv" style="color:var(--bull);font-size:16px">BUY 0.10</div></div>
-          </div>
-          <div class="feed-lbl">Live Trade Feed</div>
-          <div id="mm-feed"></div>
-        </div>
-      </div>
-      <div class="bot-card">
-        <div class="bot-hdr"><div class="ldot amb"></div><div class="bot-name">ALPHA BOT</div><div class="bot-badge">RUNNING</div></div>
-        <div class="bot-body">
-          <div class="bot-stats">
-            <div><div class="bot-sl">Session P&amp;L</div><div class="bot-sv bull">+$3,812</div></div>
-            <div><div class="bot-sl">Total Trades</div><div class="bot-sv">318</div></div>
-            <div><div class="bot-sl">Win Rate</div><div class="bot-sv br">68.4%</div></div>
-            <div><div class="bot-sl">Last Action</div><div class="bot-sv" style="color:var(--bear);font-size:16px">SELL 0.25</div></div>
-          </div>
-          <div class="feed-lbl">Live Trade Feed</div>
-          <div id="alpha-feed"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+    </nav>
 
-<!-- ─── PANEL 5: DEPTH ─── -->
-<div class="panel" id="p-depth" data-index="4">
-  <div class="depth-inner">
-    <div>
-      <div class="panel-content">
-        <div class="eyebrow">Market Depth</div>
-        <h2 class="section-title">See the full<br/><em>book at a glance.</em></h2>
-        <p class="section-sub">The cumulative bid/ask area chart shows exactly where buying and selling pressure stacks up — visual, immediate, actionable before price moves.</p>
-        <div style="display:flex;gap:var(--s4);margin-top:var(--s4)">
-          <div style="display:flex;align-items:center;gap:6px;font-size:9.5px;color:var(--t3)">
-            <div style="width:10px;height:10px;border-radius:1px;background:rgba(24,201,106,.25);border:1px solid rgba(24,201,106,.4)"></div>Cumulative Bids
-          </div>
-          <div style="display:flex;align-items:center;gap:6px;font-size:9.5px;color:var(--t3)">
-            <div style="width:10px;height:10px;border-radius:1px;background:rgba(232,53,53,.25);border:1px solid rgba(232,53,53,.4)"></div>Cumulative Asks
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="panel-content d1">
-      <div class="depth-wrap">
-        <div class="depth-hdr">
-          <span>Depth Chart — SBTC/USDT</span>
-          <span style="color:var(--brand)" id="depth-mid">Mid: 43,218.25</span>
-        </div>
-        <canvas id="depth-canvas" width="560" height="240" style="width:100%;display:block"></canvas>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ─── PANEL 6: CTA ─── -->
-<div class="panel" id="p-cta" data-index="5">
-  <div class="cta-glow"></div>
-  <div class="cta-ring"></div>
-  <div class="cta-ring cta-ring2"></div>
-  <div class="cta-ring cta-ring3"></div>
-  <div class="cta-inner panel-content">
-    <div class="eyebrow" style="justify-content:center">Start for Free</div>
-    <h2 class="cta-title">Your edge<br/>starts here.</h2>
-    <p class="cta-sub">Open an account, connect to the live feed, and trade with the speed and clarity of a professional desk — at no cost to start.</p>
-    <div style="display:flex;gap:var(--s2);justify-content:center;flex-wrap:wrap">
-      <button class="hbtn pri">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        <span class="btn-text">Get Started for Free</span>
+    <!-- MOBILE MENU OVERLAY -->
+    <div id="mobile-menu">
+      <button class="m-close" onclick="toggleMenu(false)">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
       </button>
-      <button class="hbtn sec">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-        View on GitHub
-      </button>
-    </div>
-    <div style="display:flex;gap:var(--s5);justify-content:center;margin-top:var(--s6)">
-      <div style="text-align:center"><div style="font-family:'Playfair Display',serif;font-size:var(--fs-2xl);font-style:italic;color:var(--t1)">$0</div><div style="font-size:8px;letter-spacing:.2em;color:var(--t3);margin-top:var(--s1)">COST TO START</div></div>
-      <div style="width:1px;background:var(--border)"></div>
-      <div style="text-align:center"><div style="font-family:'Playfair Display',serif;font-size:var(--fs-2xl);font-style:italic;color:var(--bull)">100</div><div style="font-size:8px;letter-spacing:.2em;color:var(--t3);margin-top:var(--s1)">MSG PER SECOND</div></div>
-      <div style="width:1px;background:var(--border)"></div>
-      <div style="text-align:center"><div style="font-family:'Playfair Display',serif;font-size:var(--fs-2xl);font-style:italic;color:var(--brand)">30s</div><div style="font-size:8px;letter-spacing:.2em;color:var(--t3);margin-top:var(--s1)">TO FIRST TRADE</div></div>
-    </div>
-  </div>
-</div>
-
-<!-- ─── PANEL 7: FOOTER ─── -->
-<div class="panel" id="p-footer" data-index="6" style="height:auto;min-height:100vh;scroll-snap-align:start">
-  <footer>
-    <div class="ft-grid">
-      <div>
-        <div class="ft-logo"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--brand)"><polygon points="12,2 22,22 2,22"/></svg>Synthetic<b>Bull</b></div>
-        <div class="ft-about">Professional-grade trading terminal. Real-time feeds. Sub-millisecond data. Built for traders who demand clarity under pressure.</div>
-      </div>
-      <div>
-        <div class="ft-col-title">Platform</div>
-        <ul class="ft-links">
-          <li><a href="#">Trading Terminal</a></li>
-          <li><a href="#">Live Order Book</a></li>
-          <li><a href="#">Bot Monitor</a></li>
-          <li><a href="#">Portfolio Tracker</a></li>
-          <li><a href="#">Market Depth</a></li>
-        </ul>
-      </div>
-      <div>
-        <div class="ft-col-title">Resources</div>
-        <ul class="ft-links">
-          <li><a href="#">Getting Started</a></li>
-          <li><a href="#">Order Types Guide</a></li>
-          <li><a href="#">Reading the Book</a></li>
-          <li><a href="#">Bot Strategies</a></li>
-          <li><a href="#">FAQ</a></li>
-        </ul>
-      </div>
-      <div>
-        <div class="ft-col-title">Project</div>
-        <ul class="ft-links">
-          <li><a href="#">Frontend Repo</a></li>
-          <li><a href="#">Backend Repo</a></li>
-          <li><a href="#">Docker Compose</a></li>
-          <li><a href="#">Changelog</a></li>
-          <li><a href="#">MIT License</a></li>
-        </ul>
+      <a href="#" class="m-link" onclick="toggleMenu(false); goPanel(0)">Home</a>
+      <a href="#" class="m-link" onclick="toggleMenu(false); goPanel(1)">Features</a>
+      <a href="#" class="m-link" onclick="toggleMenu(false); goPanel(2)">Performance</a>
+      <a href="#" class="m-link" onclick="toggleMenu(false); goPanel(3)">Live Bots</a>
+      <a href="#" class="m-link" onclick="toggleMenu(false); goPanel(4)">Depth</a>
+      <div style="margin-top:auto; display:flex; gap:var(--s3)">
+        <button class="nbtn nbtn-brand" style="flex:1">Get Started Free</button>
       </div>
     </div>
-    <div class="ft-bottom">
-      <span>© 2025 Synthetic Bull — Professional Trading Terminal</span>
-      <div style="display:flex;gap:var(--s4)">
-        <a href="#">ws://localhost:8000/ws</a>
-        <a href="#">localhost:5173</a>
-        <a href="#">MIT License</a>
-      </div>
+
+    <!-- SCROLL DOTS -->
+    <div id="scroll-dots"></div>
+
+    <!-- TICKER -->
+    <div class="ticker-bar">
+      <div class="ticker-inner" id="ticker"></div>
     </div>
-  </footer>
-</div>
 
-</div><!-- end scroll-container -->
+    <!-- ═══════ SCROLL CONTAINER ═══════ -->
+    <div id="scroll-container">
 
-<script>
-// ─── CURSOR ───
-const cur=document.getElementById('cur'),ring=document.getElementById('cur-ring');
-let mx=0,my=0,rx=0,ry=0;
-document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
-(function aR(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(aR)})();
-document.querySelectorAll('button,a,.facc,.metric-card,.bot-card,.h-card,.mqitem,.sdot').forEach(el=>{
-  el.addEventListener('mouseenter',()=>{cur.style.width='14px';cur.style.height='14px';ring.style.width='44px';ring.style.height='44px';ring.style.borderColor='rgba(232,160,32,.85)'});
-  el.addEventListener('mouseleave',()=>{cur.style.width='6px';cur.style.height='6px';ring.style.width='28px';ring.style.height='28px';ring.style.borderColor='rgba(232,160,32,.5)'});
-});
+      <!-- ─── PANEL 1: HERO ─── -->
+      <div class="panel" id="p-hero" data-index="0">
+        <div class="hero-grid"></div>
+        <div class="hero-vignette"></div>
+        <div class="hero-line"></div>
+        <div class="hero-inner">
+          <!-- LEFT -->
+          <div>
+            <div class="panel-content" style="transition-delay:.0s">
+              <div class="live-pip"><span class="ldot"></span>Markets Open · Live Feed Active</div>
+              <div class="hero-kicker">Professional Trading Terminal</div>
+              <h1 class="hero-title">
+                <em>Where every<br />tick counts.</em>
+                <strong>Trade with<br />precision.</strong>
+              </h1>
+              <p class="hero-sub">Real-time candlestick charts, live order book depth, algorithmic bot monitoring, and
+                instant order execution — built for traders who refuse to lose their edge.</p>
+              <div class="hbtns">
+                <button class="hbtn pri">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                  </svg>
+                  <span class="btn-text">Get Started Free</span>
+                </button>
+                <button class="hbtn out">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2" />
+                    <line x1="8" y1="21" x2="16" y2="21" />
+                    <line x1="12" y1="17" x2="12" y2="21" />
+                  </svg>
+                  Live Demo
+                </button>
+                <button class="hbtn sec">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                  How It Works
+                </button>
+              </div>
+              <div class="hero-stats">
+                <div>
+                  <div class="stat-val br">100<span
+                      style="font-family:'IBM Plex Mono';font-size:13px;font-weight:300">msg/s</span></div>
+                  <div class="stat-lbl">Live Feed Speed</div>
+                </div>
+                <div>
+                  <div class="stat-val">$100K</div>
+                  <div class="stat-lbl">Starting Capital</div>
+                </div>
+                <div>
+                  <div class="stat-val">1s</div>
+                  <div class="stat-lbl">Chart Interval</div>
+                </div>
+                <div>
+                  <div class="stat-val up">+2.34%</div>
+                  <div class="stat-lbl">Session P&amp;L</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- RIGHT: TERMINAL -->
+          <div class="panel-content" style="transition-delay:.2s">
+            <div class="terminal">
+              <div class="tbar">
+                <div class="mdot" style="background:#e83535"></div>
+                <div class="mdot" style="background:var(--brand)"></div>
+                <div class="mdot" style="background:var(--bull)"></div>
+                <div class="ttitle">SYNTHETIC BULL — Trading Terminal</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 110px;gap:1px;background:var(--border)">
+                <div style="background:var(--raised);padding:12px">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                    <div style="font-size:12px;display:flex;align-items:center;gap:6px;color:var(--t2)">
+                      SBTC/USDT
+                      <span
+                        style="font-size:10px;background:var(--brand-dim);border:1px solid rgba(232,160,32,.18);color:var(--brand);padding:1px 5px;border-radius:2px">SYNTH</span>
+                      <span style="color:var(--t4)">1s</span>
+                    </div>
+                    <div style="text-align:right">
+                      <div id="h-price"
+                        style="font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--bull)">
+                        43,218.40</div>
+                      <div id="h-chg" style="font-size:11px;color:var(--bull)">▲ +2.34%</div>
+                    </div>
+                  </div>
+                  <canvas id="h-canvas" width="300" height="100" style="width:100%"></canvas>
+                  <div style="display:flex;gap:4px;margin-top:6px">
+                    <span
+                      style="font-size:10px;padding:2px 6px;border-radius:2px;background:var(--brand-dim);color:var(--brand)">1s</span>
+                    <span style="font-size:10px;padding:2px 6px;border-radius:2px;color:var(--t3)">5s</span>
+                    <span style="font-size:10px;padding:2px 6px;border-radius:2px;color:var(--t3)">1m</span>
+                  </div>
+                </div>
+                <div style="background:var(--raised)">
+                  <div
+                    style="display:flex;justify-content:space-between;padding:6px 8px;border-bottom:1px solid var(--border);font-size:10.5px;color:var(--t3)">
+                    <span>PRICE</span><span>SIZE</span>
+                  </div>
+                  <div id="h-asks"></div>
+                  <div
+                    style="text-align:center;padding:3px;font-size:10.5px;color:var(--brand);border-top:1px solid var(--border);border-bottom:1px solid var(--border)"
+                    id="h-spread">Spread: 0.50</div>
+                  <div id="h-bids"></div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)">
+                <div style="background:var(--raised);padding:12px">
+                  <div
+                    style="font-size:10px;color:var(--t4);letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px">
+                    Portfolio</div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span
+                      style="font-size:12px;color:var(--t3)">Cash</span><span
+                      style="font-size:12.5px;color:var(--brand);font-family:'IBM Plex Mono', monospace">$94,820</span></div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span
+                      style="font-size:12px;color:var(--t3)">Holdings</span><span
+                      style="font-size:12.5px;color:var(--t2);font-family:'IBM Plex Mono', monospace">0.1200 BTC</span></div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span
+                      style="font-size:12px;color:var(--t3)">Equity</span><span id="eq-val"
+                      style="font-size:12.5px;color:var(--t2);font-family:'IBM Plex Mono', monospace">$100,006</span></div>
+                  <div style="display:flex;justify-content:space-between"><span
+                      style="font-size:12px;color:var(--t3)">P&amp;L</span><span id="pnl-val"
+                      style="font-size:12.5px;color:var(--bull);font-family:'IBM Plex Mono', monospace">+$6.21</span></div>
+                </div>
+                <div style="background:var(--raised);padding:12px;overflow:hidden">
+                  <div
+                    style="font-size:7px;color:var(--t4);letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px">
+                    Bots Live</div>
+                  <div id="h-bots"></div>
+                </div>
+              </div>
+              <div
+                style="background:linear-gradient(90deg,rgba(232,160,32,.12),rgba(232,160,32,.04));border-top:1px solid rgba(232,160,32,.16);padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
+                <div style="font-size:8px;color:var(--brand);letter-spacing:.14em">START TRADING IN 30 SECONDS</div>
+                <button
+                  style="font-size:10px;font-weight:700;letter-spacing:.12em;padding:6px 14px;background:var(--brand);color:#000;border:none;border-radius:2px;cursor:none;font-family:'IBM Plex Mono',monospace"><span
+                    class="btn-text">GET STARTED FREE</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-// ─── BUTTON TILT: POSITION-AWARE, NO FULL CYCLE ───
-(function setupButtonFlips(){
-  const MAX_ANGLE  = 38;   // max tilt in degrees
-  const DEAD_ZONE  = 0.12; // fraction of half-height within which = no tilt
-  const TILT_DUR   = '0.14s ease-out';
-  const SPRING_DUR = '0.5s cubic-bezier(.34,1.56,.64,1)';
+      <!-- ─── MARQUEE ─── -->
+      <div class="mqwrap panel" id="p-marquee" data-index="1"
+        style="height:auto;min-height:160px;scroll-snap-align:start">
+        <div style="width:100%">
+          <div class="mqtrack">
+            <span class="mqitem">Live Candlesticks</span><span class="mqsep">—</span>
+            <span class="mqitem">Order Book Depth</span><span class="mqsep">—</span>
+            <span class="mqitem">Algo Bot Monitor</span><span class="mqsep">—</span>
+            <span class="mqitem">Real-Time P&amp;L</span><span class="mqsep">—</span>
+            <span class="mqitem">Market Depth</span><span class="mqsep">—</span>
+            <span class="mqitem">Alpha Signals</span><span class="mqsep">—</span>
+            <span class="mqitem">Live Candlesticks</span><span class="mqsep">—</span>
+            <span class="mqitem">Order Book Depth</span><span class="mqsep">—</span>
+            <span class="mqitem">Algo Bot Monitor</span><span class="mqsep">—</span>
+            <span class="mqitem">Real-Time P&amp;L</span><span class="mqsep">—</span>
+            <span class="mqitem">Market Depth</span><span class="mqsep">—</span>
+            <span class="mqitem">Alpha Signals</span><span class="mqsep">—</span>
+          </div>
+        </div>
+      </div>
 
-  document.querySelectorAll('button').forEach(btn => {
-    // wrap children in a flip-inner span once
-    if (!btn.querySelector('.btn-flip-inner')) {
-      const wrap = document.createElement('span');
-      wrap.className = 'btn-flip-inner';
-      while (btn.firstChild) wrap.appendChild(btn.firstChild);
-      btn.appendChild(wrap);
-    }
+      <!-- ─── PANEL 2: FEATURES ─── -->
+      <div class="panel" id="p-features" data-index="1" style="min-height:70vh">
+        <div class="features-inner">
+          <div class="features-header">
+            <div class="panel-content">
+              <div class="eyebrow">What You Get</div>
+              <h2 class="section-title">Every edge,<br /><em>live &amp; instant.</em></h2>
+              <p class="section-sub">Five core modules — hover each one to reveal how it works. Built to stay fast at
+                100 market messages per second.</p>
+            </div>
+          </div>
+          <div class="feat-accordion panel-content d1">
+            <div class="facc" onmousemove="trackM(this,event)">
+              <div class="facc-glow"></div>
+              <div class="facc-inner">
+                <div class="facc-num">01 / CHARTS</div>
+                <div class="facc-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.8">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                  </svg></div>
+                <div class="facc-name">LIVE CANDLESTICK CHARTS</div>
+                <div class="facc-desc">Watch every price move as it happens. Candles refresh on 1-second and 5-second
+                  intervals with zero delay. Zoom, switch timeframes, and read momentum with surgical clarity before the
+                  rest of the market catches on.</div>
+                <div class="facc-tags"><span class="tag">1s Candles</span><span class="tag">5s</span><span
+                    class="tag">OHLCV</span></div>
+              </div>
+              <div class="facc-big">01</div>
+              <div class="facc-accent"></div>
+            </div>
+            <div class="facc" onmousemove="trackM(this,event)">
+              <div class="facc-glow"></div>
+              <div class="facc-inner">
+                <div class="facc-num">02 / ORDER BOOK</div>
+                <div class="facc-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.8">
+                    <line x1="8" y1="6" x2="21" y2="6" />
+                    <line x1="8" y1="12" x2="21" y2="12" />
+                    <line x1="8" y1="18" x2="21" y2="18" />
+                    <line x1="3" y1="6" x2="3.01" y2="6" />
+                    <line x1="3" y1="12" x2="3.01" y2="12" />
+                    <line x1="3" y1="18" x2="3.01" y2="18" />
+                  </svg></div>
+                <div class="facc-name">REAL-TIME DEPTH &amp; ORDER BOOK</div>
+                <div class="facc-desc">Every bid and ask streams live. Depth bars reveal exactly where buying and
+                  selling pressure is stacking — so you feel where the market is about to go before price moves. No
+                  interpretation needed.</div>
+                <div class="facc-tags"><span class="tag">Live Diffs</span><span class="tag">Depth Bars</span><span
+                    class="tag">Spread</span></div>
+              </div>
+              <div class="facc-big">02</div>
+              <div class="facc-accent"></div>
+            </div>
+            <div class="facc" onmousemove="trackM(this,event)">
+              <div class="facc-glow"></div>
+              <div class="card-edge-top"></div>
+              <div class="card-edge-bottom"></div>
+              <div class="facc-inner">
+                <div class="facc-num">03 / EXECUTION</div>
+                <div class="facc-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.8">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="16" />
+                    <line x1="8" y1="12" x2="16" y2="12" />
+                  </svg></div>
+                <div class="facc-name">ONE-CLICK ORDER PLACEMENT</div>
+                <div class="facc-desc">Market or limit orders execute with a single click. Your position appears on
+                  screen immediately — ahead of the server round-trip. Failed orders roll back silently without
+                  disrupting your flow.</div>
+                <div class="facc-tags"><span class="tag">Market</span><span class="tag">Limit</span><span
+                    class="tag">Instant Fill</span></div>
+              </div>
+              <div class="facc-big">03</div>
+              <div class="facc-accent"></div>
+            </div>
+            <div class="facc" onmousemove="trackM(this,event)">
+              <div class="facc-glow"></div>
+              <div class="card-edge-top"></div>
+              <div class="card-edge-bottom"></div>
+              <div class="facc-inner">
+                <div class="facc-num">04 / PORTFOLIO</div>
+                <div class="facc-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.8">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                    <polyline points="17 6 23 6 23 12" />
+                  </svg></div>
+                <div class="facc-name">LIVE P&amp;L DASHBOARD</div>
+                <div class="facc-desc">Cash, holdings, total equity and unrealised profit — all updating 10 times per
+                  second as the market moves. Fast enough to trade on. Stable enough to read clearly without the numbers
+                  blurring.</div>
+                <div class="facc-tags"><span class="tag">Real-Time P&amp;L</span><span class="tag">Equity</span></div>
+              </div>
+              <div class="facc-big">04</div>
+              <div class="facc-accent"></div>
+            </div>
+            <div class="facc" onmousemove="trackM(this,event)">
+              <div class="facc-glow"></div>
+              <div class="facc-inner">
+                <div class="facc-num">05 / AUTOMATION</div>
+                <div class="facc-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.8">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                    <path d="M2 17l10 5 10-5" />
+                    <path d="M2 12l10 5 10-5" />
+                  </svg></div>
+                <div class="facc-name">ALGORITHMIC BOT MONITOR</div>
+                <div class="facc-desc">Watch the Market Maker and Alpha Bot trade live — every entry and exit feeds your
+                  dashboard in real time. Track P&amp;L, win rate, and trade count without lifting a finger. Automation
+                  made transparent.</div>
+                <div class="facc-tags"><span class="tag">Market Maker</span><span class="tag">Alpha Bot</span><span
+                    class="tag">Win Rate</span></div>
+              </div>
+              <div class="facc-big">05</div>
+              <div class="facc-accent"></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    const reset = (inner) => {
-      inner.style.transition = `transform ${SPRING_DUR}, opacity ${SPRING_DUR}`;
-      inner.style.transform  = 'perspective(500px) rotateX(0deg)';
-      inner.style.opacity    = '1';
-    };
+      <!-- ─── PANEL 3: PERFORMANCE ─── -->
+      <div class="panel" id="p-performance" data-index="2">
+        <div class="perf-inner">
+          <div>
+            <div class="panel-content">
+              <div class="eyebrow">Performance Benchmarks</div>
+              <h2 class="section-title">Numbers that<br /><em>don't lie.</em></h2>
+              <p class="section-sub">Six hard constraints that keep the terminal running at full speed in real market
+                conditions — not just demos.</p>
+              <div style="margin-top:34px;display:flex;flex-direction:column;gap:13px">
+                <div style="display:flex;align-items:center;gap:13px">
+                  <div style="width:34px;height:1px;background:var(--brand);opacity:.4"></div>
+                  <span style="font-size:10px;color:var(--t3)">Sub-millisecond data routing</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:13px">
+                  <div style="width:55px;height:1px;background:var(--brand);opacity:.6"></div>
+                  <span style="font-size:10px;color:var(--t3)">60fps canvas rendering</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:13px">
+                  <div style="width:89px;height:1px;background:var(--brand);opacity:.9"></div>
+                  <span style="font-size:10px;color:var(--t3)">100 msg/s throughput</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="metrics-grid panel-content d1">
+            <div class="metric-card">
+              <div class="metric-num">60<span class="metric-unit">fps</span></div>
+              <div class="metric-label">CHART REFRESH</div>
+              <div class="metric-desc">Smooth at any tick rate. Never falls behind.</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-num">O<span class="metric-unit">(1)</span></div>
+              <div class="metric-label">ORDER BOOK SPEED</div>
+              <div class="metric-desc">Constant-time updates no matter how fast prices move.</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-num">1<span class="metric-unit">ws</span></div>
+              <div class="metric-label">LIVE CONNECTION</div>
+              <div class="metric-desc">One stream — price, book, bots — all in sync.</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-num">10<span class="metric-unit">fps</span></div>
+              <div class="metric-label">P&amp;L UPDATE RATE</div>
+              <div class="metric-desc">Fast enough to trade on. Stable enough to read.</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-num">50<span class="metric-unit">rows</span></div>
+              <div class="metric-label">BOT FEED CAP</div>
+              <div class="metric-desc">Fluid at 100 automated trades per second.</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-num">0<span class="metric-unit">lag</span></div>
+              <div class="metric-label">CHART OVERHEAD</div>
+              <div class="metric-desc">Straight to GPU. Zero UI framework cycles.</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    btn.addEventListener('mousedown', function(e) {
-      const inner = this.querySelector('.btn-flip-inner');
-      if (!inner) return;
+      <!-- ─── PANEL 4: BOTS ─── -->
+      <div class="panel" id="p-bots" data-index="3">
+        <div class="bots-inner">
+          <div>
+            <div class="panel-content">
+              <div class="eyebrow">Automated Strategies</div>
+              <h2 class="section-title">Two bots.<br /><em>Always working.</em></h2>
+              <p class="section-sub">Watch the Market Maker and Alpha Bot trade live. Every entry, every exit —
+                streaming to your dashboard in real time.</p>
+              <div style="margin-top:var(--s5);display:flex;flex-direction:column;gap:var(--s3)">
+                <div
+                  style="display:flex;align-items:center;gap:var(--s3);padding:var(--s3) var(--s4);background:rgba(24,201,106,.04);border:1px solid rgba(24,201,106,.1);border-radius:6px">
+                  <span class="ldot"></span>
+                  <div>
+                    <div style="font-size:13px;letter-spacing:.1em;color:var(--t2);font-weight:700">MARKET MAKER</div>
+                    <div style="font-size:14px;color:var(--bull);font-weight:600">+$1,240 today</div>
+                  </div>
+                </div>
+                <div
+                  style="display:flex;align-items:center;gap:var(--s3);padding:var(--s3) var(--s4);background:rgba(232,160,32,.04);border:1px solid rgba(232,160,32,.1);border-radius:6px">
+                  <span class="ldot amb"></span>
+                  <div>
+                    <div style="font-size:13px;letter-spacing:.1em;color:var(--t2);font-weight:700">ALPHA BOT</div>
+                    <div style="font-size:14px;color:var(--brand);font-weight:600">68.4% win rate</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bots-grid panel-content d1">
+            <div class="bot-card">
+              <div class="bot-hdr">
+                <div class="ldot"></div>
+                <div class="bot-name">MARKET MAKER BOT</div>
+                <div class="bot-badge">RUNNING</div>
+              </div>
+              <div class="bot-body">
+                <div class="bot-stats">
+                  <div>
+                    <div class="bot-sl">Session P&amp;L</div>
+                    <div class="bot-sv bull">+$1,240</div>
+                  </div>
+                  <div>
+                    <div class="bot-sl">Total Trades</div>
+                    <div class="bot-sv">2,841</div>
+                  </div>
+                  <div>
+                    <div class="bot-sl">Spread</div>
+                    <div class="bot-sv br">$0.50</div>
+                  </div>
+                  <div>
+                    <div class="bot-sl">Last Action</div>
+                    <div class="bot-sv" style="color:var(--bull);font-size:16px">BUY 0.10</div>
+                  </div>
+                </div>
+                <div class="feed-lbl">Live Trade Feed</div>
+                <div id="mm-feed"></div>
+              </div>
+            </div>
+            <div class="bot-card">
+              <div class="bot-hdr">
+                <div class="ldot amb"></div>
+                <div class="bot-name">ALPHA BOT</div>
+                <div class="bot-badge">RUNNING</div>
+              </div>
+              <div class="bot-body">
+                <div class="bot-stats">
+                  <div>
+                    <div class="bot-sl">Session P&amp;L</div>
+                    <div class="bot-sv bull">+$3,812</div>
+                  </div>
+                  <div>
+                    <div class="bot-sl">Total Trades</div>
+                    <div class="bot-sv">318</div>
+                  </div>
+                  <div>
+                    <div class="bot-sl">Win Rate</div>
+                    <div class="bot-sv br">68.4%</div>
+                  </div>
+                  <div>
+                    <div class="bot-sl">Last Action</div>
+                    <div class="bot-sv" style="color:var(--bear);font-size:16px">SELL 0.25</div>
+                  </div>
+                </div>
+                <div class="feed-lbl">Live Trade Feed</div>
+                <div id="alpha-feed"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      const rect      = this.getBoundingClientRect();
-      const clickY    = e.clientY - rect.top;      // px from top of button
-      const centerY   = rect.height / 2;           // mid-point
-      const offset    = (clickY - centerY) / centerY; // -1 (top) to +1 (bottom)
+      <!-- ─── PANEL 5: DEPTH ─── -->
+      <div class="panel" id="p-depth" data-index="4">
+        <div class="depth-inner">
+          <div>
+            <div class="panel-content">
+              <div class="eyebrow">Market Depth</div>
+              <h2 class="section-title">See the full<br /><em>book at a glance.</em></h2>
+              <p class="section-sub">The cumulative bid/ask area chart shows exactly where buying and selling pressure
+                stacks up — visual, immediate, actionable before price moves.</p>
+              <div style="display:flex;gap:var(--s4);margin-top:var(--s4)">
+                <div style="display:flex;align-items:center;gap:6px;font-size:9.5px;color:var(--t3)">
+                  <div
+                    style="width:10px;height:10px;border-radius:1px;background:rgba(24,201,106,.25);border:1px solid rgba(24,201,106,.4)">
+                  </div>Cumulative Bids
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:9.5px;color:var(--t3)">
+                  <div
+                    style="width:10px;height:10px;border-radius:1px;background:rgba(232,53,53,.25);border:1px solid rgba(232,53,53,.4)">
+                  </div>Cumulative Asks
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-content d1">
+            <div class="depth-wrap">
+              <div class="depth-hdr">
+                <span>Depth Chart — SBTC/USDT</span>
+                <span style="color:var(--brand)" id="depth-mid">Mid: 43,218.25</span>
+              </div>
+              <canvas id="depth-canvas" width="560" height="240" style="width:100%;display:block"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      // dead zone: clicks within 12% of center = no tilt
-      if (Math.abs(offset) < DEAD_ZONE) return;
+      <!-- ─── PANEL 6: CTA ─── -->
+      <div class="panel" id="p-cta" data-index="5">
+        <div class="cta-glow"></div>
+        <div class="cta-ring"></div>
+        <div class="cta-ring cta-ring2"></div>
+        <div class="cta-ring cta-ring3"></div>
+        <div class="cta-inner panel-content">
+          <div class="eyebrow" style="justify-content:center">Start for Free</div>
+          <h2 class="cta-title">Your edge<br />starts here.</h2>
+          <p class="cta-sub">Open an account, connect to the live feed, and trade with the speed and clarity of a
+            professional desk — at no cost to start.</p>
+          <div style="display:flex;gap:var(--s2);justify-content:center;flex-wrap:wrap">
+            <button class="hbtn pri">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              </svg>
+              <span class="btn-text">Get Started for Free</span>
+            </button>
+            <button class="hbtn sec">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                  d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+              </svg>
+              View on GitHub
+            </button>
+          </div>
+          <div style="display:flex;gap:var(--s5);justify-content:center;margin-top:var(--s6)">
+            <div style="text-align:center">
+              <div
+                style="font-family:'Playfair Display',serif;font-size:var(--fs-2xl);font-style:italic;color:var(--t1)">
+                $0</div>
+              <div style="font-size:8px;letter-spacing:.2em;color:var(--t3);margin-top:var(--s1)">COST TO START</div>
+            </div>
+            <div style="width:1px;background:var(--border)"></div>
+            <div style="text-align:center">
+              <div
+                style="font-family:'Playfair Display',serif;font-size:var(--fs-2xl);font-style:italic;color:var(--bull)">
+                100</div>
+              <div style="font-size:8px;letter-spacing:.2em;color:var(--t3);margin-top:var(--s1)">MSG PER SECOND</div>
+            </div>
+            <div style="width:1px;background:var(--border)"></div>
+            <div style="text-align:center">
+              <div
+                style="font-family:'Playfair Display',serif;font-size:var(--fs-2xl);font-style:italic;color:var(--brand)">
+                30s</div>
+              <div style="font-size:8px;letter-spacing:.2em;color:var(--t3);margin-top:var(--s1)">TO FIRST TRADE</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      // offset < 0 means click was above center
-      //   -> top goes back → positive rotateX in CSS (top tilts away)
-      // offset > 0 means click was below center
-      //   -> bottom goes back → negative rotateX in CSS
-      const angle = -offset * MAX_ANGLE;
-      const minOpacity = 0.5 + 0.3 * (1 - Math.abs(offset));
+      <!-- ─── PANEL 7: FOOTER ─── -->
+      <div class="panel" id="p-footer" data-index="6" style="height:auto;min-height:100vh;scroll-snap-align:start">
+        <footer>
+          <div class="ft-grid">
+            <div>
+              <div class="ft-logo"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--brand)">
+                  <polygon points="12,2 22,22 2,22" />
+                </svg>Synthetic<b>Bull</b></div>
+              <div class="ft-about">Professional-grade trading terminal. Real-time feeds. Sub-millisecond data. Built
+                for traders who demand clarity under pressure.</div>
+            </div>
+            <div>
+              <div class="ft-col-title">Platform</div>
+              <ul class="ft-links">
+                <li><a href="#">Trading Terminal</a></li>
+                <li><a href="#">Live Order Book</a></li>
+                <li><a href="#">Bot Monitor</a></li>
+                <li><a href="#">Portfolio Tracker</a></li>
+                <li><a href="#">Market Depth</a></li>
+              </ul>
+            </div>
+            <div>
+              <div class="ft-col-title">Resources</div>
+              <ul class="ft-links">
+                <li><a href="#">Getting Started</a></li>
+                <li><a href="#">Order Types Guide</a></li>
+                <li><a href="#">Reading the Book</a></li>
+                <li><a href="#">Bot Strategies</a></li>
+                <li><a href="#">FAQ</a></li>
+              </ul>
+            </div>
+            <div>
+              <div class="ft-col-title">Project</div>
+              <ul class="ft-links">
+                <li><a href="#">Frontend Repo</a></li>
+                <li><a href="#">Backend Repo</a></li>
+                <li><a href="#">Docker Compose</a></li>
+                <li><a href="#">Changelog</a></li>
+                <li><a href="#">MIT License</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="ft-bottom">
+            <span>© 2025 Synthetic Bull — Professional Trading Terminal</span>
+            <div style="display:flex;gap:var(--s4)">
+              <a href="#">ws://localhost:8000/ws</a>
+              <a href="#">localhost:5173</a>
+              <a href="#">MIT License</a>
+            </div>
+          </div>
+        </footer>
+      </div>
 
-      // shimmer flash on button
-      this.classList.remove('btn-shimmer');
-      void this.offsetWidth;
-      this.classList.add('btn-shimmer');
-      setTimeout(() => this.classList.remove('btn-shimmer'), 300);
+    </div><!-- end scroll-container -->
 
-      // apply tilt
-      inner.style.transition = `transform ${TILT_DUR}, opacity ${TILT_DUR}`;
-      inner.style.transform  = `perspective(500px) rotateX(${angle}deg)`;
-      inner.style.opacity    = String(minOpacity);
-    });
-
-    // spring back on release or leaving
-    btn.addEventListener('mouseup',    function() { const i = this.querySelector('.btn-flip-inner'); if(i) reset(i); });
-    btn.addEventListener('mouseleave', function() { const i = this.querySelector('.btn-flip-inner'); if(i) reset(i); });
-  });
-})();
-
-// ─── CARD 3D TILT: POSITION-AWARE PRESS ───
-(function setupCardTilt(){
-  const MAX_ANGLE  = 22;   // max tilt degrees
-  const DEAD_ZONE  = 0.12; // inner 12% from center = no tilt
-  const TILT_DUR   = '0.12s ease-out';
-  const SPRING_DUR = '0.55s cubic-bezier(.34,1.56,.64,1)';
-
-  document.querySelectorAll('.metric-card, .bot-card, .facc').forEach(card => {
-    // Make sure perspective is applied to parent for 3D
-    card.style.transformStyle = 'preserve-3d';
-
-    card.addEventListener('mousedown', function(e) {
-      const rect    = this.getBoundingClientRect();
-
-      // Click position relative to card, normalised -1 to +1
-      const offX = ((e.clientX - rect.left)  - rect.width  / 2) / (rect.width  / 2);
-      const offY = ((e.clientY - rect.top)   - rect.height / 2) / (rect.height / 2);
-
-      // Dead zone: clicks very near the exact center = no tilt
-      const aX = Math.abs(offX), aY = Math.abs(offY);
-      if (aX < DEAD_ZONE && aY < DEAD_ZONE) return;
-
-      // rotateY: click right  → right edge goes back  → positive rotateY
-      // rotateY: click left   → left edge goes back   → negative rotateY
-      // rotateX: click top    → top edge goes back    → positive rotateX  (−offY)
-      // rotateX: click bottom → bottom edge goes back → negative rotateX
-      const rotY =  (aX > DEAD_ZONE ? offX : 0) * MAX_ANGLE;
-      const rotX = -(aY > DEAD_ZONE ? offY : 0) * MAX_ANGLE;
-
-      this.style.transition = `transform ${TILT_DUR}, box-shadow ${TILT_DUR}`;
-      this.style.transform  = `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
-    });
-
-    const resetCard = function() {
-      this.style.transition = `transform ${SPRING_DUR}, box-shadow 0.5s, border-color 0.4s`;
-      this.style.transform  = ''; // let CSS hover rule take over
-    };
-
-    card.addEventListener('mouseup',    resetCard);
-    card.addEventListener('mouseleave', resetCard);
-  });
-})();
-
-// ─── INJECT EDGE GLOW DIVS INTO CARDS ───
-(function addEdgeDivs(){
-  document.querySelectorAll('.metric-card, .bot-card, .facc').forEach(card => {
-    // Add only missing edge divs (avoid duplicating on .facc which may already have some)
-    ['card-edge-top','card-edge-bottom','card-edge-left','card-edge-right'].forEach(cls => {
-      if (!card.querySelector('.' + cls)) {
-        const el = document.createElement('div');
-        el.className = cls;
-        card.prepend(el);
+    <!-- LENIS JS -->
+    <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+    <script>
+      function toggleMenu(open) {
+        document.getElementById('mobile-menu').classList.toggle('open', open);
       }
-    });
-  });
-})();
 
-// ─── MOUSE GLOW ───
-function trackM(el,e){const r=el.getBoundingClientRect();el.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');el.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%')}
-window.trackM=trackM;
+      window.addEventListener('load', () => {
+        // ─── STARTUP AUDIO ENGINE ───
+        // Using a stable, high-quality cinematic organ track
+        const startupAudio = new Audio("https://ia600902.us.archive.org/16/items/interstellar-soundtrack/02%20Cornfield%20Chase.mp3");
+        startupAudio.volume = 0.8;
+        startupAudio.currentTime = 37;
+        startupAudio.loop = true;
 
-// ─── SCROLL PANELS ───
-const sc=document.getElementById('scroll-container');
-const panels=Array.from(document.querySelectorAll('.panel[data-index]'));
-const dotsEl=document.getElementById('scroll-dots');
-const PANEL_COUNT=panels.length;
+        // ─── INITIALIZE LENIS SMOOTH SCROLL ───
+        const lenis = new Lenis({
+          wrapper: document.getElementById('scroll-container'),
+          content: document.getElementById('app-view'),
+          duration: 1.2,
+          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          orientation: 'vertical',
+          gestureOrientation: 'vertical',
+          smoothWheel: true,
+          wheelMultiplier: 1,
+          touchMultiplier: 2,
+          infinite: false,
+        });
 
-// Build dots
-panels.forEach((_,i)=>{
-  const d=document.createElement('div');
-  d.className='sdot'+(i===0?' active':'');
-  d.onclick=()=>goPanel(i);
-  dotsEl.appendChild(d);
-});
-function goPanel(i){panels[i].scrollIntoView({behavior:'smooth'})}
-window.goPanel=goPanel;
+        function raf(time) {
+          lenis.raf(time);
+          requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
 
-// Intersection observer for panel visibility
-let currentPanel=0;
-const panelObs=new IntersectionObserver(entries=>{
-  entries.forEach(entry=>{
-    if(entry.isIntersecting){
-      entry.target.classList.add('visible');
-      const idx=parseInt(entry.target.dataset.index);
-      currentPanel=idx;
-      // Update dots
-      document.querySelectorAll('.sdot').forEach((d,i)=>d.classList.toggle('active',i===idx));
-    }
-  });
-},{root:sc,threshold:.45});
+        // ─── CURSOR ───
+        const cur = document.getElementById('cur'), ring = document.getElementById('cur-ring');
+        let mx = window.innerWidth / 2, my = window.innerHeight / 2, rx = mx, ry = my;
+        // Initialize to center
+        cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+        ring.style.left = mx + 'px'; ring.style.top = my + 'px';
 
-panels.forEach(p=>panelObs.observe(p));
-// Make hero visible immediately
-panels[0].classList.add('visible');
+        document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cur.style.left = mx + 'px'; cur.style.top = my + 'px' });
+        (function aR() { rx += (mx - rx) * .1; ry += (my - ry) * .1; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(aR) })();
+        document.querySelectorAll('button,a,.facc,.metric-card,.bot-card,.h-card,.mqitem,.sdot').forEach(el => {
+          el.addEventListener('mouseenter', () => { cur.style.width = '14px'; cur.style.height = '14px'; ring.style.width = '44px'; ring.style.height = '44px'; ring.style.borderColor = 'rgba(232,160,32,.85)' });
+          el.addEventListener('mouseleave', () => { cur.style.width = '6px'; cur.style.height = '6px'; ring.style.width = '28px'; ring.style.height = '28px'; ring.style.borderColor = 'rgba(232,160,32,.5)' });
+        });
 
-// ─── TICKER ───
-const TICKS=[
-  {s:'SBTC/USDT',p:43218.40,d:+2.34},{s:'SETH/USDT',p:2891.55,d:+1.87},
-  {s:'SNIFTY',p:22104.80,d:-.43},{s:'SGOLD',p:2312.10,d:+.92},
-  {s:'SBNB',p:598.20,d:+3.11},{s:'SCRUDE',p:84.37,d:-1.02},
-  {s:'SSOL',p:168.45,d:+5.22},{s:'SINR/USD',p:83.42,d:-.18},
-  {s:'SAAVE',p:310.88,d:+2.07},{s:'SDOT',p:9.44,d:+1.55},
-];
-function fmt(p){return p.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
-document.getElementById('ticker').innerHTML=[...TICKS,...TICKS].map(t=>`<div class="tick-item"><span class="tick-sym">${t.s}</span><span class="tick-px">${fmt(t.p)}</span><span class="${t.d>=0?'tick-up':'tick-dn'}">${t.d>=0?'+':''}${t.d.toFixed(2)}%</span></div>`).join('');
+        // ─── BUTTON TILT: POSITION-AWARE, NO FULL CYCLE ───
+        (function setupButtonFlips() {
+          const MAX_ANGLE = 38;
+          const DEAD_ZONE = 0.12;
+          const TILT_DUR = '0.14s ease-out';
+          const SPRING_DUR = '0.5s cubic-bezier(.34,1.56,.64,1)';
 
-// ─── HERO CHART ───
-function genC(n,base){let p=base,a=[];for(let i=0;i<n;i++){const o=p,c=o+(Math.random()-.46)*65;a.push({o,h:Math.max(o,c)+Math.random()*22,l:Math.min(o,c)-Math.random()*22,c});p=c;}return a;}
-const cand=genC(60,43000);
-function drawH(){
-  const cv=document.getElementById('h-canvas');if(!cv)return;
-  const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
-  ctx.clearRect(0,0,W,H);
-  const prices=cand.flatMap(c=>[c.h,c.l]),mn=Math.min(...prices),mx2=Math.max(...prices);
-  const pad=5,sy=p=>pad+(1-(p-mn)/(mx2-mn))*(H-pad*2),gap=W/cand.length,cw=gap*.72;
-  cand.forEach((c,i)=>{
-    const x=i*gap+gap/2,up=c.c>=c.o,col=up?'#18c96a':'#e83535';
-    ctx.strokeStyle=col;ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(x,sy(c.h));ctx.lineTo(x,sy(c.l));ctx.stroke();
-    ctx.fillStyle=col;ctx.fillRect(x-cw/2,sy(Math.max(c.o,c.c)),cw,Math.max(sy(Math.min(c.o,c.c))-sy(Math.max(c.o,c.c)),1));
-  });
-}
-drawH();
-setInterval(()=>{
-  const last=cand[cand.length-1],chg=(Math.random()-.47)*52,nc=last.c+chg;
-  cand[cand.length-1]={...last,c:nc,h:Math.max(last.h,nc),l:Math.min(last.l,nc)};
-  if(Math.random()<.08){if(cand.length>80)cand.shift();cand.push({o:nc,h:nc,l:nc,c:nc});}
-  drawH();
-  const pd=document.getElementById('h-price');if(pd)pd.textContent=fmt(nc);
-  const cd=document.getElementById('h-chg'),up=nc>=43000;if(cd){cd.textContent=(up?'▲ +':'▼ ')+((nc-43000)/43000*100).toFixed(2)+'%';cd.style.color=up?'#18c96a':'#e83535';}
-  const eq=94820+.12*nc,pnl=eq-100000;
-  const ev=document.getElementById('eq-val');if(ev)ev.textContent='$'+fmt(eq);
-  const pv=document.getElementById('pnl-val');if(pv){pv.textContent=(pnl>=0?'+$':'-$')+Math.abs(pnl).toFixed(2);pv.style.color=pnl>=0?'#18c96a':'#e83535';}
-},1000);
+          document.querySelectorAll('button').forEach(btn => {
+            if (!btn.querySelector('.btn-flip-inner')) {
+              const wrap = document.createElement('span');
+              wrap.className = 'btn-flip-inner';
+              while (btn.firstChild) wrap.appendChild(btn.firstChild);
+              btn.appendChild(wrap);
+            }
 
-// ─── ORDER BOOK ───
-let asks=[{p:43221.00,s:.45},{p:43220.50,s:1.20},{p:43220.00,s:.82},{p:43219.50,s:2.10},{p:43219.00,s:.37}];
-let bids=[{p:43218.50,s:1.85},{p:43218.00,s:.93},{p:43217.50,s:3.40},{p:43217.00,s:.61},{p:43216.50,s:1.10}];
-function renderOB(){
-  const mA=Math.max(...asks.map(l=>l.s)),mB=Math.max(...bids.map(l=>l.s));
-  const aEl=document.getElementById('h-asks'),bEl=document.getElementById('h-bids');
-  if(aEl)aEl.innerHTML=[...asks].reverse().map(l=>`<div class="ob-row"><div class="ob-bar" style="width:${(l.s/mA*100).toFixed(0)}%;background:rgba(232,53,53,.1)"></div><span class="ob-px" style="color:#e83535">${l.p.toFixed(2)}</span><span class="ob-sz">${l.s.toFixed(3)}</span></div>`).join('');
-  if(bEl)bEl.innerHTML=bids.map(l=>`<div class="ob-row"><div class="ob-bar" style="width:${(l.s/mB*100).toFixed(0)}%;background:rgba(24,201,106,.1)"></div><span class="ob-px" style="color:#18c96a">${l.p.toFixed(2)}</span><span class="ob-sz">${l.s.toFixed(3)}</span></div>`).join('');
-  const sp=document.getElementById('h-spread');if(sp)sp.textContent='Spread: '+(asks[0].p-bids[0].p).toFixed(2);
-}
-renderOB();
-setInterval(()=>{
-  asks=asks.map(l=>({p:Math.round((l.p+(Math.random()-.5)*.35)*100)/100,s:Math.max(.05,l.s+(Math.random()-.5)*.18)}));
-  bids=bids.map(l=>({p:Math.round((l.p+(Math.random()-.5)*.35)*100)/100,s:Math.max(.05,l.s+(Math.random()-.5)*.18)}));
-  renderOB();
-},700);
+            const reset = (inner) => {
+              inner.style.transition = `transform ${SPRING_DUR}, opacity ${SPRING_DUR}`;
+              inner.style.transform = 'perspective(500px) rotateX(0deg)';
+              inner.style.opacity = '1';
+            };
 
-// ─── BOT FEEDS ───
-function addBot(feedId,isMM){
-  const feed=document.getElementById(feedId);if(!feed)return;
-  const buy=Math.random()>(isMM?.5:.4),price=(43218+(Math.random()-.5)*28).toFixed(2);
-  const qty=((isMM?.02:.05)+Math.random()*.22).toFixed(3);
-  const now=new Date(),ts=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
-  const row=document.createElement('div');row.className='trade-row';
-  row.innerHTML=`<span class="tside ${buy?'buy':'sell'}">${buy?'BUY':'SELL'}</span><span class="tpx">${price}</span><span class="tqty">${qty}</span><span class="ttime">${ts}</span>`;
-  feed.insertBefore(row,feed.firstChild);if(feed.children.length>5)feed.removeChild(feed.lastChild);
-}
-function addHBot(){
-  const feed=document.getElementById('h-bots');if(!feed)return;
-  const buy=Math.random()>.5,price=(43218+(Math.random()-.5)*18).toFixed(2);
-  const qty=(Math.random()*.28+.04).toFixed(3),bot=['MARKET MAKER','ALPHA'][Math.floor(Math.random()*2)];
-  const d=document.createElement('div');d.style.cssText='display:flex;align-items:center;gap:5px;margin-bottom:5px';
-  d.innerHTML=`<div style="width:5px;height:5px;border-radius:50%;background:${buy?'#18c96a':'var(--brand)'};animation:blink 1.3s infinite;flex-shrink:0"></div><span style="font-size:8px;color:var(--t3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${bot}</span><span style="font-size:8px;color:${buy?'#18c96a':'#e83535'}">${buy?'BUY':'SELL'} ${qty}</span>`;
-  feed.insertBefore(d,feed.firstChild);if(feed.children.length>4)feed.removeChild(feed.lastChild);
-}
-for(let i=0;i<5;i++){addBot('mm-feed',true);addBot('alpha-feed',false);addHBot();}
-setInterval(()=>addBot('mm-feed',true),900);
-setInterval(()=>addBot('alpha-feed',false),2200);
-setInterval(addHBot,1800);
+            btn.addEventListener('mousedown', function (e) {
+              const inner = this.querySelector('.btn-flip-inner');
+              if (!inner) return;
 
-// ─── DEPTH CHART ───
-function drawDepth(){
-  const c=document.getElementById('depth-canvas');if(!c)return;
-  const ctx=c.getContext('2d'),W=c.width,H=c.height;
-  ctx.clearRect(0,0,W,H);
-  const levels=16,mid=W/2;
-  let bC=[],aC=[],bS=0,aS=0;
-  for(let i=0;i<levels;i++){bS+=.4+Math.random()*1.9;aS+=.4+Math.random()*1.9;bC.push(bS);aC.push(aS);}
-  const maxC=Math.max(...bC,...aC),sy=v=>H-20-(v/maxC)*(H-38),step=mid/levels;
-  function drawSide(cum,sx,dir,stroke,colA,colB){
-    ctx.beginPath();ctx.moveTo(sx,H-20);
-    for(let i=0;i<levels;i++){
-      const x=dir===1?sx+i*step:sx-(i+1)*step,nx=x+(dir===1?step:-step);
-      ctx.lineTo(dir===1?x:nx,sy(cum[i]));ctx.lineTo(dir===1?nx:x,sy(cum[i]));
-    }
-    ctx.lineTo(dir===1?W:0,H-20);ctx.closePath();
-    const g=ctx.createLinearGradient(dir===1?mid:0,0,dir===1?W:mid,0);
-    g.addColorStop(0,colA);g.addColorStop(1,colB);
-    ctx.fillStyle=g;ctx.fill();
-    ctx.strokeStyle=stroke;ctx.lineWidth=1.5;ctx.stroke();
-  }
-  drawSide(bC,mid,-1,'#18c96a','rgba(24,201,106,.03)','rgba(24,201,106,.24)');
-  drawSide(aC,mid,1,'#e83535','rgba(232,53,53,.24)','rgba(232,53,53,.03)');
-  // Grid lines
-  ctx.strokeStyle='rgba(255,255,255,.03)';ctx.lineWidth=1;
-  for(let i=1;i<4;i++){ctx.beginPath();ctx.moveTo(0,H/4*i);ctx.lineTo(W,H/4*i);ctx.stroke();}
-  // Mid line
-  ctx.beginPath();ctx.moveTo(mid,0);ctx.lineTo(mid,H);ctx.strokeStyle='rgba(232,160,32,.3)';ctx.lineWidth=1;ctx.setLineDash([4,4]);ctx.stroke();ctx.setLineDash([]);
-  ctx.font='8px IBM Plex Mono,monospace';ctx.fillStyle='rgba(110,120,150,.7)';ctx.fillText('BIDS',8,H-5);ctx.fillText('ASKS',W-32,H-5);
-}
-drawDepth();setInterval(drawDepth,1200);
-</script>
+              const rect = this.getBoundingClientRect();
+              const clickY = e.clientY - rect.top;
+              const centerY = rect.height / 2;
+              const offset = (clickY - centerY) / centerY;
+
+              if (Math.abs(offset) < DEAD_ZONE) return;
+
+              const angle = -offset * MAX_ANGLE;
+              const minOpacity = 0.5 + 0.3 * (1 - Math.abs(offset));
+
+              this.classList.remove('btn-shimmer');
+              void this.offsetWidth;
+              this.classList.add('btn-shimmer');
+              setTimeout(() => this.classList.remove('btn-shimmer'), 300);
+
+              inner.style.transition = `transform ${TILT_DUR}, opacity ${TILT_DUR}`;
+              inner.style.transform = `perspective(500px) rotateX(${angle}deg)`;
+              inner.style.opacity = String(minOpacity);
+            });
+
+            btn.addEventListener('mouseup', function () { const i = this.querySelector('.btn-flip-inner'); if (i) reset(i); });
+            btn.addEventListener('mouseleave', function () { const i = this.querySelector('.btn-flip-inner'); if (i) reset(i); });
+          });
+        })();
+
+        // ─── MAGNETIC HOVER REFINEMENT ───
+        (function setupMagneticButtons() {
+          const B_STRENGTH = 0.25;
+          document.querySelectorAll('.nbtn, .hbtn').forEach(btn => {
+            btn.addEventListener('mousemove', e => {
+              const rect = btn.getBoundingClientRect();
+              const x = (e.clientX - rect.left - rect.width / 2) * B_STRENGTH;
+              const y = (e.clientY - rect.top - rect.height / 2) * B_STRENGTH;
+              btn.style.transform = `translate(${x}px, ${y}px)`;
+            });
+            btn.addEventListener('mouseleave', () => {
+              btn.style.transform = 'translate(0px, 0px)';
+            });
+          });
+        })();
+
+        // ─── CARD 3D TILT: POSITION-AWARE PRESS ───
+        (function setupCardTilt() {
+          const MAX_ANGLE = 22;
+          const DEAD_ZONE = 0.12;
+          const TILT_DUR = '0.12s ease-out';
+          const SPRING_DUR = '0.55s cubic-bezier(.34,1.56,.64,1)';
+
+          document.querySelectorAll('.metric-card, .bot-card, .facc').forEach(card => {
+            card.style.transformStyle = 'preserve-3d';
+
+            card.addEventListener('mousedown', function (e) {
+              const rect = this.getBoundingClientRect();
+              const offX = ((e.clientX - rect.left) - rect.width / 2) / (rect.width / 2);
+              const offY = ((e.clientY - rect.top) - rect.height / 2) / (rect.height / 2);
+              const aX = Math.abs(offX), aY = Math.abs(offY);
+              if (aX < DEAD_ZONE && aY < DEAD_ZONE) return;
+
+              const rotY = (aX > DEAD_ZONE ? offX : 0) * MAX_ANGLE;
+              const rotX = -(aY > DEAD_ZONE ? offY : 0) * MAX_ANGLE;
+
+              this.style.animation = 'none';
+              this.style.transition = `transform ${TILT_DUR}`;
+              void this.offsetWidth;
+              this.style.transform = `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+            });
+
+            const resetCard = function () {
+              this.style.transition = `transform ${SPRING_DUR}, box-shadow 0.5s, border-color 0.4s`;
+              this.style.transform = '';
+            };
+
+            card.addEventListener('mouseup', resetCard);
+            card.addEventListener('mouseleave', resetCard);
+          });
+        })();
+
+        // ─── INJECT EDGE GLOW DIVS INTO CARDS ───
+        (function addEdgeDivs() {
+          document.querySelectorAll('.metric-card, .bot-card, .facc').forEach(card => {
+            ['card-edge-top', 'card-edge-bottom', 'card-edge-left', 'card-edge-right'].forEach(cls => {
+              if (!card.querySelector('.' + cls)) {
+                const el = document.createElement('div');
+                el.className = cls;
+                card.prepend(el);
+              }
+            });
+          });
+        })();
+
+        // ─── MOUSE GLOW ───
+        function trackM(el, e) { const r = el.getBoundingClientRect(); el.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%'); el.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%') }
+        window.trackM = trackM;
+
+        // ─── SCROLL PANELS ───
+        const sc = document.getElementById('scroll-container');
+        const panels = Array.from(document.querySelectorAll('.panel[data-index]'));
+        const dotsEl = document.getElementById('scroll-dots');
+        const PANEL_COUNT = panels.length;
+
+        panels.forEach((_, i) => {
+          const d = document.createElement('div');
+          d.className = 'sdot' + (i === 0 ? ' active' : '');
+          d.onclick = () => goPanel(i);
+          dotsEl.appendChild(d);
+        });
+        function goPanel(i) {
+          lenis.scrollTo(panels[i], { offset: 0, duration: 1.5, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+        }
+        window.goPanel = goPanel;
+
+        window.addEventListener('mousedown', (e) => {
+          if (e.target.closest('.sdot, a, button, .nbtn, .hbtn')) return;
+          const currentPos = sc.scrollTop;
+          sc.style.scrollBehavior = 'auto';
+          sc.scrollTo({ top: currentPos });
+        }, true);
+
+        let currentPanel = 0;
+        const panelObs = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              const idx = parseInt(entry.target.dataset.index);
+              currentPanel = idx;
+              document.querySelectorAll('.sdot').forEach((d, i) => d.classList.toggle('active', i === idx));
+              document.querySelectorAll('.nav-links a').forEach((a, i) => a.style.color = (i === idx) ? 'var(--brand)' : 'var(--t3)');
+            }
+          });
+        }, { root: sc, threshold: .45 });
+
+        panels.forEach(p => panelObs.observe(p));
+        panels[0].classList.add('visible');
+
+        // ─── TICKER ───
+        const TICKS = [
+          { s: 'SBTC/USDT', p: 43218.40, d: +2.34 }, { s: 'SETH/USDT', p: 2891.55, d: +1.87 },
+          { s: 'SNIFTY', p: 22104.80, d: -.43 }, { s: 'SGOLD', p: 2312.10, d: +.92 },
+          { s: 'SBNB', p: 598.20, d: +3.11 }, { s: 'SCRUDE', p: 84.37, d: -1.02 },
+          { s: 'SSOL', p: 168.45, d: +5.22 }, { s: 'SINR/USD', p: 83.42, d: -.18 },
+          { s: 'SAAVE', p: 310.88, d: +2.07 }, { s: 'SDOT', p: 9.44, d: +1.55 },
+        ];
+        function fmt(p) { return p.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }
+        document.getElementById('ticker').innerHTML = [...TICKS, ...TICKS].map(t => `<div class="tick-item"><span class="tick-sym">${t.s}</span><span class="tick-px">${fmt(t.p)}</span><span class="${t.d >= 0 ? 'tick-up' : 'tick-dn'}">${t.d >= 0 ? '+' : ''}${t.d.toFixed(2)}%</span></div>`).join('');
+
+        // ─── HERO CHART ───
+        function genC(n, base) { let p = base, a = []; for (let i = 0; i < n; i++) { const o = p, c = o + (Math.random() - .46) * 65; a.push({ o, h: Math.max(o, c) + Math.random() * 22, l: Math.min(o, c) - Math.random() * 22, c }); p = c; } return a; }
+        const cand = genC(60, 43000);
+        function drawH() {
+          const cv = document.getElementById('h-canvas'); if (!cv) return;
+          const ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
+          ctx.clearRect(0, 0, W, H);
+          const prices = cand.flatMap(c => [c.h, c.l]), mn = Math.min(...prices), mx2 = Math.max(...prices);
+          const pad = 5, sy = p => pad + (1 - (p - mn) / (mx2 - mn)) * (H - pad * 2), gap = W / cand.length, cw = gap * .72;
+          cand.forEach((c, i) => {
+            const x = i * gap + gap / 2, up = c.c >= c.o, col = up ? '#18c96a' : '#e83535';
+            ctx.strokeStyle = col; ctx.lineWidth = .8; ctx.beginPath(); ctx.moveTo(x, sy(c.h)); ctx.lineTo(x, sy(c.l)); ctx.stroke();
+            ctx.fillStyle = col; ctx.fillRect(x - cw / 2, sy(Math.max(c.o, c.c)), cw, Math.max(sy(Math.min(c.o, c.c)) - sy(Math.max(c.o, c.c)), 1));
+          });
+        }
+        drawH();
+        setInterval(() => {
+          const last = cand[cand.length - 1], chg = (Math.random() - .47) * 52, nc = last.c + chg;
+          cand[cand.length - 1] = { ...last, c: nc, h: Math.max(last.h, nc), l: Math.min(last.l, nc) };
+          if (Math.random() < .08) { if (cand.length > 80) cand.shift(); cand.push({ o: nc, h: nc, l: nc, c: nc }); }
+          drawH();
+          const pd = document.getElementById('h-price'); if (pd) pd.textContent = fmt(nc);
+          const cd = document.getElementById('h-chg'), up = nc >= 43000; if (cd) { cd.textContent = (up ? '▲ +' : '▼ ') + ((nc - 43000) / 43000 * 100).toFixed(2) + '%'; cd.style.color = up ? '#18c96a' : '#e83535'; }
+          const eq = 94820 + .12 * nc, pnl = eq - 100000;
+          const ev = document.getElementById('eq-val'); if (ev) ev.textContent = '$' + fmt(eq);
+          const pv = document.getElementById('pnl-val'); if (pv) { pv.textContent = (pnl >= 0 ? '+$' : '-$') + Math.abs(pnl).toFixed(2); pv.style.color = pnl >= 0 ? '#18c96a' : '#e83535'; }
+        }, 1000);
+
+        // ─── ORDER BOOK ───
+        let asks = [{ p: 43221.00, s: .45 }, { p: 43220.50, s: 1.20 }, { p: 43220.00, s: .82 }, { p: 43219.50, s: 2.10 }, { p: 43219.00, s: .37 }];
+        let bids = [{ p: 43218.50, s: 1.85 }, { p: 43218.00, s: .93 }, { p: 43217.50, s: 3.40 }, { p: 43217.00, s: .61 }, { p: 43216.50, s: 1.10 }];
+        function renderOB() {
+          const mA = Math.max(...asks.map(l => l.s)), mB = Math.max(...bids.map(l => l.s));
+          const aEl = document.getElementById('h-asks'), bEl = document.getElementById('h-bids');
+          if (aEl) aEl.innerHTML = [...asks].reverse().map(l => `<div class="ob-row"><div class="ob-bar" style="width:${(l.s / mA * 100).toFixed(0)}%;background:rgba(232,53,53,.1)"></div><span class="ob-px" style="color:#e83535">${l.p.toFixed(2)}</span><span class="ob-sz">${l.s.toFixed(3)}</span></div>`).join('');
+          if (bEl) bEl.innerHTML = bids.map(l => `<div class="ob-row"><div class="ob-bar" style="width:${(l.s / mB * 100).toFixed(0)}%;background:rgba(24,201,106,.1)"></div><span class="ob-px" style="color:#18c96a">${l.p.toFixed(2)}</span><span class="ob-sz">${l.s.toFixed(3)}</span></div>`).join('');
+          const sp = document.getElementById('h-spread'); if (sp) sp.textContent = 'Spread: ' + (asks[0].p - bids[0].p).toFixed(2);
+        }
+        renderOB();
+        setInterval(() => {
+          asks = asks.map(l => ({ p: Math.round((l.p + (Math.random() - .5) * .35) * 100) / 100, s: Math.max(.05, l.s + (Math.random() - .5) * .18) }));
+          bids = bids.map(l => ({ p: Math.round((l.p + (Math.random() - .5) * .35) * 100) / 100, s: Math.max(.05, l.s + (Math.random() - .5) * .18) }));
+          renderOB();
+        }, 700);
+
+        // ─── BOT FEEDS ───
+        function addBot(feedId, isMM) {
+          const feed = document.getElementById(feedId); if (!feed) return;
+          const buy = Math.random() > (isMM ? .5 : .4), price = (43218 + (Math.random() - .5) * 28).toFixed(2);
+          const qty = ((isMM ? .02 : .05) + Math.random() * .22).toFixed(3);
+          const now = new Date(), ts = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+          const row = document.createElement('div'); row.className = 'trade-row';
+          row.innerHTML = `<span class="tside ${buy ? 'buy' : 'sell'}">${buy ? 'BUY' : 'SELL'}</span><span class="tpx">${price}</span><span class="tqty">${qty}</span><span class="ttime">${ts}</span>`;
+          feed.insertBefore(row, feed.firstChild); if (feed.children.length > 5) feed.removeChild(feed.lastChild);
+        }
+        function addHBot() {
+          const feed = document.getElementById('h-bots'); if (!feed) return;
+          const buy = Math.random() > .5, price = (43218 + (Math.random() - .5) * 18).toFixed(2);
+          const qty = (Math.random() * .28 + .04).toFixed(3), bot = ['MARKET MAKER', 'ALPHA'][Math.floor(Math.random() * 2)];
+          const d = document.createElement('div'); d.style.cssText = 'display:flex;align-items:center;gap:5px;margin-bottom:5px';
+          d.innerHTML = `<div style="width:5px;height:5px;border-radius:50%;background:${buy ? '#18c96a' : 'var(--brand)'};animation:blink 1.3s infinite;flex-shrink:0"></div><span style="font-size:8px;color:var(--t3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${bot}</span><span style="font-size:8px;color:${buy ? '#18c96a' : '#e83535'}">${buy ? 'BUY' : 'SELL'} ${qty}</span>`;
+          feed.insertBefore(d, feed.firstChild); if (feed.children.length > 4) feed.removeChild(feed.lastChild);
+        }
+        for (let i = 0; i < 5; i++) { addBot('mm-feed', true); addBot('alpha-feed', false); addHBot(); }
+        setInterval(() => addBot('mm-feed', true), 900);
+        setInterval(() => addBot('alpha-feed', false), 2200);
+        setInterval(addHBot, 1800);
+
+        // ─── DEPTH CHART ───
+        function drawDepth() {
+          const c = document.getElementById('depth-canvas'); if (!c) return;
+          const ctx = c.getContext('2d'), W = c.width, H = c.height;
+          ctx.clearRect(0, 0, W, H);
+          const levels = 16, mid = W / 2;
+          let bC = [], aC = [], bS = 0, aS = 0;
+          for (let i = 0; i < levels; i++) { bS += .4 + Math.random() * 1.9; aS += .4 + Math.random() * 1.9; bC.push(bS); aC.push(aS); }
+          const maxC = Math.max(...bC, ...aC), sy = v => H - 20 - (v / maxC) * (H - 38), step = mid / levels;
+          function drawSide(cum, sx, dir, stroke, colA, colB) {
+            ctx.beginPath(); ctx.moveTo(sx, H - 20);
+            for (let i = 0; i < levels; i++) {
+              const x = dir === 1 ? sx + i * step : sx - (i + 1) * step, nx = x + (dir === 1 ? step : -step);
+              ctx.lineTo(dir === 1 ? x : nx, sy(cum[i])); ctx.lineTo(dir === 1 ? nx : x, sy(cum[i]));
+            }
+            ctx.lineTo(dir === 1 ? W : 0, H - 20); ctx.closePath();
+            const g = ctx.createLinearGradient(dir === 1 ? mid : 0, 0, dir === 1 ? W : mid, 0);
+            g.addColorStop(0, colA); g.addColorStop(1, colB);
+            ctx.fillStyle = g; ctx.fill();
+            ctx.strokeStyle = stroke; ctx.lineWidth = 1.5; ctx.stroke();
+          }
+          drawSide(bC, mid, -1, '#18c96a', 'rgba(24,201,106,.03)', 'rgba(24,201,106,.24)');
+          drawSide(aC, mid, 1, '#e83535', 'rgba(232,53,53,.24)', 'rgba(232,53,53,.03)');
+          ctx.strokeStyle = 'rgba(255,255,255,.03)'; ctx.lineWidth = 1;
+          for (let i = 1; i < 4; i++) { ctx.beginPath(); ctx.moveTo(0, H / 4 * i); ctx.lineTo(W, H / 4 * i); ctx.stroke(); }
+          ctx.beginPath(); ctx.moveTo(mid, 0); ctx.lineTo(mid, H); ctx.strokeStyle = 'rgba(232,160,32,.3)'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]); ctx.stroke(); ctx.setLineDash([]);
+          ctx.font = '8px IBM Plex Mono,monospace'; ctx.fillStyle = 'rgba(110,120,150,.7)'; ctx.fillText('BIDS', 8, H - 5); ctx.fillText('ASKS', W - 32, H - 5);
+        }
+        drawDepth(); setInterval(drawDepth, 1200);
+
+        // ─── PRELOADER ENGINE ───
+        const pl = document.getElementById('preloader');
+        const counter = document.getElementById('pl-counter');
+        const log = document.getElementById('mission-log');
+        const canvas = document.getElementById('preloader-canvas');
+        const flash = document.getElementById('screen-flash');
+        const appView = document.getElementById('app-view');
+        const ctx = canvas.getContext('2d');
+
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        function resizeCanvas() {
+          canvas.width = window.innerWidth * dpr; canvas.height = window.innerHeight * dpr;
+          canvas.style.width = window.innerWidth + 'px'; canvas.style.height = window.innerHeight + 'px';
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const W = () => window.innerWidth, H = () => window.innerHeight;
+        const stars = [];
+        for (let i = 0; i < 180; i++) stars.push({ x: Math.random() * W(), y: Math.random() * H(), speed: .3 + Math.random() * 1.2, len: 8 + Math.random() * 22, alpha: .08 + Math.random() * .14, hue: 35 + Math.random() * 15 });
+
+        let hyperMode = false, launchMode = false, fwMode = false, revealTriggered = false, revealDone = false;
+        function drawStars() {
+          for (const s of stars) {
+            const spd = hyperMode ? s.speed * (launchMode ? 30 : 18) : s.speed * 1.8;
+            const len = hyperMode ? s.len * (launchMode ? 11 : 3.5) : s.len;
+            s.y += spd; if (s.y > H() + len) { s.y = -len; s.x = Math.random() * W(); }
+            const g = ctx.createLinearGradient(s.x, s.y - len, s.x, s.y);
+            g.addColorStop(0, `hsla(${s.hue},80%,60%,0)`);
+            g.addColorStop(.5, `hsla(${s.hue},80%,60%,${s.alpha * (hyperMode ? 2.8 : 1)})`);
+            g.addColorStop(1, `hsla(${s.hue},80%,60%,0)`);
+            ctx.strokeStyle = g; ctx.lineWidth = hyperMode ? (launchMode ? 2.2 : 1.5) : .8;
+            ctx.beginPath(); ctx.moveTo(s.x, s.y - len); ctx.lineTo(s.x, s.y); ctx.stroke();
+          }
+        }
+
+        const fwParticles = [];
+        const FWC = ['#FFD700', '#FFA500', '#FF6347', '#FFFFFF', '#87CEEB', '#FFE4B5', '#F0E68C', '#e8a020', '#FF4500', '#00CED1'];
+        function spawnBurst(cx, cy, count, speed, pool) {
+          for (let i = 0; i < count; i++) {
+            const a = (Math.PI * 2 / count) * i + (Math.random() - .5) * .3, v = speed * (.5 + Math.random() * .8);
+            fwParticles.push({ x: cx, y: cy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 1, decay: .009 + Math.random() * .01, size: 1.5 + Math.random() * 2.5, color: pool[Math.floor(Math.random() * pool.length)], trail: [], gravity: .04 + Math.random() * .03, secondary: Math.random() > .75 });
+          }
+        }
+        function spawnFireworks() {
+          const cx = W() / 2, cy = H() * .42;
+          spawnBurst(cx, cy, 180, 8, ['#FFD700', '#FFA500', '#e8a020', '#FFE4B5', '#FFFFFF']);
+          setTimeout(() => { spawnBurst(cx - W() * .15, cy - 40, 80, 6, ['#FF6347', '#FF4500', '#FFD700', '#FFFFFF']); spawnBurst(cx + W() * .15, cy - 30, 80, 6, ['#87CEEB', '#00CED1', '#FFFFFF', '#FFD700']); }, 200);
+          setTimeout(() => { spawnBurst(cx, cy - 80, 100, 7, ['#FFD700', '#FFA500', '#FFFFFF', '#F0E68C']); spawnBurst(cx - W() * .08, cy + 20, 60, 5, ['#e8a020', '#FFE4B5', '#FFFFFF']); spawnBurst(cx + W() * .08, cy + 20, 60, 5, ['#FF6347', '#FFD700', '#FFFFFF']); }, 420);
+          setTimeout(() => { for (let r = 0; r < 3; r++) spawnBurst(cx + (Math.random() - .5) * W() * .3, cy + (Math.random() - .5) * 90, 55, 5 + r * 2, FWC); }, 660);
+        }
+        function drawFireworks() {
+          for (let i = fwParticles.length - 1; i >= 0; i--) {
+            const p = fwParticles[i];
+            p.trail.push({ x: p.x, y: p.y, a: p.life }); if (p.trail.length > 8) p.trail.shift();
+            p.vx *= .978; p.vy *= .978; p.vy += p.gravity; p.x += p.vx; p.y += p.vy; p.life -= p.decay;
+            for (let t = 0; t < p.trail.length; t++) { const tp = p.trail[t]; ctx.beginPath(); ctx.arc(tp.x, tp.y, p.size * .5 * (t / p.trail.length), 0, Math.PI * 2); ctx.fillStyle = p.color; ctx.globalAlpha = Math.max(0, tp.a * (t / p.trail.length) * .4); ctx.fill(); }
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2); ctx.fillStyle = p.color; ctx.globalAlpha = Math.max(0, p.life); ctx.fill();
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.size * p.life * 3, 0, Math.PI * 2); ctx.fillStyle = p.color; ctx.globalAlpha = Math.max(0, p.life * .14); ctx.fill();
+            ctx.globalAlpha = 1;
+            if (p.secondary && p.life < .3 && p.life > .25) { spawnBurst(p.x, p.y, 7, 1.8, [p.color, '#FFFFFF']); p.secondary = false; }
+            if (p.life <= 0) fwParticles.splice(i, 1);
+          }
+        }
+        let animating = true;
+        function renderFrame() { if (!animating) return; ctx.clearRect(0, 0, W(), H()); drawStars(); if (fwMode) drawFireworks(); requestAnimationFrame(renderFrame); }
+        renderFrame();
+
+        const logMessages = ["INIT://Atmosphere Status: Stable.", "CMD://Engage LAUNCH sequence...", "FLT://T-Minus 5 seconds.", "LOG://Calculating high-speed data feeds...", "FLT://Engine ignition sequence...", "FLT://Maximum speed reached.", "READY://Terminal 100% established."];
+        let count = 0, logIdx = 0, startTime;
+        const TOTAL_DURATION = 4200;
+
+        function updateCounter() {
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min(1, elapsed / TOTAL_DURATION);
+          count = Math.floor(progress * 100);
+          counter.textContent = String(count).padStart(2, '0');
+          const bar = document.getElementById('pl-bar-fill');
+          if (bar) bar.style.width = count + '%';
+          const ry = getRocketY(count);
+          document.documentElement.style.setProperty('--ry', ry + 'px');
+          if (launchMode) {
+            const thr = pl.querySelector('.thruster');
+            if (thr) { const t = Math.max(0, (count - 88) / 12); thr.style.animationDuration = Math.max(0.022, .1 - t * .078) + 's'; }
+          }
+          if (count > 45 && !hyperMode) { hyperMode = true; pl.classList.add('ignition'); startupAudio.volume = 0.9; }
+          if (count > 88 && !launchMode) { launchMode = true; pl.classList.add('launch'); startupAudio.volume = 1.0; }
+          if (count >= 96 && !fwMode) { fwMode = true; spawnFireworks(); }
+          if (count >= 100 && !revealTriggered) { revealTriggered = true; pl.classList.add('fw-active'); setTimeout(grandReveal, 900); }
+          if (count < 100) requestAnimationFrame(updateCounter);
+        }
+        function getRocketY(c) {
+          // Stage 1: 0-30% - Total Ignition (Stationary/Vibrating)
+          if (c <= 30) return 0;
+
+          // Stage 2: 30-75% - Slow, weighted upward crawl
+          if (c <= 75) {
+            const t = (c - 30) / 45;
+            return -(Math.pow(t, 2) * 110); // Slowly rises to 110px
+          }
+
+          // Stage 3: 75-100% - Exponential blast-off into warp
+          const t = (c - 75) / 25;
+          return -110 - (Math.pow(t, 4.8) * 1300); // Massive acceleration past screen
+        }
+
+        window.startMission = function () {
+          document.getElementById('launch-overlay').classList.add('fade-out');
+          startupAudio.play().catch(e => console.warn("Audio blocked:", e));
+          startTime = Date.now();
+          updateCounter();
+          const logInt = setInterval(() => {
+            if (logIdx < logMessages.length) {
+              const row = document.createElement('div');
+              row.style.cssText = 'opacity:0;transform:translateY(8px);transition:opacity 0.3s,transform 0.3s';
+              row.textContent = '>> ' + logMessages[logIdx];
+              log.insertBefore(row, log.firstChild);
+              requestAnimationFrame(() => { row.style.opacity = '1'; row.style.transform = 'translateY(0)'; });
+              logIdx++;
+            } else clearInterval(logInt);
+          }, 600);
+        };
+
+        function grandReveal() {
+          if (revealDone) return;
+          revealDone = true;
+
+          // Smoothly transition intro volume to a comfortable background level
+          const ambientFade = setInterval(() => {
+            if (startupAudio.volume > 0.45) { startupAudio.volume -= 0.02; }
+            else { clearInterval(ambientFade); }
+          }, 100);
+
+          flash.classList.add('flash');
+          setTimeout(() => { pl.classList.add('hide'); }, 200);
+          setTimeout(() => { appView.classList.add('cinematic-reveal'); }, 350);
+          setTimeout(() => {
+            document.querySelectorAll('.panel-content').forEach(el => {
+              el.style.opacity = '1'; el.style.transform = 'translateY(0)';
+            });
+            animating = false;
+          }, 1200);
+        }
+      });
+
+
+    </script>
+  </div> <!-- end app-view -->
 </body>
+
 </html>
 
