@@ -6,3 +6,4 @@
 
 export * from './ordersApi.js';
 export * from './portfolioApi.js';
+export * from './authApi.js';

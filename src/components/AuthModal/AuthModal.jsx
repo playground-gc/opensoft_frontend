@@ -1,25 +1,40 @@
 import React, { useState } from 'react';
+import { register, login } from '../../services/api';
+import { useAuthStore } from '../../store';
 import { useGoogleLogin } from '@react-oauth/google';
 
 export default function AuthModal({ onClose, onSuccess }) {
+    const setAuth = useAuthStore(state => state.setAuth);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [username, setUsername] = useState('');
     const [error, setError] = useState('');
     const [isSignUp, setIsSignUp] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-    const handleNormalLogin = (e) => {
+    const handleNormalLogin = async (e) => {
         e.preventDefault();
-        if (!email || !password) {
-            setError('Please enter both email and password.');
+        // setError('');
+        if (!password || (!email && !username)) {
+            setError('Please enter username/email and password.');
             return;
         }
-        
-        if (isSignUp) {
-            console.log("Normal Sign Up Successful:", email);
-            onSuccess(email);
-        } else {
-            console.log("Normal Login Successful:", email);
-            onSuccess(email);
+        setLoading(true);
+        try {
+            if (isSignUp) {
+                const res = await register({ username: username || email, email, password });
+                setAuth({ token: res.access_token, username: res.username, userId: res.user_id });
+                onSuccess(res.username);
+            } else {
+                const res = await login({ username: username || email, password });
+                setAuth({ token: res.access_token, username: res.username, userId: res.user_id });
+                onSuccess(res.username);
+            }
+            onClose();
+        } catch (err) {
+            setError(err.message || 'Authentication failed');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -45,11 +60,22 @@ export default function AuthModal({ onClose, onSuccess }) {
                 {error && <div style={styles.error}>{error}</div>}
 
                 <form onSubmit={handleNormalLogin} style={styles.formMode}>
+                    {isSignUp && (
+                        <div style={styles.inputGroup}>
+                            <label style={styles.label}>Username</label>
+                            <input
+                                type="text"
+                                style={styles.input}
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                            />
+                        </div>
+                    )}
                     <div style={styles.inputGroup}>
-                        <label style={styles.label}>Email/Phone number</label>
-                        <input 
-                            type="text" 
-                            style={styles.input} 
+                        <label style={styles.label}>Email</label>
+                        <input
+                            type="email"
+                            style={styles.input}
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />
@@ -65,7 +91,9 @@ export default function AuthModal({ onClose, onSuccess }) {
                         />
                     </div>
 
-                    <button type="submit" style={styles.loginBtn}>{isSignUp ? 'Sign Up' : 'Log In'}</button>
+                    <button type="submit" style={styles.loginBtn} disabled={loading}>
+                        {loading ? 'Please wait...' : (isSignUp ? 'Sign Up' : 'Log In')}
+                    </button>
                     {!isSignUp && <a href="#" style={styles.forgot}>Forgot Password?</a>}
                 </form>
 

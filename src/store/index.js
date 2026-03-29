@@ -10,3 +10,4 @@ export * from './orderBookStore.js';
 export * from './portfolioStore.js';
 export * from './orderStore.js';
 export * from './botStore.js';
+export * from './authStore.js';
