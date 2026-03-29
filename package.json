@@ -10,22 +10,23 @@
     "lint": "eslint src"
   },
   "dependencies": {
+    "@tanstack/react-query": "*",
+    "axios": "*",
+    "lightweight-charts": "*",
     "react": "*",
     "react-dom": "*",
     "react-router-dom": "*",
-    "zustand": "*",
-    "@tanstack/react-query": "*",
-    "axios": "*",
-    "lightweight-charts": "*"
+    "zustand": "*"
   },
   "devDependencies": {
-    "vite": "*",
+    "@eslint/js": "^9",
+    "@tailwindcss/postcss": "^4.2.2",
     "@vitejs/plugin-react": "*",
-    "tailwindcss": "*",
-    "postcss": "*",
     "autoprefixer": "*",
     "eslint": "^9",
-    "@eslint/js": "^9",
-    "eslint-plugin-react-hooks": "*"
+    "eslint-plugin-react-hooks": "*",
+    "postcss": "*",
+    "tailwindcss": "*",
+    "vite": "*"
   }
 }
