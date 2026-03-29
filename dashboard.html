@@ -706,13 +706,15 @@
       nav { padding: 0 var(--s4) }
       .features-inner, .perf-inner, .bots-inner, .depth-inner, footer { padding: 0 var(--s4) }
     }
+    #depth-canvas { width: 100%; height: 240px; max-height: 320px; display: block; }
+
     @media(max-width:768px) {
       .metrics-grid { grid-template-columns: 1fr }
       .facc-desc { opacity: 1; max-height: none }
       .hero-stats { gap: var(--s4); flex-wrap: wrap }
       .ft-grid { grid-template-columns: 1fr }
       #scroll-dots { display: none }
-      #depth-canvas { height: 180px; }
+      #depth-canvas { height: 180px !important; }
     }
 
     canvas { display: block }
@@ -1442,68 +1444,70 @@
       setInterval(() => addBot('alpha-feed', false), 2200);
       setInterval(addHBot, 1800);
 
-      // ─── DEPTH CANVAS (3D) ───
+      // ─── DEPTH CANVAS (CANDLESTICK) ───
       const depthCanvas = document.getElementById('depth-canvas');
-      if (depthCanvas && typeof THREE !== 'undefined') {
-        const scene = new THREE.Scene();
+      if (depthCanvas) {
+        const ctx = depthCanvas.getContext('2d');
 
-        const camera = new THREE.PerspectiveCamera(75, depthCanvas.width / depthCanvas.height, 0.1, 1000);
+        function drawDepthCandles() {
+          const w = depthCanvas.width = depthCanvas.clientWidth * window.devicePixelRatio;
+          const h = depthCanvas.height = depthCanvas.clientHeight * window.devicePixelRatio;
+          depthCanvas.style.width = depthCanvas.clientWidth + 'px';
+          depthCanvas.style.height = depthCanvas.clientHeight + 'px';
+          ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0);
 
-        const renderer = new THREE.WebGLRenderer({ canvas: depthCanvas, alpha: true });
+          ctx.clearRect(0, 0, depthCanvas.clientWidth, depthCanvas.clientHeight);
+          ctx.fillStyle = '#0b1a33';
+          ctx.fillRect(0, 0, depthCanvas.clientWidth, depthCanvas.clientHeight);
 
-        renderer.setSize(depthCanvas.width, depthCanvas.height);
+          const candleCount = 40;
+          const candleSpace = depthCanvas.clientWidth / candleCount;
+          let price = 43218;
+          const candles = [];
 
-        const bidGroup = new THREE.Group();
-
-        const askGroup = new THREE.Group();
-
-        scene.add(bidGroup);
-
-        scene.add(askGroup);
-        function updateDepth() {
-          const w = depthCanvas.width, h = depthCanvas.height;
-          dctx.clearRect(0, 0, w, h);
-          dctx.fillStyle = '#080808'; dctx.fillRect(0, 0, w, h);
-          const midPrice = 43218 + (Math.random() - .5) * 5;
-          const levels = 20, step = 8, maxVol = 15;
-          const bidPoints = [], askPoints = [];
-          let cumBid = 0, cumAsk = 0;
-          for (let i = 0; i < levels; i++) {
-            cumBid += Math.random() * step + 1;
-            cumAsk += Math.random() * step + 1;
-            bidPoints.push({ x: midPrice - (i + 1) * step, y: Math.min(cumBid, maxVol) });
-            askPoints.push({ x: midPrice + (i + 1) * step, y: Math.min(cumAsk, maxVol) });
+          for (let i = 0; i < candleCount; i++) {
+            const open = price;
+            const close = open + (Math.random() - 0.45) * 220;
+            const high = Math.max(open, close) + Math.random() * 40;
+            const low = Math.min(open, close) - Math.random() * 40;
+            candles.push({ open, close, high, low });
+            price = close;
           }
-          const allPrices = [...bidPoints.map(p => p.x), ...askPoints.map(p => p.x)];
-          const allVols = [...bidPoints.map(p => p.y), ...askPoints.map(p => p.y)];
-          const minX = Math.min(...allPrices), maxX = Math.max(...allPrices);
-          const maxY = Math.max(...allVols);
-          const px = x => ((x - minX) / (maxX - minX)) * w;
-          const py = y => h - (y / maxY) * (h * 0.85) - 10;
-          // Bids
-          dctx.beginPath(); dctx.moveTo(px(midPrice), py(0));
-          [...bidPoints].reverse().forEach(p => dctx.lineTo(px(p.x), py(p.y)));
-          dctx.lineTo(px(minX), h); dctx.lineTo(px(midPrice), h); dctx.closePath();
-          dctx.fillStyle = 'rgba(24,201,106,.15)'; dctx.fill();
-          dctx.strokeStyle = 'rgba(24,201,106,.6)'; dctx.lineWidth = 1.5;
-          dctx.beginPath(); dctx.moveTo(px(midPrice), py(0));
-          [...bidPoints].reverse().forEach(p => dctx.lineTo(px(p.x), py(p.y))); dctx.stroke();
-          // Asks
-          dctx.beginPath(); dctx.moveTo(px(midPrice), py(0));
-          askPoints.forEach(p => dctx.lineTo(px(p.x), py(p.y)));
-          dctx.lineTo(px(maxX), h); dctx.lineTo(px(midPrice), h); dctx.closePath();
-          dctx.fillStyle = 'rgba(232,53,53,.15)'; dctx.fill();
-          dctx.strokeStyle = 'rgba(232,53,53,.6)'; dctx.lineWidth = 1.5;
-          dctx.beginPath(); dctx.moveTo(px(midPrice), py(0));
-          askPoints.forEach(p => dctx.lineTo(px(p.x), py(p.y))); dctx.stroke();
-          // Mid line
-          dctx.strokeStyle = 'rgba(232,160,32,.5)'; dctx.lineWidth = 1; dctx.setLineDash([4, 4]);
-          dctx.beginPath(); dctx.moveTo(px(midPrice), 0); dctx.lineTo(px(midPrice), h); dctx.stroke();
-          dctx.setLineDash([]);
-          const midEl = document.getElementById('depth-mid'); if (midEl) midEl.textContent = 'Mid: ' + fmt(midPrice);
+
+          const prices = candles.flatMap(c => [c.high, c.low]);
+          const minPrice = Math.min(...prices); const maxPrice = Math.max(...prices);
+          const priceRange = maxPrice - minPrice || 1;
+
+          const drawX = (i) => 8 + i * candleSpace + candleSpace * 0.1;
+          const scaleY = (val) => depthCanvas.clientHeight - ((val - minPrice) / priceRange) * (depthCanvas.clientHeight - 20) - 10;
+
+          candles.forEach((candle, i) => {
+            const x = drawX(i);
+            const candleW = candleSpace * 0.6;
+            const yOpen = scaleY(candle.open);
+            const yClose = scaleY(candle.close);
+            const yHigh = scaleY(candle.high);
+            const yLow = scaleY(candle.low);
+            const isBull = candle.close >= candle.open;
+            ctx.strokeStyle = isBull ? '#18c96a' : '#e83535';
+            ctx.fillStyle = isBull ? 'rgba(24,201,106,0.6)' : 'rgba(232,53,53,0.6)';
+
+            ctx.beginPath();
+            ctx.moveTo(x + candleW / 2, yHigh);
+            ctx.lineTo(x + candleW / 2, yLow);
+            ctx.stroke();
+
+            ctx.fillRect(x, Math.min(yOpen, yClose), candleW, Math.max(2, Math.abs(yClose - yOpen)));
+            ctx.strokeRect(x, Math.min(yOpen, yClose), candleW, Math.max(2, Math.abs(yClose - yOpen)));
+          });
+
+          const midEl = document.getElementById('depth-mid');
+          if (midEl) midEl.textContent = 'Mid: ' + fmt((minPrice + maxPrice) / 2);
         }
-        drawDepth();
-        setInterval(drawDepth, 800);
+
+        drawDepthCandles();
+        setInterval(drawDepthCandles, 900);
+        window.addEventListener('resize', drawDepthCandles, { passive: true });
       }
 
       // ─── THREE.JS GLOBAL NETWORK SCENE ───
@@ -1601,4 +1605,5 @@
 
 </body>
 </html>
+
 
