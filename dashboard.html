@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,11 +6,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Synthetic Bull — Professional Trading Terminal</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- IMC BRAND TYPOGRAPHY -->
   <link
-    href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=IBM+Plex+Mono:wght@300;400;500;600&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Tenor+Sans&display=swap"
-    rel="stylesheet" />
+    href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
   <!-- LENIS SMOOTH SCROLL CSS -->
   <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.13/dist/lenis.css">
   <style>
@@ -97,18 +98,147 @@
       padding: 0;
     }
 
+    /* ─── ENFORCED & OPTIMIZED FONT HIERARCHY ─── */
+    /* ─── ENFORCED IMC FONT HIERARCHY ─── */
+    body,
+    button,
+    input,
+    select,
+    textarea,
+    a,
+    p,
+    span,
+    div {
+      font-family: 'Montserrat', sans-serif !important;
+      font-weight: 400;
+    }
+
+    /* IMC TECHNICAL HEADINGS & DATA (Condensed Precision) */
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    .hero-title,
+    .bh-title,
+    .ft-logo,
+    .sec-title,
+    .logo,
+    .feature-name,
+    .mission-hdr,
+    .facc-num,
+    .facc-name,
+    .ticket-time,
+    .m-num,
+    .stat-val,
+    .op-price,
+    .live-pip,
+    .eyebrow,
+    .bot-hdr,
+    .tbar,
+    .m-lbl,
+    .hero-kicker,
+    .tick-item,
+    .stat-lbl {
+      font-family: 'Barlow Semi Condensed', sans-serif !important;
+      font-weight: 700 !important;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    h1.hero-title,
+    .bh-title,
+    .section-title {
+      font-weight: 800 !important;
+      letter-spacing: -0.02em;
+    }
+
+
     html {
       overflow: hidden;
       height: 100%
     }
 
     body {
-      background: var(--bg);
+      background: #02040a;
+      /* Ultra-deep space black for maximum neon contrast */
       color: var(--t1);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       height: 100%;
       overflow: hidden;
       cursor: none;
+    }
+
+    /* ─── FUTURISTIC CYBER GRID ─── */
+    .cyber-grid {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background-image:
+        linear-gradient(rgba(232, 160, 32, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(232, 160, 32, 0.07) 1px, transparent 1px);
+      background-size: 50px 50px;
+      transform: perspective(600px) rotateX(60deg) translateY(-100px) scale(3);
+      transform-origin: center top;
+      opacity: 0.6;
+      pointer-events: none;
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 70%);
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 70%);
+      animation: gridMove 10s linear infinite;
+    }
+
+    @keyframes gridMove {
+      0% {
+        background-position: 0 0;
+      }
+
+      100% {
+        background-position: 0 50px;
+      }
+    }
+
+    /* ─── FUTURISTIC SCANLINES ─── */
+    .cyber-scanlines {
+      position: fixed;
+      inset: 0;
+      z-index: 9995;
+      pointer-events: none;
+      background: repeating-linear-gradient(0deg,
+          rgba(0, 0, 0, 0.15) 0px,
+          rgba(0, 0, 0, 0.15) 1px,
+          transparent 1px,
+          transparent 2px);
+      mix-blend-mode: overlay;
+      opacity: 0.8;
+    }
+
+    /* ─── ENHANCED HUD GLOW ─── */
+    .facc,
+    .metric-card,
+    .depth-ask,
+    .depth-bid,
+    .bot-card {
+      position: relative;
+    }
+
+    .facc::after,
+    .metric-card::after,
+    .bot-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 1px solid var(--brand-glow);
+      border-radius: inherit;
+      box-shadow: inset 0 0 15px rgba(232, 160, 32, 0.05);
+      /* Cyber Glare */
+      pointer-events: none;
+      transition: box-shadow 0.3s, border-color 0.3s;
+    }
+
+    .facc:hover::after,
+    .bot-card:hover::after {
+      box-shadow: inset 0 0 30px rgba(232, 160, 32, 0.15), 0 0 20px rgba(232, 160, 32, 0.2);
+      border-color: rgba(232, 160, 32, 0.4);
     }
 
     ::-webkit-scrollbar {
@@ -143,21 +273,26 @@
 
     /* ─── TOUCH INTERACTION: HIDE CUSTOM CURSOR ─── */
     @media (pointer: coarse) {
-      #cur, #cur-ring {
+
+      #cur,
+      #cur-ring {
         display: none !important;
       }
+
       body {
         cursor: auto !important;
       }
-      button, a {
+
+      button,
+      a {
         cursor: pointer !important;
       }
     }
-    
+
     @media (max-width: 1024px) {
-        #scroll-dots {
-            display: none;
-        }
+      #scroll-dots {
+        display: none;
+      }
     }
 
     /* ─── FULL-PAGE SCROLL CONTAINER ─── */
@@ -450,8 +585,23 @@
     .facc:hover .card-edge-top,
     .facc:hover .card-edge-bottom,
     .facc:hover .card-edge-left,
-    .facc:hover .card-edge-right {
+    .facc:hover .card-edge-right,
+    .order-card:hover .card-edge-top,
+    .order-card:hover .card-edge-bottom,
+    .order-card:hover .card-edge-left,
+    .order-card:hover .card-edge-right {
       opacity: 1;
+    }
+
+    /* Red themed edges for stop-loss cards */
+    .order-card.oc-red .card-edge-top,
+    .order-card.oc-red .card-edge-bottom {
+      background: linear-gradient(90deg, transparent, var(--bear), rgba(232, 53, 53, 0.9), var(--bear), transparent);
+    }
+
+    .order-card.oc-red .card-edge-left,
+    .order-card.oc-red .card-edge-right {
+      background: linear-gradient(180deg, transparent, var(--bear), rgba(232, 53, 53, 0.9), var(--bear), transparent);
     }
 
     /* ─── SCROLL INDICATOR ─── */
@@ -586,7 +736,8 @@
       color: var(--bear)
     }
 
-    /* ─── COMMON ─── */
+
+
     .eyebrow {
       font-family: 'IBM Plex Mono', monospace;
       font-size: var(--fs-xs);
@@ -697,16 +848,17 @@
       font-weight: 900;
       line-height: .9;
       letter-spacing: -.05em;
-      color: var(--t1);
+      color: var(--t1); /* First line white */
       margin-bottom: var(--s4);
     }
 
-    h1.hero-title em {
+    h1.hero-title em,
+    h1.hero-title strong,
+    h1.hero-title span {
       font-style: normal;
-      color: var(--brand);
+      color: var(--brand); /* Second line/block yellow */
       display: block;
       font-weight: 900;
-      text-transform: uppercase;
       letter-spacing: .02em;
     }
 
@@ -714,10 +866,7 @@
       font-family: 'Inter', sans-serif;
       font-size: .42em;
       letter-spacing: .05em;
-      font-weight: 800;
-      display: block;
       margin-top: var(--s2);
-      color: var(--t2);
       line-height: 1.15;
       text-transform: uppercase;
     }
@@ -839,9 +988,9 @@
     }
 
     .stat-val {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Barlow Semi Condensed', sans-serif !important;
       font-size: var(--fs-xl);
-      font-weight: 700;
+      font-weight: 800;
       color: var(--t1);
       line-height: 1
     }
@@ -949,13 +1098,60 @@
       }
     }
 
+    @keyframes iconRoll {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .roll-active {
+      animation: iconRoll 0.6s cubic-bezier(.16, 1, .3, 1);
+    }
+
+    @keyframes slideFromLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-100px);
+        filter: blur(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+        filter: blur(0);
+      }
+    }
+
+    @keyframes slideFromRight {
+      from {
+        opacity: 0;
+        transform: translateX(100px);
+        filter: blur(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+        filter: blur(0);
+      }
+    }
+
+    /* Professional slide triggers */
+    .panel.visible .slide-l {
+      animation: slideFromLeft 0.8s cubic-bezier(.16, 1, .3, 1) forwards;
+    }
+    .panel.visible .slide-r {
+      animation: slideFromRight 0.8s cubic-bezier(.16, 1, .3, 1) forwards;
+    }
+
+    .slide-l, .slide-r {
+      opacity: 0;
+    }
+
     .panel-content {
       opacity: 0;
       transform: translateY(54px) scale(0.985);
       filter: blur(5px);
-      transition: opacity 1.15s cubic-bezier(.16, 1, .3, 1),
-        transform 1.15s cubic-bezier(.16, 1, .3, 1),
-        filter 1s cubic-bezier(.16, 1, .3, 1);
+      transition: opacity 0.7s cubic-bezier(.16, 1, .3, 1),
+        transform 0.7s cubic-bezier(.16, 1, .3, 1),
+        filter 0.6s cubic-bezier(.16, 1, .3, 1);
     }
 
     .panel.visible .panel-content {
@@ -997,36 +1193,38 @@
     }
 
     .section-title {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(38px, 5vw, 82px);
-      font-weight: 400;
-      line-height: .9;
-      letter-spacing: -.018em;
+      font-family: 'Barlow Semi Condensed', sans-serif !important;
+      font-size: clamp(34px, 3.5vw, 62px);
+      font-weight: 800;
+      line-height: .95;
+      letter-spacing: -0.01em;
       color: var(--t1);
     }
 
-    .section-title em {
-      font-style: italic;
-      color: var(--brand)
+    .section-title em,
+    .section-title span {
+      font-style: normal;
+      color: var(--brand);
+      display: inline-block; /* Ensure color applies correctly across line breaks */
     }
 
     .section-title strong {
-      font-family: 'Archivo Black', sans-serif;
+      font-family: 'Barlow Semi Condensed', sans-serif !important;
       font-weight: 900;
-      font-size: .75em;
-      letter-spacing: .04em;
+      font-size: .85em;
+      letter-spacing: .02em;
       color: var(--t2)
     }
 
     .section-sub {
-      font-family: 'Tenor Sans', serif;
+      font-family: 'Montserrat', sans-serif !important;
       font-size: clamp(14px, 1.2vw, 17px);
       line-height: 1.95;
       color: var(--t3);
       max-width: 480px;
       margin-top: var(--s3)
     }
-    
+
     @media (max-width: 768px) {
       .section-sub {
         font-size: 14px;
@@ -1035,63 +1233,77 @@
       }
     }
 
-    /* ACCORDION FEATURES — golden proportions */
-    .feat-accordion {
+    /* PROFESSIONAL HORIZONTAL TRACK — Groww Inspired */
+    .feat-row {
       display: flex;
-      gap: 4px;
-      height: min(440px, 60vh);
-      background: var(--border);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-      margin-top: var(--s3)
+      gap: var(--s5);
+      width: 100%;
+      overflow-x: auto;
+      padding: var(--s4) 0 var(--s6) 0;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+      scroll-behavior: smooth;
+    }
+
+    .feat-row::-webkit-scrollbar {
+      display: none;
     }
 
     .facc {
-      flex: 1;
-      background: var(--raised);
-      padding: var(--s4) var(--s3);
+      flex: 0 0 340px;
+      min-width: 340px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: var(--s6) var(--s5);
       position: relative;
       overflow: hidden;
-      transition: flex .6s cubic-bezier(.16, 1, .3, 1), background .35s, box-shadow .4s;
-      cursor: none;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      cursor: grab;
+      transition: transform 0.3s, background 0.4s;
     }
+
+    .facc:active {
+      cursor: grabbing;
+    }
+
+    /* Groww-style unique shades for each card */
+    .facc:nth-child(1) { background: linear-gradient(135deg, rgba(24,201,106,0.08) 0%, var(--surface) 100%); }
+    .facc:nth-child(2) { background: linear-gradient(135deg, rgba(232,160,32,0.08) 0%, var(--surface) 100%); }
+    .facc:nth-child(3) { background: linear-gradient(135deg, rgba(0,163,255,0.08) 0%, var(--surface) 100%); }
+    .facc:nth-child(4) { background: linear-gradient(135deg, rgba(167,82,255,0.08) 0%, var(--surface) 100%); }
+    .facc:nth-child(5) { background: linear-gradient(135deg, rgba(232,53,53,0.08) 0%, var(--surface) 100%); }
 
     .facc:hover {
-      flex: 5;
-      animation: faccFloat 2.4s ease-in-out infinite;
-      background: var(--surface);
-      box-shadow: inset 0 0 40px rgba(232, 160, 32, 0.06);
-      overflow-y: auto;
+      transform: translateY(-8px);
+      /* Professional: Removed perimeter light/glow as requested */
     }
 
-    /* Radial light burst for feature cards */
-    .facc-glow {
+    /* Scrollytelling Progress */
+    .feat-progress-container {
+      width: 120px;
+      height: 3px;
+      background: var(--border);
+      margin: 0 auto;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    .feat-progress-bar {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(232, 160, 32, 0.20) 0%, rgba(232, 160, 32, 0.06) 45%, transparent 70%);
-      transform: translate(-50%, -50%);
-      transition: width 0.65s cubic-bezier(.16, 1, .3, 1), height 0.65s cubic-bezier(.16, 1, .3, 1), opacity 0.55s;
-      opacity: 0;
-      pointer-events: none;
-      z-index: 0;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background: var(--brand);
+      width: 0%;
+      transition: width 0.1s linear;
     }
 
-    .facc:hover .facc-glow {
-      width: 600px;
-      height: 600px;
-      opacity: 1;
-    }
 
-    .facc:hover {
-      flex: 2.618;
-      background: var(--surface);
-      box-shadow: inset 0 0 40px rgba(232, 160, 32, 0.06)
-    }
 
     @media (max-width: 768px) {
       .feat-accordion {
@@ -1159,16 +1371,8 @@
       font-size: clamp(12px, 0.85vw, 14px);
       line-height: 1.6;
       color: var(--t3);
-      opacity: 0;
-      max-height: 0;
-      overflow: hidden;
-      transition: opacity .4s .1s, max-height .55s .05s, margin .4s;
-    }
-
-    .facc:hover .facc-desc {
-      opacity: 1;
-      max-height: 600px;
-      margin-bottom: var(--s4)
+      margin-top: var(--s2);
+      margin-bottom: var(--s4);
     }
 
     .facc-tags {
@@ -1231,48 +1435,7 @@
       color: rgba(232, 160, 32, .06)
     }
 
-    /* ─── FLOATING ANIMATION ─── */
-    @keyframes cardFloat {
 
-      0%,
-      100% {
-        transform: translateY(-8px) scale(1.025);
-        box-shadow: 0 28px 80px rgba(0, 0, 0, .65), 0 0 55px rgba(232, 160, 32, 0.14);
-      }
-
-      50% {
-        transform: translateY(-16px) scale(1.03);
-        box-shadow: 0 44px 110px rgba(0, 0, 0, .78), 0 0 80px rgba(232, 160, 32, 0.24);
-      }
-    }
-
-    @keyframes botCardFloat {
-
-      0%,
-      100% {
-        transform: translateY(-5px) scale(1.022);
-        box-shadow: 0 22px 65px rgba(0, 0, 0, .5), 0 0 45px rgba(232, 160, 32, 0.12);
-      }
-
-      50% {
-        transform: translateY(-13px) scale(1.026);
-        box-shadow: 0 38px 90px rgba(0, 0, 0, .65), 0 0 70px rgba(232, 160, 32, 0.22);
-      }
-    }
-
-    @keyframes faccFloat {
-
-      0%,
-      100% {
-        transform: translateY(0px);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, .4), 0 0 30px rgba(232, 160, 32, 0.08);
-      }
-
-      50% {
-        transform: translateY(-8px);
-        box-shadow: 0 28px 70px rgba(0, 0, 0, .6), 0 0 55px rgba(232, 160, 32, 0.18);
-      }
-    }
 
     /* ─── PANEL 3 — PERFORMANCE / METRICS ─── */
     #p-performance {
@@ -1367,8 +1530,17 @@
 
     .metric-card:hover {
       border-color: rgba(232, 160, 32, 0.6);
-      animation: cardFloat 2.6s ease-in-out infinite;
+      /* Professional: Removed linear displacement - inspired by Groww */
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(232, 160, 32, 0.05);
     }
+
+    .bot-card:hover {
+      border-color: rgba(232, 160, 32, 0.6);
+      /* IMC Deviation */
+      transform: translate(6px, -3px);
+      box-shadow: 12px 12px 35px rgba(0, 0, 0, 0.5), 0 0 35px rgba(232, 160, 32, 0.08);
+    }
+
 
     .metric-num {
       font-family: 'Inter', sans-serif;
@@ -1450,7 +1622,8 @@
 
     .bot-card:hover {
       border-color: rgba(232, 160, 32, 0.6);
-      animation: botCardFloat 2.8s ease-in-out infinite;
+      transform: perspective(1000px) rotateX(2deg) rotateY(1deg) translateY(-6px) scale(1.01);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 35px rgba(232, 160, 32, 0.08);
     }
 
     .bot-hdr {
@@ -1601,30 +1774,35 @@
     }
 
     @media (max-width: 768px) {
-        .cta-inner {
-            text-align: center;
-        }
-        .cta-title {
-            font-size: var(--fs-xl);
-            line-height: 1.1;
-        }
-        .cta-sub {
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .ft-grid {
-            grid-template-columns: 1fr !important;
-            gap: var(--s5) !important;
-            text-align: center;
-        }
-        .ft-logo {
-            justify-content: center;
-        }
-        .ft-bottom {
-            flex-direction: column;
-            gap: var(--s3);
-            text-align: center;
-        }
+      .cta-inner {
+        text-align: center;
+      }
+
+      .cta-title {
+        font-size: var(--fs-xl);
+        line-height: 1.1;
+      }
+
+      .cta-sub {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .ft-grid {
+        grid-template-columns: 1fr !important;
+        gap: var(--s5) !important;
+        text-align: center;
+      }
+
+      .ft-logo {
+        justify-content: center;
+      }
+
+      .ft-bottom {
+        flex-direction: column;
+        gap: var(--s3);
+        text-align: center;
+      }
     }
 
     /* ─── PANEL 6 — CTA ─── */
@@ -1649,13 +1827,14 @@
     }
 
     .cta-title {
-      font-family: 'Playfair Display', serif;
+      font-family: 'Barlow Semi Condensed', sans-serif !important;
       font-size: clamp(48px, 6.5vw, var(--fs-3xl));
-      font-weight: 400;
-      font-style: italic;
+      font-weight: 800;
+      font-style: normal;
       line-height: .9;
       color: var(--t1);
       margin-bottom: var(--s4);
+      text-transform: uppercase;
     }
 
     .cta-sub {
@@ -1798,32 +1977,86 @@
     }
 
     /* ─── MARQUEE ─── */
-    .mqwrap {
+    .trust-wrap {
       overflow: hidden;
-      padding: var(--s5) 0;
-      border-top: 1px solid var(--border);
+      padding: var(--s5) 0 var(--s6) 0;
+      background: var(--bg);
       border-bottom: 1px solid var(--border);
-      background: var(--bg)
+      text-align: center;
+      position: relative;
     }
 
-    @keyframes marquee {
+    .trust-title {
+      font-family: 'Inter', sans-serif;
+      font-size: var(--fs-md);
+      font-weight: 800;
+      letter-spacing: .05em;
+      color: var(--t1);
+      margin-bottom: var(--s2);
+      text-transform: uppercase;
+    }
+
+    .trust-title span {
+      color: var(--brand);
+    }
+
+    .trust-sub {
+      font-size: 14px;
+      color: var(--t3);
+      margin-bottom: var(--s5);
+    }
+
+    .stock-mq-wrap {
+      display: flex;
+      width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      position: relative;
+      padding: var(--s4) 0;
+      margin: calc(var(--s4) * -1) 0;
+    }
+
+    .stock-mq-wrap::before,
+    .stock-mq-wrap::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      width: 180px;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .stock-mq-wrap::before {
+      left: 0;
+      background: linear-gradient(to right, var(--bg), transparent);
+    }
+
+    .stock-mq-wrap::after {
+      right: 0;
+      background: linear-gradient(to left, var(--bg), transparent);
+    }
+
+    @keyframes stockMarquee {
       from {
-        transform: translateX(0)
+        transform: translateX(0);
       }
 
       to {
-        transform: translateX(-50%)
+        transform: translateX(-50%);
       }
     }
 
-    .mqtrack {
+    .stock-mq-track {
       display: flex;
-      animation: marquee 28s linear infinite;
-      white-space: nowrap
+      gap: var(--s4);
+      animation: stockMarquee 35s linear infinite;
+      padding-left: var(--s4);
+      width: max-content;
     }
 
-    .mqtrack:hover {
-      animation-play-state: paused
+    .stock-mq-track:hover {
+      animation-play-state: paused;
     }
 
     @keyframes textSpin {
@@ -1845,28 +2078,383 @@
       animation: textSpin 0.6s ease-in-out;
     }
 
-    .mqitem {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(28px, 3.5vw, 55px);
-      font-weight: 400;
-      font-style: italic;
-      color: var(--t4);
-      padding: 0 var(--s4);
-      transition: color .3s;
+    .scard {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      min-width: 220px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      cursor: none;
+      transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .scard::before {
+      content: '';
+      position: absolute;
+      top: var(--my, 50%);
+      left: var(--mx, 50%);
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(232, 160, 32, 0.22) 0%, rgba(232, 160, 32, 0.08) 40%, transparent 70%);
+      transform: translate(-50%, -50%);
+      transition: width 0.55s cubic-bezier(.16, 1, .3, 1), height 0.55s cubic-bezier(.16, 1, .3, 1), opacity 0.55s;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .scard:hover::before {
+      width: 300px;
+      height: 300px;
+      opacity: 1;
+    }
+
+    .scard:hover {
+      /* IMC Deviation */
+      transform: translate(5px, -3px);
+      border-color: rgba(232, 160, 32, 0.6);
+      box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.6), 0 0 25px rgba(232, 160, 32, 0.15);
+      z-index: 10;
+    }
+
+    .sc-edge-t {
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(232, 160, 32, .6), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.6s;
+      position: absolute;
+    }
+
+    .sc-edge-b {
+      bottom: 0;
+      right: 0;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(-90deg, transparent, rgba(232, 160, 32, .6), transparent);
+      transform: translateX(100%);
+      transition: transform 0.6s;
+      position: absolute;
+    }
+
+    .sc-edge-l {
+      bottom: 0;
+      left: 0;
+      width: 1px;
+      height: 100%;
+      background: linear-gradient(0deg, transparent, rgba(232, 160, 32, .6), transparent);
+      transform: translateY(100%);
+      transition: transform 0.6s;
+      position: absolute;
+    }
+
+    .sc-edge-r {
+      top: 0;
+      right: 0;
+      width: 1px;
+      height: 100%;
+      background: linear-gradient(180deg, transparent, rgba(232, 160, 32, .6), transparent);
+      transform: translateY(-100%);
+      transition: transform 0.6s;
+      position: absolute;
+    }
+
+    .scard:hover .sc-edge-t {
+      transform: translateX(100%);
+    }
+
+    .scard:hover .sc-edge-b {
+      transform: translateX(-100%);
+    }
+
+    .scard:hover .sc-edge-l {
+      transform: translateY(-100%);
+    }
+
+    .scard:hover .sc-edge-r {
+      transform: translateY(100%);
+    }
+
+    .sc-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sc-sym {
+      font-family: 'Inter', sans-serif;
+      font-weight: 800;
+      font-size: 16px;
+      color: var(--t1);
+    }
+
+    .sc-logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      background: var(--brand-dim);
+      border: 1px solid rgba(232, 160, 32, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--brand);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .sc-price-row {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .sc-price {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--t1);
+    }
+
+    .sc-chg {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .sc-chg.up {
+      color: var(--bull);
+    }
+
+    .sc-chg.dn {
+      color: var(--bear);
+    }
+
+    /* ─── AUDIO CONTROL ─── */
+    .audio-ctrl {
+      position: fixed;
+      bottom: var(--s5);
+      right: var(--s5);
+      z-index: 9000;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(10, 10, 10, 0.4);
+      border: 1px solid rgba(232, 160, 32, 0.15);
+      backdrop-filter: blur(8px);
+      padding: 10px 18px;
+      border-radius: 50px;
+      opacity: 0.6;
+      transition: opacity 0.3s, border-color 0.3s, transform 0.3s;
       cursor: none;
     }
 
-    .mqitem:hover {
-      color: var(--brand)
+    .audio-ctrl:hover {
+      opacity: 1;
+      border-color: rgba(232, 160, 32, 0.5);
     }
 
-    .mqsep {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: var(--fs-sm);
+    .audio-icon {
+      color: var(--t2);
+      transition: color 0.3s;
+    }
+
+    .audio-ctrl:hover .audio-icon {
       color: var(--brand);
-      display: inline;
-      padding: 0 4px;
-      opacity: .35
+    }
+
+    .audio-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 70px;
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      outline: none;
+      cursor: none;
+    }
+
+    .audio-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--brand);
+      cursor: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .audio-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.4);
+      box-shadow: 0 0 10px var(--brand);
+    }
+
+    @media (max-width: 768px) {
+      .audio-ctrl {
+        bottom: var(--s3);
+        right: var(--s3);
+        padding: 8px 12px;
+      }
+
+      .audio-slider {
+        width: 50px;
+      }
+    }
+
+    /* ─── ORDER CARDS ─── */
+    .order-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: var(--s5);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+      cursor: none;
+      transition: transform 0.4s, border-color 0.4s, box-shadow 0.4s;
+      z-index: 1;
+    }
+
+    .order-card>* {
+      position: relative;
+      z-index: 2;
+    }
+
+    .order-card::before {
+      content: '';
+      position: absolute;
+      top: var(--my, 50%);
+      left: var(--mx, 50%);
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(232, 160, 32, 0.15) 0%, rgba(232, 160, 32, 0.05) 40%, transparent 70%);
+      transform: translate(-50%, -50%);
+      transition: width 0.55s cubic-bezier(.16, 1, .3, 1), height 0.55s cubic-bezier(.16, 1, .3, 1), opacity 0.55s;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .order-card:hover::before {
+      width: 400px;
+      height: 400px;
+      opacity: 1;
+    }
+
+    .order-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(232, 160, 32, 0.4), transparent);
+      opacity: 0;
+      transition: opacity 0.4s;
+      z-index: 1;
+    }
+
+    .order-card:hover::after {
+      opacity: 1;
+    }
+
+    .order-card:hover {
+      border-color: rgba(232, 160, 32, 0.6);
+      /* IMC Deviation */
+      transform: translate(8px, -4px);
+      box-shadow: 15px 15px 40px rgba(0, 0, 0, 0.7), 0 0 50px rgba(232, 160, 32, 0.15);
+      z-index: 10;
+    }
+
+    .order-card.oc-red:hover {
+      border-color: rgba(232, 53, 53, 0.6);
+      /* IMC Deviation */
+      transform: translate(8px, -4px);
+      box-shadow: 15px 15px 40px rgba(0, 0, 0, 0.7), 0 0 50px rgba(232, 53, 53, 0.15);
+    }
+
+    .order-card.oc-red::before {
+      background: radial-gradient(circle, rgba(232, 53, 53, 0.15) 0%, rgba(232, 53, 53, 0.05) 40%, transparent 70%);
+    }
+
+    .order-card.oc-red::after {
+      background: linear-gradient(90deg, transparent, rgba(232, 53, 53, 0.4), transparent);
+    }
+
+    .oc-type {
+      font-family: 'Inter', sans-serif;
+      font-weight: 800;
+      font-size: var(--fs-md);
+      color: var(--t1);
+      letter-spacing: .02em;
+    }
+
+    .oc-desc {
+      font-family: 'Tenor Sans', serif;
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--t3);
+      flex: 1;
+    }
+
+    .oc-tags {
+      display: flex;
+      gap: 6px;
+      margin-top: auto;
+    }
+
+    /* ─── STELLAR THREE.JS ─── */
+    .stellar-wrap {
+      position: relative;
+      height: 250vh;
+      background: #000;
+      overflow: clip;
+    }
+
+    .bh-sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #bh-canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+    }
+
+
+
+    /* ─── FRAMER MOTION INITIAL STATES ─── */
+    .fmt-hide {
+      opacity: 0;
+      will-change: transform, opacity;
+    }
+
+    .fmt-hide-fast {
+      opacity: 0;
+      transform: scale(0.95);
+      will-change: transform, opacity;
     }
 
     /* ─── RESPONSIVE ─── */
@@ -1943,39 +2531,20 @@
       display: block
     }
 
-    /* ─── THE MARKET SINGULARITY — Ultra-Performance Canvas Preloader ─── */
-    #preloader {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: var(--bg);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-family: 'IBM Plex Mono', monospace;
-      overflow: hidden;
-    }
-
-    #preloader.hide {
+    /* ─── TERMINAL STATUS — Minimal Header ─── */
+    .fmt-hide {
       opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s;
+      will-change: transform, opacity;
     }
 
-    /* Canvas starfield — GPU accelerated, zero DOM particles */
-    #preloader-canvas {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      width: 100%;
-      height: 100%;
+    .fmt-hide-fast {
+      opacity: 0;
+      transform: scale(0.95);
+      will-change: transform, opacity;
     }
 
-    /* Ghostly Stampede: REMOVED */
-    .ghost-animal,
-    .market-union {
-      display: none !important;
+    canvas {
+      display: block
     }
 
     /* Cinematic Zoom: Dashboard Entrance */
@@ -2024,69 +2593,6 @@
       100% {
         opacity: 0
       }
-    }
-
-    /* Rocket Wrap: JS-DRIVEN PHYSICS (slow start → exponential blast-off) */
-    .rocket-wrap {
-      position: relative;
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      will-change: transform, opacity;
-      transform: translateY(var(--ry, 0px));
-      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    #preloader.ignition .rocket-head svg {
-      filter: drop-shadow(0 0 45px var(--brand)) brightness(1.55);
-    }
-
-    #preloader.fw-active .rocket-wrap {
-      opacity: 0;
-      transition: opacity 0.5s ease-out;
-    }
-
-    .mission-control {
-      text-align: center;
-      z-index: 10;
-      width: 100%;
-      max-width: 400px;
-      position: relative;
-      will-change: opacity;
-      transition: opacity 0.4s;
-    }
-
-    #preloader.fw-active .mission-control {
-      opacity: 0;
-    }
-
-    .thruster {
-      width: 3px;
-      height: 0;
-      background: linear-gradient(to bottom, #fff5cc, var(--brand), rgba(232, 160, 32, .3), transparent);
-      box-shadow: 0 0 20px var(--brand);
-      opacity: 0;
-      transition: height 0.35s cubic-bezier(.16, 1, .3, 1), opacity 0.3s, width 0.25s, box-shadow 0.25s;
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      will-change: height, opacity;
-      border-radius: 0 0 40px 40px;
-    }
-
-    #preloader.ignition .thruster {
-      height: 80px;
-      opacity: 1;
-      animation: flamePulse 0.1s infinite alternate;
-    }
-
-    #preloader.launch .thruster {
-      height: 280px;
-      width: 7px;
-      opacity: 1;
-      box-shadow: 0 0 60px var(--brand), 0 0 100px rgba(232, 160, 32, .4);
     }
 
     /* ─── OPTIMIZED FILM GRAIN (60fps Scrolling) ─── */
@@ -2167,6 +2673,65 @@
       width: 100%;
     }
 
+    .bh-sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .bh-content {
+      position: relative;
+      z-index: 20;
+      text-align: center;
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+      pointer-events: none;
+    }
+
+    .bh-sub {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      color: var(--brand);
+      text-transform: uppercase;
+      letter-spacing: 0.8em;
+      margin-bottom: 24px;
+    }
+
+    .bh-title {
+      font-family: 'Archivo Black', sans-serif;
+      font-size: clamp(3rem, 10vw, 7.5rem);
+      line-height: 0.85;
+      margin-bottom: 32px;
+      color: #fff;
+    }
+
+    .bh-cta {
+      display: inline-block;
+      padding: 16px 40px;
+      background: var(--brand);
+      color: #000;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-radius: 4px;
+      text-decoration: none;
+      pointer-events: auto;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .bh-cta:hover {
+      background: #fff;
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+    }
+
+
     /* ─── EDITORIAL SECTION TITLES ─── */
     .section-title {
       font-family: 'Inter', sans-serif;
@@ -2188,12 +2753,23 @@
       position: fixed;
       inset: 0;
       z-index: 10001;
-      background: #05070e;
+      background: #02040a;
+      /* Darker, deeper black */
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      transition: opacity 0.8s cubic-bezier(.16, 1, .3, 1), visibility 0.8s;
+      transition: opacity 1.2s cubic-bezier(.16, 1, .3, 1), visibility 1.2s;
+    }
+
+    /* Cinematic Vignette Overlay */
+    #launch-overlay::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, transparent 30%, rgba(0, 0, 0, 0.85) 100%);
+      pointer-events: none;
+      z-index: 2;
     }
 
     #launch-overlay.fade-out {
@@ -2201,77 +2777,148 @@
       visibility: hidden;
     }
 
+    /* ─── ENHANCED DEPTH GRID ─── */
     .launch-grid {
       position: absolute;
-      inset: 0;
-      background-image: radial-gradient(var(--border) 1px, transparent 1px);
-      background-size: 40px 40px;
+      inset: -50%;
+      background-image:
+        linear-gradient(rgba(232, 160, 32, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(232, 160, 32, 0.1) 1px, transparent 1px);
+      background-size: 50px 50px;
+      transform: perspective(800px) rotateX(45deg) translateZ(0);
       opacity: 0.2;
+      animation: warpDrive 20s linear infinite;
     }
 
-    .launch-title {
-      font-family: 'Archivo Black', sans-serif;
-      font-size: 11px;
-      letter-spacing: 0.5em;
+    @keyframes warpDrive {
+      0% {
+        transform: perspective(800px) rotateX(45deg) translateY(0);
+      }
+
+      100% {
+        transform: perspective(800px) rotateX(45deg) translateY(50px);
+      }
+    }
+
+    .telemetry-line {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 8px;
+      letter-spacing: 0.4em;
       color: var(--t4);
+      opacity: 0.4;
+      margin-top: calc(var(--phi) * -1rem);
+      margin-bottom: calc(var(--phi) * 2rem);
       text-transform: uppercase;
-      margin-bottom: var(--s5);
-      z-index: 1;
-      text-align: center;
-      padding: 0 var(--s4);
+      animation: telePulse 2s infinite ease-in-out;
     }
 
-    @media (max-width: 768px) {
-      .launch-title {
-        font-size: 11px;
-        letter-spacing: 0.3em;
+    @keyframes telePulse {
+
+      0%,
+      100% {
+        opacity: 0.3;
       }
-      .lbtn {
-        padding: var(--s3) var(--s4);
-        font-size: 12px;
+
+      50% {
+        opacity: 0.6;
       }
     }
 
-    .lbtn {
-      background: transparent;
-      border: 1px solid var(--brand);
-      color: var(--brand);
-      padding: var(--s3) var(--s6);
-      border-radius: 2px;
-      font-family: 'Inter', sans-serif;
-      font-weight: 900;
-      font-size: 16px;
-      letter-spacing: 0.15em;
-      cursor: none;
-      transition: all 0.4s;
+    /* ─── REALISTIC GARGANTUA (IMAGE MATCH) ─── */
+    .bh-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 600px;
       z-index: 1;
-      position: relative;
-      overflow: hidden;
-      text-transform: uppercase;
+      opacity: 0.45;
+      pointer-events: none;
+      perspective: 2000px;
     }
 
-    .lbtn:hover {
-      background: var(--brand);
-      color: #000;
-      box-shadow: 0 0 40px var(--brand-glow);
+    .bh-core {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 150px;
+      height: 150px;
+      background: #000;
+      border-radius: 50%;
+      box-shadow: 0 0 50px #000, 0 0 100px rgba(232, 160, 32, 0.1);
+      z-index: 20;
     }
 
-    .lbtn::before {
+    /* Photon Ring (Brightest Edge) */
+    .bh-core::after {
       content: '';
       position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transform: translateX(-100%);
-      transition: transform 0.6s;
+      inset: -1px;
+      border-radius: 50%;
+      border: 1.5px solid #fff;
+      box-shadow: 0 0 20px #fff, 0 0 40px #e8a020;
+      filter: blur(0.5px);
     }
 
-    .lbtn:hover::before {
-      transform: translateX(100%)
+    /* THE VERTICAL ARCH (Gravitational Lensing) */
+    .bh-ring-v {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotateX(85deg) rotateY(0deg);
+      width: 550px;
+      height: 550px;
+      border-radius: 50%;
+      background: radial-gradient(circle, transparent 38%, #fff 42%, #e8a020 50%, #8b4513 65%, transparent 75%);
+      filter: blur(12px);
+      animation: diskRotate 40s linear infinite;
+    }
+
+    /* THE EQUATORIAL BAND (Horizontal Disk) */
+    .bh-ring-h {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotateX(-10deg) rotateY(0deg);
+      width: 700px;
+      height: 40px;
+      background: linear-gradient(90deg,
+          transparent,
+          rgba(139, 69, 19, 0.4) 15%,
+          #e8a020 35%,
+          #fff 50%,
+          #e8a020 65%,
+          rgba(139, 69, 19, 0.4) 85%,
+          transparent);
+      filter: blur(15px);
+      border-radius: 50%;
+      z-index: 25;
+      /* Crosses over the core */
+      animation: warpBreath 10s infinite alternate ease-in-out;
+    }
+
+
+    @keyframes flamePulse {
+      from {
+        opacity: 0.8;
+        transform: translateX(-50%) scaleX(0.8);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(-50%) scaleX(1.4);
+      }
     }
   </style>
 </head>
 
 <body>
+
+  <!-- FUTURISTIC OVERLAYS -->
+  <div class="cyber-grid"></div>
+  <div class="cyber-scanlines"></div>
 
   <!-- SCREEN FLASH -->
   <div id="screen-flash"></div>
@@ -2279,48 +2926,7 @@
   <!-- FILM GRAIN OVERLAY -->
   <div id="grain"></div>
 
-  <!-- ROCKET BLAST-OFF PRELOADER -->
-  <div id="preloader">
-    <canvas id="preloader-canvas"></canvas>
 
-    <div class="rocket-wrap">
-      <div class="rocket-head">
-        <svg width="60" height="60" viewBox="0 0 24 24" fill="var(--brand)">
-          <polygon points="12,2 22,22 2,22" />
-        </svg>
-        <div class="thruster"></div>
-      </div>
-      <div class="launch-pad"></div>
-    </div>
-
-    <div class="mission-control">
-      <div style="font-size:14px;letter-spacing:.15em;color:var(--t3);margin-bottom:var(--s3);font-family:'Inter', sans-serif;font-weight:800">MISSION: SYNTHETIC BULL
-      </div>
-      <div
-        style="font-size:36px;color:var(--t1);margin-bottom:var(--s2);font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.05em">
-        <span id="pl-counter">00</span><span style="font-size:24px;color:var(--brand)">%</span>
-      </div>
-      <!-- Progress Bar -->
-      <div
-        style="width:220px;height:2px;background:rgba(255,255,255,0.06);border-radius:2px;margin:0 auto var(--s3) auto;overflow:hidden">
-        <div id="pl-bar-fill"
-          style="height:100%;width:0%;background:linear-gradient(90deg,var(--brand),#FFD700);border-radius:2px;transition:width 0.1s linear;box-shadow:0 0 8px var(--brand)">
-        </div>
-      </div>
-      <div class="mission-log-wrap"
-        style="font-size:12px;color:var(--t4);max-height:90px;overflow:hidden;width:280px;margin:0 auto;font-family:'IBM Plex Mono', monospace">
-        <div id="mission-log"></div>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- LAUNCH OVERLAY -->
-  <div id="launch-overlay">
-    <div class="launch-grid"></div>
-    <div class="launch-title">System Status: Ready for Ignition</div>
-    <button class="lbtn" onclick="startMission()">INITIALIZE TERMINAL</button>
-  </div>
 
   <!-- CURSOR -->
   <div id="cur"></div>
@@ -2397,8 +3003,8 @@
               <div class="live-pip"><span class="ldot"></span>Markets Open · Live Feed Active</div>
               <div class="hero-kicker">Professional Trading Terminal</div>
               <h1 class="hero-title">
-                <em>Where every<br />tick counts.</em>
-                <strong>Trade with<br />precision.</strong>
+                Where every<br /><span>tick counts.</span>
+                <strong>Trade with<br /><span>precision.</span></strong>
               </h1>
               <p class="hero-sub">Real-time candlestick charts, live order book depth, algorithmic bot monitoring, and
                 instant order execution — built for traders who refuse to lose their edge.</p>
@@ -2498,16 +3104,20 @@
                     Portfolio</div>
                   <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span
                       style="font-size:12px;color:var(--t3)">Cash</span><span
-                      style="font-size:12.5px;color:var(--brand);font-family:'IBM Plex Mono', monospace">$94,820</span></div>
+                      style="font-size:12.5px;color:var(--brand);font-family:'IBM Plex Mono', monospace">$94,820</span>
+                  </div>
                   <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span
                       style="font-size:12px;color:var(--t3)">Holdings</span><span
-                      style="font-size:12.5px;color:var(--t2);font-family:'IBM Plex Mono', monospace">0.1200 BTC</span></div>
+                      style="font-size:12.5px;color:var(--t2);font-family:'IBM Plex Mono', monospace">0.1200 BTC</span>
+                  </div>
                   <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span
                       style="font-size:12px;color:var(--t3)">Equity</span><span id="eq-val"
-                      style="font-size:12.5px;color:var(--t2);font-family:'IBM Plex Mono', monospace">$100,006</span></div>
+                      style="font-size:12.5px;color:var(--t2);font-family:'IBM Plex Mono', monospace">$100,006</span>
+                  </div>
                   <div style="display:flex;justify-content:space-between"><span
                       style="font-size:12px;color:var(--t3)">P&amp;L</span><span id="pnl-val"
-                      style="font-size:12.5px;color:var(--bull);font-family:'IBM Plex Mono', monospace">+$6.21</span></div>
+                      style="font-size:12.5px;color:var(--bull);font-family:'IBM Plex Mono', monospace">+$6.21</span>
+                  </div>
                 </div>
                 <div style="background:var(--raised);padding:12px;overflow:hidden">
                   <div
@@ -2528,23 +3138,17 @@
         </div>
       </div>
 
-      <!-- ─── MARQUEE ─── -->
-      <div class="mqwrap panel" id="p-marquee" data-index="1"
-        style="height:auto;min-height:160px;scroll-snap-align:start">
-        <div style="width:100%">
-          <div class="mqtrack">
-            <span class="mqitem">Live Candlesticks</span><span class="mqsep">—</span>
-            <span class="mqitem">Order Book Depth</span><span class="mqsep">—</span>
-            <span class="mqitem">Algo Bot Monitor</span><span class="mqsep">—</span>
-            <span class="mqitem">Real-Time P&amp;L</span><span class="mqsep">—</span>
-            <span class="mqitem">Market Depth</span><span class="mqsep">—</span>
-            <span class="mqitem">Alpha Signals</span><span class="mqsep">—</span>
-            <span class="mqitem">Live Candlesticks</span><span class="mqsep">—</span>
-            <span class="mqitem">Order Book Depth</span><span class="mqsep">—</span>
-            <span class="mqitem">Algo Bot Monitor</span><span class="mqsep">—</span>
-            <span class="mqitem">Real-Time P&amp;L</span><span class="mqsep">—</span>
-            <span class="mqitem">Market Depth</span><span class="mqsep">—</span>
-            <span class="mqitem">Alpha Signals</span><span class="mqsep">—</span>
+      <!-- ─── TRUSTED BY & INSTRUMENTS ─── -->
+      <div class="trust-wrap panel" id="p-marquee" data-index="1"
+        style="height:auto;min-height:220px;scroll-snap-align:start">
+        <div class="panel-content" style="width:100%">
+          <div class="trust-title">Trusted by <span>100,000+</span> Professional Traders</div>
+          <div class="trust-sub">Trade 5 high-frequency synthetic instruments. Zero latency. 24/7 matching engine.</div>
+
+          <div class="stock-mq-wrap">
+            <div class="stock-mq-track" id="stock-ticker-track">
+              <!-- Dynamically populated via JS -->
+            </div>
           </div>
         </div>
       </div>
@@ -2552,19 +3156,18 @@
       <!-- ─── PANEL 2: FEATURES ─── -->
       <div class="panel" id="p-features" data-index="1" style="min-height:70vh">
         <div class="features-inner">
-          <div class="features-header">
+          <div class="features-header fmt-hide">
             <div class="panel-content">
               <div class="eyebrow">What You Get</div>
-              <h2 class="section-title">Every edge,<br /><em>live &amp; instant.</em></h2>
+              <h2 class="section-title">Every edge,<br /><span>live &amp; instant.</span></h2>
               <p class="section-sub">Five core modules — hover each one to reveal how it works. Built to stay fast at
                 100 market messages per second.</p>
             </div>
           </div>
-          <div class="feat-accordion panel-content d1">
-            <div class="facc" onmousemove="trackM(this,event)">
-              <div class="facc-glow"></div>
+          <div class="feat-row drag-track">
+            <div class="facc slide-r" style="animation-delay: 0.1s">
               <div class="facc-inner">
-                <div class="facc-num">01 / CHARTS</div>
+                <div class="facc-num">CHARTS</div>
                 <div class="facc-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="1.8">
                     <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
@@ -2576,13 +3179,11 @@
                 <div class="facc-tags"><span class="tag">1s Candles</span><span class="tag">5s</span><span
                     class="tag">OHLCV</span></div>
               </div>
-              <div class="facc-big">01</div>
               <div class="facc-accent"></div>
             </div>
-            <div class="facc" onmousemove="trackM(this,event)">
-              <div class="facc-glow"></div>
+            <div class="facc slide-r" style="animation-delay: 0.2s">
               <div class="facc-inner">
-                <div class="facc-num">02 / ORDER BOOK</div>
+                <div class="facc-num">ORDER BOOK</div>
                 <div class="facc-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="1.8">
                     <line x1="8" y1="6" x2="21" y2="6" />
@@ -2599,15 +3200,11 @@
                 <div class="facc-tags"><span class="tag">Live Diffs</span><span class="tag">Depth Bars</span><span
                     class="tag">Spread</span></div>
               </div>
-              <div class="facc-big">02</div>
               <div class="facc-accent"></div>
             </div>
-            <div class="facc" onmousemove="trackM(this,event)">
-              <div class="facc-glow"></div>
-              <div class="card-edge-top"></div>
-              <div class="card-edge-bottom"></div>
+            <div class="facc slide-r" style="animation-delay: 0.3s">
               <div class="facc-inner">
-                <div class="facc-num">03 / EXECUTION</div>
+                <div class="facc-num">EXECUTION</div>
                 <div class="facc-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="1.8">
                     <circle cx="12" cy="12" r="10" />
@@ -2621,15 +3218,11 @@
                 <div class="facc-tags"><span class="tag">Market</span><span class="tag">Limit</span><span
                     class="tag">Instant Fill</span></div>
               </div>
-              <div class="facc-big">03</div>
               <div class="facc-accent"></div>
             </div>
-            <div class="facc" onmousemove="trackM(this,event)">
-              <div class="facc-glow"></div>
-              <div class="card-edge-top"></div>
-              <div class="card-edge-bottom"></div>
+            <div class="facc slide-r" style="animation-delay: 0.4s">
               <div class="facc-inner">
-                <div class="facc-num">04 / PORTFOLIO</div>
+                <div class="facc-num">PORTFOLIO</div>
                 <div class="facc-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="1.8">
                     <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
@@ -2641,13 +3234,11 @@
                   blurring.</div>
                 <div class="facc-tags"><span class="tag">Real-Time P&amp;L</span><span class="tag">Equity</span></div>
               </div>
-              <div class="facc-big">04</div>
               <div class="facc-accent"></div>
             </div>
-            <div class="facc" onmousemove="trackM(this,event)">
-              <div class="facc-glow"></div>
+            <div class="facc slide-r" style="animation-delay: 0.5s">
               <div class="facc-inner">
-                <div class="facc-num">05 / AUTOMATION</div>
+                <div class="facc-num">AUTOMATION</div>
                 <div class="facc-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="1.8">
                     <path d="M12 2L2 7l10 5 10-5-10-5z" />
@@ -2661,7 +3252,6 @@
                 <div class="facc-tags"><span class="tag">Market Maker</span><span class="tag">Alpha Bot</span><span
                     class="tag">Win Rate</span></div>
               </div>
-              <div class="facc-big">05</div>
               <div class="facc-accent"></div>
             </div>
           </div>
@@ -2674,7 +3264,7 @@
           <div>
             <div class="panel-content">
               <div class="eyebrow">Performance Benchmarks</div>
-              <h2 class="section-title">Numbers that<br /><em>don't lie.</em></h2>
+              <h2 class="section-title">Numbers that<br /><span>don't lie.</span></h2>
               <p class="section-sub">Six hard constraints that keep the terminal running at full speed in real market
                 conditions — not just demos.</p>
               <div style="margin-top:34px;display:flex;flex-direction:column;gap:13px">
@@ -2693,33 +3283,33 @@
               </div>
             </div>
           </div>
-          <div class="metrics-grid panel-content d1">
-            <div class="metric-card">
+          <div class="metrics-grid">
+            <div class="metric-card slide-l" style="animation-delay: 0.1s">
               <div class="metric-num">60<span class="metric-unit">fps</span></div>
               <div class="metric-label">CHART REFRESH</div>
               <div class="metric-desc">Smooth at any tick rate. Never falls behind.</div>
             </div>
-            <div class="metric-card">
+            <div class="metric-card slide-r" style="animation-delay: 0.2s">
               <div class="metric-num">O<span class="metric-unit">(1)</span></div>
               <div class="metric-label">ORDER BOOK SPEED</div>
               <div class="metric-desc">Constant-time updates no matter how fast prices move.</div>
             </div>
-            <div class="metric-card">
+            <div class="metric-card slide-l" style="animation-delay: 0.3s">
               <div class="metric-num">1<span class="metric-unit">ws</span></div>
               <div class="metric-label">LIVE CONNECTION</div>
               <div class="metric-desc">One stream — price, book, bots — all in sync.</div>
             </div>
-            <div class="metric-card">
+            <div class="metric-card slide-r" style="animation-delay: 0.4s">
               <div class="metric-num">10<span class="metric-unit">fps</span></div>
               <div class="metric-label">P&amp;L UPDATE RATE</div>
               <div class="metric-desc">Fast enough to trade on. Stable enough to read.</div>
             </div>
-            <div class="metric-card">
+            <div class="metric-card slide-l" style="animation-delay: 0.5s">
               <div class="metric-num">50<span class="metric-unit">rows</span></div>
               <div class="metric-label">BOT FEED CAP</div>
               <div class="metric-desc">Fluid at 100 automated trades per second.</div>
             </div>
-            <div class="metric-card">
+            <div class="metric-card slide-r" style="animation-delay: 0.6s">
               <div class="metric-num">0<span class="metric-unit">lag</span></div>
               <div class="metric-label">CHART OVERHEAD</div>
               <div class="metric-desc">Straight to GPU. Zero UI framework cycles.</div>
@@ -2731,10 +3321,10 @@
       <!-- ─── PANEL 4: BOTS ─── -->
       <div class="panel" id="p-bots" data-index="3">
         <div class="bots-inner">
-          <div>
+          <div class="fmt-hide">
             <div class="panel-content">
               <div class="eyebrow">Automated Strategies</div>
-              <h2 class="section-title">Two bots.<br /><em>Always working.</em></h2>
+              <h2 class="section-title">Two bots.<br /><span>Always working.</span></h2>
               <p class="section-sub">Watch the Market Maker and Alpha Bot trade live. Every entry, every exit —
                 streaming to your dashboard in real time.</p>
               <div style="margin-top:var(--s5);display:flex;flex-direction:column;gap:var(--s3)">
@@ -2758,7 +3348,7 @@
             </div>
           </div>
           <div class="bots-grid panel-content d1">
-            <div class="bot-card">
+            <div class="bot-card fmt-hide-fast">
               <div class="bot-hdr">
                 <div class="ldot"></div>
                 <div class="bot-name">MARKET MAKER BOT</div>
@@ -2787,7 +3377,7 @@
                 <div id="mm-feed"></div>
               </div>
             </div>
-            <div class="bot-card">
+            <div class="bot-card fmt-hide-fast">
               <div class="bot-hdr">
                 <div class="ldot amb"></div>
                 <div class="bot-name">ALPHA BOT</div>
@@ -2823,10 +3413,10 @@
       <!-- ─── PANEL 5: DEPTH ─── -->
       <div class="panel" id="p-depth" data-index="4">
         <div class="depth-inner">
-          <div>
+          <div class="fmt-hide">
             <div class="panel-content">
               <div class="eyebrow">Market Depth</div>
-              <h2 class="section-title">See the full<br /><em>book at a glance.</em></h2>
+              <h2 class="section-title">See the full<br /><span>book at a glance.</span></h2>
               <p class="section-sub">The cumulative bid/ask area chart shows exactly where buying and selling pressure
                 stacks up — visual, immediate, actionable before price moves.</p>
               <div style="display:flex;gap:var(--s4);margin-top:var(--s4)">
@@ -2843,7 +3433,7 @@
               </div>
             </div>
           </div>
-          <div class="panel-content d1">
+          <div class="panel-content d1 fmt-hide">
             <div class="depth-wrap">
               <div class="depth-hdr">
                 <span>Depth Chart — SBTC/USDT</span>
@@ -2855,15 +3445,63 @@
         </div>
       </div>
 
-      <!-- ─── PANEL 6: CTA ─── -->
+      <!-- ─── PANEL 6: ORDER TYPES (FRAMER MOTION) ─── -->
+      <div class="panel" id="p-orders"
+        style="min-height:90vh;display:flex;align-items:center;border-bottom:1px solid var(--border);">
+        <div class="orders-inner"
+          style="width: 100%; max-width: 1400px; padding: var(--s7) var(--s6); margin: 0 auto; position: relative;">
+
+          <div class="op-reveal fmt-hide" style="text-align: left; margin-bottom: var(--s6);">
+            <div class="eyebrow" style="justify-content:flex-start">Execution Engine</div>
+            <h2 class="section-title">Precision Routing.<br /><span>Four conditional triggers.</span></h2>
+            <p class="section-sub" style="margin: var(--s3) 0 0;">Whether sweeping liquidity or defending capital, the
+              matching engine executes your intent with deterministic guarantees.</p>
+          </div>
+
+          <div class="order-grid"
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--s4);">
+
+            <div class="order-card op-card fmt-hide-fast" onmousemove="window.trackM(this,event)">
+              <div class="oc-type">MARKET</div>
+              <div class="oc-desc">Need immediate execution? Sweeps the order book instantly at the best available
+                prices. Prioritizes certainty of execution over price control.</div>
+              <div class="oc-tags"><span class="tag">Instant Fill</span><span class="tag">Taker Fee</span></div>
+            </div>
+
+            <div class="order-card op-card fmt-hide-fast" onmousemove="window.trackM(this,event)">
+              <div class="oc-type">LIMIT</div>
+              <div class="oc-desc">Need a specific price? Rests on the book, visible to the market. Executes exactly at
+                your limit price or better. Zero slippage.</div>
+              <div class="oc-tags"><span class="tag">Price Control</span><span class="tag">Maker Fee</span></div>
+            </div>
+
+            <div class="order-card op-card fmt-hide-fast" onmousemove="window.trackM(this,event)">
+              <div class="oc-type">STOP-MARKET</div>
+              <div class="oc-desc">Need a hard exit? Hides until price crosses your stop-trigger level, then blasts an
+                aggressive market order to ensure you get out.</div>
+              <div class="oc-tags"><span class="tag">Stop Loss</span><span class="tag">Aggressive</span></div>
+            </div>
+
+            <div class="order-card op-card fmt-hide-fast" onmousemove="window.trackM(this,event)">
+              <div class="oc-type">STOP-LIMIT</div>
+              <div class="oc-desc">Trading a breakout? Once triggered by price, it places a passive limit order.
+                Controls your entry without exposing liquidity beforehand.</div>
+              <div class="oc-tags"><span class="tag">Breakout</span><span class="tag">No Slippage</span></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── PANEL 7: CTA ─── -->
       <div class="panel" id="p-cta" data-index="5">
         <div class="cta-glow"></div>
         <div class="cta-ring"></div>
         <div class="cta-ring cta-ring2"></div>
         <div class="cta-ring cta-ring3"></div>
-        <div class="cta-inner panel-content">
+        <div class="cta-inner panel-content fmt-hide">
           <div class="eyebrow" style="justify-content:center">Start for Free</div>
-          <h2 class="cta-title">Your edge<br />starts here.</h2>
+          <h2 class="section-title">Your edge<br /><span>starts here.</span></h2>
           <p class="cta-sub">Open an account, connect to the live feed, and trade with the speed and clarity of a
             professional desk — at no cost to start.</p>
           <div style="display:flex;gap:var(--s2);justify-content:center;flex-wrap:wrap">
@@ -2884,21 +3522,21 @@
           <div style="display:flex;gap:var(--s5);justify-content:center;margin-top:var(--s6)">
             <div style="text-align:center">
               <div
-                style="font-family:'Playfair Display',serif;font-size:var(--fs-2xl);font-style:italic;color:var(--t1)">
+                style="font-family:'Barlow Semi Condensed',sans-serif;font-size:var(--fs-2xl);font-weight:800;color:var(--t1)">
                 $0</div>
               <div style="font-size:8px;letter-spacing:.2em;color:var(--t3);margin-top:var(--s1)">COST TO START</div>
             </div>
             <div style="width:1px;background:var(--border)"></div>
             <div style="text-align:center">
               <div
-                style="font-family:'Playfair Display',serif;font-size:var(--fs-2xl);font-style:italic;color:var(--bull)">
+                style="font-family:'Barlow Semi Condensed',sans-serif;font-size:var(--fs-2xl);font-weight:800;color:var(--bull)">
                 100</div>
               <div style="font-size:8px;letter-spacing:.2em;color:var(--t3);margin-top:var(--s1)">MSG PER SECOND</div>
             </div>
             <div style="width:1px;background:var(--border)"></div>
             <div style="text-align:center">
               <div
-                style="font-family:'Playfair Display',serif;font-size:var(--fs-2xl);font-style:italic;color:var(--brand)">
+                style="font-family:'Barlow Semi Condensed',sans-serif;font-size:var(--fs-2xl);font-weight:800;color:var(--brand)">
                 30s</div>
               <div style="font-size:8px;letter-spacing:.2em;color:var(--t3);margin-top:var(--s1)">TO FIRST TRADE</div>
             </div>
@@ -2906,7 +3544,20 @@
         </div>
       </div>
 
-      <!-- ─── PANEL 7: FOOTER ─── -->
+      <!-- ─── FINALE: GLOBAL DATA NETWORK (IMC INSPIRED) ─── -->
+      <section id="p-blackhole" class="panel-section blackhole-panel">
+        <div class="bh-sticky">
+          <div id="bh-bg" class="bh-bg"></div>
+          <canvas id="bh-canvas"></canvas>
+          <div id="bh-content" class="bh-content">
+            <div class="bh-sub">Market Pulse</div>
+            <h2 class="bh-title">Global&nbsp;Liquidity<br><span>Network</span></h2>
+            <a href="#" class="bh-cta">Analyze The Flow</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── PANEL 8: FOOTER ─── -->
       <div class="panel" id="p-footer" data-index="6" style="height:auto;min-height:100vh;scroll-snap-align:start">
         <footer>
           <div class="ft-grid">
@@ -2969,15 +3620,8 @@
       }
 
       window.addEventListener('load', () => {
-        // ─── STARTUP AUDIO ENGINE ───
-        // Using a stable, high-quality cinematic organ track
-        const startupAudio = new Audio("https://ia600902.us.archive.org/16/items/interstellar-soundtrack/02%20Cornfield%20Chase.mp3");
-        startupAudio.volume = 0.8;
-        startupAudio.currentTime = 37;
-        startupAudio.loop = true;
-
         // ─── INITIALIZE LENIS SMOOTH SCROLL ───
-        const lenis = new Lenis({
+        window.lenis = new Lenis({
           wrapper: document.getElementById('scroll-container'),
           content: document.getElementById('app-view'),
           duration: 1.2,
@@ -2991,7 +3635,7 @@
         });
 
         function raf(time) {
-          lenis.raf(time);
+          window.lenis.raf(time);
           requestAnimationFrame(raf);
         }
         requestAnimationFrame(raf);
@@ -3005,7 +3649,7 @@
 
         document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cur.style.left = mx + 'px'; cur.style.top = my + 'px' });
         (function aR() { rx += (mx - rx) * .1; ry += (my - ry) * .1; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(aR) })();
-        document.querySelectorAll('button,a,.facc,.metric-card,.bot-card,.h-card,.mqitem,.sdot').forEach(el => {
+        document.querySelectorAll('button,a,.facc,.metric-card,.bot-card,.h-card,.mqitem,.sdot,.op-card').forEach(el => {
           el.addEventListener('mouseenter', () => { cur.style.width = '14px'; cur.style.height = '14px'; ring.style.width = '44px'; ring.style.height = '44px'; ring.style.borderColor = 'rgba(232,160,32,.85)' });
           el.addEventListener('mouseleave', () => { cur.style.width = '6px'; cur.style.height = '6px'; ring.style.width = '28px'; ring.style.height = '28px'; ring.style.borderColor = 'rgba(232,160,32,.5)' });
         });
@@ -3060,21 +3704,6 @@
           });
         })();
 
-        // ─── MAGNETIC HOVER REFINEMENT ───
-        (function setupMagneticButtons() {
-          const B_STRENGTH = 0.25;
-          document.querySelectorAll('.nbtn, .hbtn').forEach(btn => {
-            btn.addEventListener('mousemove', e => {
-              const rect = btn.getBoundingClientRect();
-              const x = (e.clientX - rect.left - rect.width / 2) * B_STRENGTH;
-              const y = (e.clientY - rect.top - rect.height / 2) * B_STRENGTH;
-              btn.style.transform = `translate(${x}px, ${y}px)`;
-            });
-            btn.addEventListener('mouseleave', () => {
-              btn.style.transform = 'translate(0px, 0px)';
-            });
-          });
-        })();
 
         // ─── CARD 3D TILT: POSITION-AWARE PRESS ───
         (function setupCardTilt() {
@@ -3083,7 +3712,7 @@
           const TILT_DUR = '0.12s ease-out';
           const SPRING_DUR = '0.55s cubic-bezier(.34,1.56,.64,1)';
 
-          document.querySelectorAll('.metric-card, .bot-card, .facc').forEach(card => {
+          document.querySelectorAll('.bot-card, .op-card').forEach(card => {
             card.style.transformStyle = 'preserve-3d';
 
             card.addEventListener('mousedown', function (e) {
@@ -3114,7 +3743,7 @@
 
         // ─── INJECT EDGE GLOW DIVS INTO CARDS ───
         (function addEdgeDivs() {
-          document.querySelectorAll('.metric-card, .bot-card, .facc').forEach(card => {
+          document.querySelectorAll('.bot-card, .op-card').forEach(card => {
             ['card-edge-top', 'card-edge-bottom', 'card-edge-left', 'card-edge-right'].forEach(cls => {
               if (!card.querySelector('.' + cls)) {
                 const el = document.createElement('div');
@@ -3128,6 +3757,19 @@
         // ─── MOUSE GLOW ───
         function trackM(el, e) { const r = el.getBoundingClientRect(); el.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%'); el.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%') }
         window.trackM = trackM;
+
+        // ─── BUTTON CLICK ROLL ───
+        document.querySelectorAll('.nbtn, .hbtn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const svg = btn.querySelector('svg');
+            if (svg) {
+              svg.classList.remove('roll-active');
+              void svg.offsetWidth; // Reflow
+              svg.classList.add('roll-active');
+              setTimeout(() => svg.classList.remove('roll-active'), 650);
+            }
+          });
+        });
 
         // ─── SCROLL PANELS ───
         const sc = document.getElementById('scroll-container');
@@ -3177,8 +3819,82 @@
           { s: 'SSOL', p: 168.45, d: +5.22 }, { s: 'SINR/USD', p: 83.42, d: -.18 },
           { s: 'SAAVE', p: 310.88, d: +2.07 }, { s: 'SDOT', p: 9.44, d: +1.55 },
         ];
+
+        // ─── DRAG TO SCROLL FOR FEATURES ───
+        const slider = document.querySelector('.drag-track');
+        const pbar = document.getElementById('feat-pbar');
+        if (slider) {
+          let isDown = false, startX, scrollLeft;
+          slider.addEventListener('mousedown', e => { isDown = true; startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft; });
+          slider.addEventListener('mouseleave', () => { isDown = false; });
+          slider.addEventListener('mouseup', () => { isDown = false; });
+          slider.addEventListener('mousemove', e => { 
+            if (!isDown) return; 
+            e.preventDefault(); 
+            const x = e.pageX - slider.offsetLeft; 
+            slider.scrollLeft = scrollLeft - (x - startX) * 2; 
+          });
+
+          // Scrollytelling Progress Indicator
+          slider.addEventListener('scroll', () => {
+            const max = slider.scrollWidth - slider.clientWidth;
+            const progress = (slider.scrollLeft / max) * 100;
+            if (pbar) pbar.style.width = progress + '%';
+          });
+        }
         function fmt(p) { return p.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }
         document.getElementById('ticker').innerHTML = [...TICKS, ...TICKS].map(t => `<div class="tick-item"><span class="tick-sym">${t.s}</span><span class="tick-px">${fmt(t.p)}</span><span class="${t.d >= 0 ? 'tick-up' : 'tick-dn'}">${t.d >= 0 ? '+' : ''}${t.d.toFixed(2)}%</span></div>`).join('');
+
+        // ─── GROWW STYLE MARQUEE ───
+        const stockT = document.getElementById('stock-ticker-track');
+        if (stockT) {
+          let stx = [
+            { s: 'AAPL_S', n: 'Apple Synthetic', p: 180.45, c: 2.14 },
+            { s: 'GOOGL_S', n: 'Google Synthetic', p: 140.20, c: -0.85 },
+            { s: 'TSLA_S', n: 'Tesla Synthetic', p: 200.15, c: 4.52 },
+            { s: 'MSFT_S', n: 'Microsoft Synth', p: 380.05, c: 1.25 },
+            { s: 'AMZN_S', n: 'Amazon Synthetic', p: 170.80, c: -1.50 },
+          ];
+          const stxHtml = stx.map((t, i) => {
+            const sign = t.c >= 0 ? '+' : '';
+            return `<div class="scard" data-idx="${i}">
+              <div class="sc-edge-t"></div><div class="sc-edge-b"></div><div class="sc-edge-l"></div><div class="sc-edge-r"></div>
+              <div class="sc-hdr" style="position:relative;z-index:2">
+                <div style="text-align:left">
+                   <div class="sc-sym">${t.s}</div>
+                   <div style="font-size:10px;color:var(--t3);margin-top:2px;font-weight:400">${t.n}</div>
+                </div>
+                <div class="sc-logo">${t.s[0]}</div>
+              </div>
+              <div class="sc-price-row" style="position:relative;z-index:2">
+                <span class="sc-price">$${t.p.toFixed(2)}</span>
+                <span class="sc-chg ${t.c >= 0 ? 'up' : 'dn'}">${t.c >= 0 ? '▲' : '▼'} ${sign}${t.c.toFixed(2)}%</span>
+              </div>
+            </div>`;
+          }).join('');
+          stockT.innerHTML = stxHtml + stxHtml + stxHtml + stxHtml;
+
+          document.querySelectorAll('.scard').forEach(card => {
+            const cur = document.getElementById('cur'), ring = document.getElementById('cur-ring');
+            card.addEventListener('mouseenter', () => { cur.style.width = '14px'; cur.style.height = '14px'; ring.style.width = '44px'; ring.style.height = '44px'; ring.style.borderColor = 'rgba(232,160,32,.85)' });
+            card.addEventListener('mouseleave', () => { cur.style.width = '6px'; cur.style.height = '6px'; ring.style.width = '28px'; ring.style.height = '28px'; ring.style.borderColor = 'rgba(232,160,32,.5)' });
+            card.addEventListener('mousemove', e => window.trackM(card, e));
+          });
+
+          setInterval(() => {
+            stx = stx.map(t => ({ ...t, p: Math.max(1, t.p + (Math.random() - .5) * 1.5), c: t.c + (Math.random() - .5) * 0.2 }));
+            const cards = stockT.querySelectorAll('.scard');
+            cards.forEach(c => {
+              const idx = c.getAttribute('data-idx');
+              const t = stx[idx];
+              const sign = t.c >= 0 ? '+' : '';
+              c.querySelector('.sc-price').textContent = '$' + t.p.toFixed(2);
+              const chg = c.querySelector('.sc-chg');
+              chg.className = 'sc-chg ' + (t.c >= 0 ? 'up' : 'dn');
+              chg.textContent = (t.c >= 0 ? '▲ ' : '▼ ') + sign + t.c.toFixed(2) + '%';
+            });
+          }, 1500);
+        }
 
         // ─── HERO CHART ───
         function genC(n, base) { let p = base, a = []; for (let i = 0; i < n; i++) { const o = p, c = o + (Math.random() - .46) * 65; a.push({ o, h: Math.max(o, c) + Math.random() * 22, l: Math.min(o, c) - Math.random() * 22, c }); p = c; } return a; }
@@ -3278,156 +3994,191 @@
         }
         drawDepth(); setInterval(drawDepth, 1200);
 
-        // ─── PRELOADER ENGINE ───
-        const pl = document.getElementById('preloader');
-        const counter = document.getElementById('pl-counter');
-        const log = document.getElementById('mission-log');
-        const canvas = document.getElementById('preloader-canvas');
-        const flash = document.getElementById('screen-flash');
-        const appView = document.getElementById('app-view');
-        const ctx = canvas.getContext('2d');
-
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        function resizeCanvas() {
-          canvas.width = window.innerWidth * dpr; canvas.height = window.innerHeight * dpr;
-          canvas.style.width = window.innerWidth + 'px'; canvas.style.height = window.innerHeight + 'px';
-          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-
-        const W = () => window.innerWidth, H = () => window.innerHeight;
-        const stars = [];
-        for (let i = 0; i < 180; i++) stars.push({ x: Math.random() * W(), y: Math.random() * H(), speed: .3 + Math.random() * 1.2, len: 8 + Math.random() * 22, alpha: .08 + Math.random() * .14, hue: 35 + Math.random() * 15 });
-
-        let hyperMode = false, launchMode = false, fwMode = false, revealTriggered = false, revealDone = false;
-        function drawStars() {
-          for (const s of stars) {
-            const spd = hyperMode ? s.speed * (launchMode ? 30 : 18) : s.speed * 1.8;
-            const len = hyperMode ? s.len * (launchMode ? 11 : 3.5) : s.len;
-            s.y += spd; if (s.y > H() + len) { s.y = -len; s.x = Math.random() * W(); }
-            const g = ctx.createLinearGradient(s.x, s.y - len, s.x, s.y);
-            g.addColorStop(0, `hsla(${s.hue},80%,60%,0)`);
-            g.addColorStop(.5, `hsla(${s.hue},80%,60%,${s.alpha * (hyperMode ? 2.8 : 1)})`);
-            g.addColorStop(1, `hsla(${s.hue},80%,60%,0)`);
-            ctx.strokeStyle = g; ctx.lineWidth = hyperMode ? (launchMode ? 2.2 : 1.5) : .8;
-            ctx.beginPath(); ctx.moveTo(s.x, s.y - len); ctx.lineTo(s.x, s.y); ctx.stroke();
-          }
-        }
-
-        const fwParticles = [];
-        const FWC = ['#FFD700', '#FFA500', '#FF6347', '#FFFFFF', '#87CEEB', '#FFE4B5', '#F0E68C', '#e8a020', '#FF4500', '#00CED1'];
-        function spawnBurst(cx, cy, count, speed, pool) {
-          for (let i = 0; i < count; i++) {
-            const a = (Math.PI * 2 / count) * i + (Math.random() - .5) * .3, v = speed * (.5 + Math.random() * .8);
-            fwParticles.push({ x: cx, y: cy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 1, decay: .009 + Math.random() * .01, size: 1.5 + Math.random() * 2.5, color: pool[Math.floor(Math.random() * pool.length)], trail: [], gravity: .04 + Math.random() * .03, secondary: Math.random() > .75 });
-          }
-        }
-        function spawnFireworks() {
-          const cx = W() / 2, cy = H() * .42;
-          spawnBurst(cx, cy, 180, 8, ['#FFD700', '#FFA500', '#e8a020', '#FFE4B5', '#FFFFFF']);
-          setTimeout(() => { spawnBurst(cx - W() * .15, cy - 40, 80, 6, ['#FF6347', '#FF4500', '#FFD700', '#FFFFFF']); spawnBurst(cx + W() * .15, cy - 30, 80, 6, ['#87CEEB', '#00CED1', '#FFFFFF', '#FFD700']); }, 200);
-          setTimeout(() => { spawnBurst(cx, cy - 80, 100, 7, ['#FFD700', '#FFA500', '#FFFFFF', '#F0E68C']); spawnBurst(cx - W() * .08, cy + 20, 60, 5, ['#e8a020', '#FFE4B5', '#FFFFFF']); spawnBurst(cx + W() * .08, cy + 20, 60, 5, ['#FF6347', '#FFD700', '#FFFFFF']); }, 420);
-          setTimeout(() => { for (let r = 0; r < 3; r++) spawnBurst(cx + (Math.random() - .5) * W() * .3, cy + (Math.random() - .5) * 90, 55, 5 + r * 2, FWC); }, 660);
-        }
-        function drawFireworks() {
-          for (let i = fwParticles.length - 1; i >= 0; i--) {
-            const p = fwParticles[i];
-            p.trail.push({ x: p.x, y: p.y, a: p.life }); if (p.trail.length > 8) p.trail.shift();
-            p.vx *= .978; p.vy *= .978; p.vy += p.gravity; p.x += p.vx; p.y += p.vy; p.life -= p.decay;
-            for (let t = 0; t < p.trail.length; t++) { const tp = p.trail[t]; ctx.beginPath(); ctx.arc(tp.x, tp.y, p.size * .5 * (t / p.trail.length), 0, Math.PI * 2); ctx.fillStyle = p.color; ctx.globalAlpha = Math.max(0, tp.a * (t / p.trail.length) * .4); ctx.fill(); }
-            ctx.beginPath(); ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2); ctx.fillStyle = p.color; ctx.globalAlpha = Math.max(0, p.life); ctx.fill();
-            ctx.beginPath(); ctx.arc(p.x, p.y, p.size * p.life * 3, 0, Math.PI * 2); ctx.fillStyle = p.color; ctx.globalAlpha = Math.max(0, p.life * .14); ctx.fill();
-            ctx.globalAlpha = 1;
-            if (p.secondary && p.life < .3 && p.life > .25) { spawnBurst(p.x, p.y, 7, 1.8, [p.color, '#FFFFFF']); p.secondary = false; }
-            if (p.life <= 0) fwParticles.splice(i, 1);
-          }
-        }
-        let animating = true;
-        function renderFrame() { if (!animating) return; ctx.clearRect(0, 0, W(), H()); drawStars(); if (fwMode) drawFireworks(); requestAnimationFrame(renderFrame); }
-        renderFrame();
-
-        const logMessages = ["INIT://Atmosphere Status: Stable.", "CMD://Engage LAUNCH sequence...", "FLT://T-Minus 5 seconds.", "LOG://Calculating high-speed data feeds...", "FLT://Engine ignition sequence...", "FLT://Maximum speed reached.", "READY://Terminal 100% established."];
-        let count = 0, logIdx = 0, startTime;
-        const TOTAL_DURATION = 4200;
-
-        function updateCounter() {
-          const elapsed = Date.now() - startTime;
-          const progress = Math.min(1, elapsed / TOTAL_DURATION);
-          count = Math.floor(progress * 100);
-          counter.textContent = String(count).padStart(2, '0');
-          const bar = document.getElementById('pl-bar-fill');
-          if (bar) bar.style.width = count + '%';
-          const ry = getRocketY(count);
-          document.documentElement.style.setProperty('--ry', ry + 'px');
-          if (launchMode) {
-            const thr = pl.querySelector('.thruster');
-            if (thr) { const t = Math.max(0, (count - 88) / 12); thr.style.animationDuration = Math.max(0.022, .1 - t * .078) + 's'; }
-          }
-          if (count > 45 && !hyperMode) { hyperMode = true; pl.classList.add('ignition'); startupAudio.volume = 0.9; }
-          if (count > 88 && !launchMode) { launchMode = true; pl.classList.add('launch'); startupAudio.volume = 1.0; }
-          if (count >= 96 && !fwMode) { fwMode = true; spawnFireworks(); }
-          if (count >= 100 && !revealTriggered) { revealTriggered = true; pl.classList.add('fw-active'); setTimeout(grandReveal, 900); }
-          if (count < 100) requestAnimationFrame(updateCounter);
-        }
-        function getRocketY(c) {
-          // Stage 1: 0-30% - Total Ignition (Stationary/Vibrating)
-          if (c <= 30) return 0;
-
-          // Stage 2: 30-75% - Slow, weighted upward crawl
-          if (c <= 75) {
-            const t = (c - 30) / 45;
-            return -(Math.pow(t, 2) * 110); // Slowly rises to 110px
-          }
-
-          // Stage 3: 75-100% - Exponential blast-off into warp
-          const t = (c - 75) / 25;
-          return -110 - (Math.pow(t, 4.8) * 1300); // Massive acceleration past screen
-        }
-
-        window.startMission = function () {
-          document.getElementById('launch-overlay').classList.add('fade-out');
-          startupAudio.play().catch(e => console.warn("Audio blocked:", e));
-          startTime = Date.now();
-          updateCounter();
-          const logInt = setInterval(() => {
-            if (logIdx < logMessages.length) {
-              const row = document.createElement('div');
-              row.style.cssText = 'opacity:0;transform:translateY(8px);transition:opacity 0.3s,transform 0.3s';
-              row.textContent = '>> ' + logMessages[logIdx];
-              log.insertBefore(row, log.firstChild);
-              requestAnimationFrame(() => { row.style.opacity = '1'; row.style.transform = 'translateY(0)'; });
-              logIdx++;
-            } else clearInterval(logInt);
-          }, 600);
-        };
-
-        function grandReveal() {
-          if (revealDone) return;
-          revealDone = true;
-
-          // Smoothly transition intro volume to a comfortable background level
-          const ambientFade = setInterval(() => {
-            if (startupAudio.volume > 0.45) { startupAudio.volume -= 0.02; }
-            else { clearInterval(ambientFade); }
-          }, 100);
-
-          flash.classList.add('flash');
-          setTimeout(() => { pl.classList.add('hide'); }, 200);
-          setTimeout(() => { appView.classList.add('cinematic-reveal'); }, 350);
-          setTimeout(() => {
-            document.querySelectorAll('.panel-content').forEach(el => {
-              el.style.opacity = '1'; el.style.transform = 'translateY(0)';
-            });
-            animating = false;
-          }, 1200);
-        }
+        // Trigger Cinematic Reveal immediately but keep the zoom animation
+        setTimeout(() => {
+          const appView = document.getElementById('app-view');
+          if (appView) appView.classList.add('cinematic-reveal');
+          document.querySelectorAll('.panel-content').forEach(el => {
+            el.style.opacity = '1'; el.style.transform = 'translateY(0)';
+          });
+        }, 120);
       });
 
 
     </script>
+
+    <!-- ─── AUDIO CONTROL ─── -->
+    <div id="audio-ctrl" class="audio-ctrl" onmousemove="window.trackM(this,event)"
+      onmouseenter="document.getElementById('cur').style.width='14px';document.getElementById('cur').style.height='14px';document.getElementById('cur-ring').style.width='44px';document.getElementById('cur-ring').style.height='44px';document.getElementById('cur-ring').style.borderColor='rgba(232,160,32,.85)'"
+      onmouseleave="document.getElementById('cur').style.width='6px';document.getElementById('cur').style.height='6px';document.getElementById('cur-ring').style.width='28px';document.getElementById('cur-ring').style.height='28px';document.getElementById('cur-ring').style.borderColor='rgba(232,160,32,.5)'">
+      <svg id="audio-icon" class="audio-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+        <path id="vol-wave-1" d="M15.54 8.46a5 5 0 0 1 0 7.07" style="transition: opacity 0.2s;"></path>
+        <path id="vol-wave-2" d="M19.07 4.93a10 10 0 0 1 0 14.14" style="transition: opacity 0.2s;"></path>
+        <line id="vol-mute-1" x1="23" y1="9" x2="17" y2="15" style="opacity: 0; transition: opacity 0.2s;"></line>
+        <line id="vol-mute-2" x1="17" y1="9" x2="23" y2="15" style="opacity: 0; transition: opacity 0.2s;"></line>
+      </svg>
+      <input type="range" id="vol-slider" class="audio-slider" min="0" max="100" value="100">
+    </div>
   </div> <!-- end app-view -->
+
+  <script type="module">
+    import { animate, inView, stagger } from "https://cdn.jsdelivr.net/npm/motion@11.11.13/+esm";
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+
+    window.addEventListener('load', () => {
+
+      const springConfig = { easing: [0.16, 1, 0.3, 1], duration: 0.85 };
+
+      function animateSection(sectionId, headerSel, cardsSel, customCardsAnim) {
+        if (!document.querySelector(sectionId)) return;
+        inView(sectionId, () => {
+          if (document.querySelector(sectionId + " " + headerSel)) {
+            animate(sectionId + " " + headerSel, { opacity: [0, 1], y: [40, 0] }, { ...springConfig, duration: 0.9 });
+          }
+          if (document.querySelector(sectionId + " " + cardsSel)) {
+            animate(sectionId + " " + cardsSel,
+              customCardsAnim || { opacity: [0, 1], scale: [0.93, 1], y: [60, 0] },
+              { ...springConfig, delay: stagger(0.12, { startDelay: 0.25 }) }
+            );
+          }
+        }, { amount: 0.25 });
+      }
+
+      // Feature cards slide from right as requested
+      animateSection("#p-features", ".features-header", ".facc", { opacity: [0, 1], x: [120, 0] });
+      animateSection("#p-bots", ".fmt-hide", ".bot-card");
+      animateSection("#p-depth", ".fmt-hide:first-child", ".depth-wrap");
+      animateSection("#p-orders", ".op-reveal", ".op-card");
+      animateSection("#p-cta", ".cta-inner", null);
+
+      // ─── THREE.JS GLOBAL DATA NETWORK (IMC INSPIRED) ───
+      const bhSec = document.getElementById('p-blackhole');
+      const bhCanvas = document.getElementById('bh-canvas');
+      const bhContent = document.getElementById('bh-content');
+      const sWrap = document.getElementById('scroll-container');
+
+      if (bhSec && bhCanvas && sWrap) {
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 5000);
+        const renderer = new THREE.WebGLRenderer({ canvas: bhCanvas, alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const group = new THREE.Group();
+        scene.add(group);
+
+        // 1. Central "Core" (Holographic Data Sphere)
+        const coreG = new THREE.IcosahedronGeometry(1.5, 4);
+        const coreM = new THREE.MeshBasicMaterial({ color: 0xe8a020, wireframe: true, transparent: true, opacity: 0.15 });
+        const core = new THREE.Mesh(coreG, coreM);
+        group.add(core);
+
+        // 2. Radial Network Lines
+        const lineCount = 120;
+        const linesMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.1 });
+        for (let i = 0; i < lineCount; i++) {
+          const geometry = new THREE.BufferGeometry();
+          const start = new THREE.Vector3(0, 0, 0);
+          const end = new THREE.Vector3(
+            (Math.random() - 0.5) * 40,
+            (Math.random() - 0.5) * 40,
+            (Math.random() - 0.5) * 40
+          ).normalize().multiplyScalar(15 + Math.random() * 10);
+          geometry.setFromPoints([start, end]);
+          const line = new THREE.Line(geometry, linesMaterial);
+          group.add(line);
+        }
+
+        // 3. Trading Candlestick Disc (Radial Arrangement)
+        const discGroup = new THREE.Group();
+        const candleCount = 200;
+        const radius = 18;
+        for (let i = 0; i < candleCount; i++) {
+          const angle = (i / candleCount) * Math.PI * 2;
+          const h = 0.5 + Math.random() * 3.5;
+          const up = Math.random() > 0.5;
+          const geometry = new THREE.BoxGeometry(0.12, h, 0.12);
+          const material = new THREE.MeshBasicMaterial({
+            color: up ? 0x18c96a : 0xe83535,
+            transparent: true,
+            opacity: 0.8
+          });
+          const candle = new THREE.Mesh(geometry, material);
+          candle.position.x = Math.cos(angle) * (radius + (Math.random() - 0.5) * 2);
+          candle.position.z = Math.sin(angle) * (radius + (Math.random() - 0.5) * 2);
+          candle.position.y = up ? h / 2 : -h / 2;
+          discGroup.add(candle);
+        }
+        group.add(discGroup);
+
+        // 4. Perimeter Data Ring
+        const ringG = new THREE.TorusGeometry(radius, 0.05, 16, 100);
+        const ringM = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.05 });
+        const ring = new THREE.Mesh(ringG, ringM);
+        ring.rotation.x = Math.PI / 2;
+        group.add(ring);
+
+        camera.position.z = 45;
+        camera.position.y = 15;
+        camera.lookAt(0, 0, 0);
+
+        // Interaction
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+          mouseX = (e.clientX - window.innerWidth / 2) * 0.0005;
+          mouseY = (e.clientY - window.innerHeight / 2) * 0.0005;
+        });
+
+        function animateScene() {
+          requestAnimationFrame(animateScene);
+          group.rotation.y += 0.0015;
+          discGroup.rotation.y += 0.0008;
+
+          group.rotation.x += (mouseY - group.rotation.x) * 0.05;
+          group.rotation.y += (mouseX - group.rotation.y) * 0.05;
+
+          // Subtle pulse for candles
+          discGroup.children.forEach((c, idx) => {
+            c.scale.y = 1 + Math.sin(performance.now() * 0.002 + idx) * 0.1;
+          });
+
+          renderer.render(scene, camera);
+        }
+        animateScene();
+
+        window.addEventListener('resize', () => {
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        const handleScroll = () => {
+          const rect = bhSec.getBoundingClientRect();
+          const winH = window.innerHeight;
+          if (rect.top < winH && rect.bottom > 0) {
+            const p = Math.max(0, Math.min(1, (winH - rect.top) / (bhSec.offsetHeight + winH)));
+            // Zoom camera in as we scroll
+            camera.position.z = 55 - p * 35;
+            camera.lookAt(0, 0, 0);
+
+            if (bhContent) {
+              const co = Math.max(0, Math.min(1, (p - 0.15) * 5)) * Math.max(0, Math.min(1, (0.85 - p) * 6));
+              bhContent.style.opacity = String(co);
+              bhContent.style.transform = `translateY(${(0.5 - p) * 100}px)`;
+            }
+          }
+        };
+        if (window.lenis) window.lenis.on('scroll', handleScroll);
+        else sWrap.addEventListener('scroll', handleScroll, { passive: true });
+      }
+
+      // ─── REMOVED SHATTER / FLUID HEADING EFFECT ───
+      // (Bypassed as requested for a more professional trading terminal feel)
+
+    });
+  </script>
 </body>
 
 </html>
-
