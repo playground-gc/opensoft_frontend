@@ -9,6 +9,7 @@ class DataManager {
   constructor() {
     this.subscribers = new Map(); // Map<Symbol, Set<Callback>>
     this.buffers = {};
+    this.candleHistory = {}; // Map<Symbol, candle[]>
     
     // Configurable symbols
     const symbols = [
@@ -43,6 +44,13 @@ class DataManager {
         };
         this.subscribers.set(s.pair, new Set());
         this.initOrderBook(s.pair);
+        this.seedCandleHistory(s.pair, s.basePrice);
+        // Set initial live candle time to just after last seeded candle
+        const lastSeedTime = this.candleHistory[s.pair]?.slice(-1)[0]?.time ?? Math.floor(Date.now() / 1000);
+        this.buffers[s.pair].chartCandle = {
+            time: lastSeedTime + 60,
+            open: s.basePrice, high: s.basePrice, low: s.basePrice, close: s.basePrice
+        };
     });
 
     this.startMockWebSocket();
@@ -102,6 +110,12 @@ class DataManager {
     const now = Math.floor(Date.now() / 1000);
     
     if (now > candle.time + 60) {
+        // Push completed candle to history before rotating
+        const completed = { ...candle, volume: Math.floor(Math.random() * 5000) + 500 };
+        if (!this.candleHistory[symbol]) this.candleHistory[symbol] = [];
+        this.candleHistory[symbol].push(completed);
+        if (this.candleHistory[symbol].length > 500) this.candleHistory[symbol].shift();
+
         buffer.chartCandle = {
             time: now,
             open: newPrice,
@@ -147,6 +161,50 @@ class DataManager {
           }
       });
     }, 50);
+  }
+
+  seedCandleHistory(symbol, basePrice) {
+    const history = [];
+    const now = Math.floor(Date.now() / 1000);
+    let price = basePrice;
+    const isCrypto = symbol.includes('USDT') && price < 5;
+    const volatility = isCrypto ? price * 0.005 : price * 0.001;
+    for (let i = 200; i >= 0; i--) {
+        const t = now - i * 60;
+        const open = price;
+        const change = (Math.random() - 0.49) * volatility * 10;
+        price = Math.max(0.0001, +(price + change).toFixed(4));
+        const close = price;
+        const high = Math.max(open, close) + Math.random() * volatility * 5;
+        const low = Math.min(open, close) - Math.random() * volatility * 5;
+        const volume = Math.floor(Math.random() * 5000) + 500;
+        history.push({ time: t, open, high: +high.toFixed(4), low: +Math.max(0.0001, low).toFixed(4), close, volume });
+    }
+    this.candleHistory[symbol] = history;
+  }
+
+  getCandles(symbol) {
+    const history = this.candleHistory[symbol] ?? [];
+    const current = this.buffers[symbol]?.chartCandle;
+    let all = [...history];
+    if (current) {
+        // Only append live candle if it's strictly after last history candle
+        const lastTime = all.length > 0 ? all[all.length - 1].time : 0;
+        if (current.time > lastTime) {
+            all.push({ ...current, volume: current.volume ?? 0 });
+        } else if (current.time === lastTime) {
+            // Update the last candle with latest live data
+            all[all.length - 1] = { ...all[all.length - 1], ...current };
+        }
+    }
+    // Safety: sort by time and remove any duplicates
+    all.sort((a, b) => a.time - b.time);
+    const seen = new Set();
+    return all.filter(c => {
+        if (seen.has(c.time)) return false;
+        seen.add(c.time);
+        return true;
+    });
   }
 
   subscribe(symbol, callback) {
