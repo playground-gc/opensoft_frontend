@@ -1,24 +1,7 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import path from 'path';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
-// Vite configuration for Project Synthetic-Bull.
-// Alias '@' maps to src/ for clean imports throughout the project.
+// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
-  server: {
-    port: 5173,
-    // Proxy REST and WS calls to the backend during local development.
-    proxy: {
-      '/api': {
-        target: process.env.VITE_API_BASE_URL || 'http://localhost:8000',
-        changeOrigin: true,
-      },
-    },
-  },
-});
+})
