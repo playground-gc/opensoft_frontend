@@ -1,15 +1,65 @@
+import { useState, useEffect, useCallback } from 'react';
+import { fetchPortfolio, fetchOrders } from '../services/api';
+import { dataManager } from '../services/dataManager';
+
 /**
  * @file usePortfolio.js
- * @description Derives computed portfolio metrics (total equity, unrealised P&L, P&L %)
- * by combining portfolioStore holdings with live prices from marketStore.
- * @exports usePortfolio  () => { totalEquity, unrealisedPnL, pnlPercent, cash, holdings }
- * @note All derivations are pure functions of store state; no local useState needed here.
+ * @description Hook to manage user portfolio and orders.
  */
 
-export const usePortfolio = () => ({
-  totalEquity: 0,
-  unrealisedPnL: 0,
-  pnlPercent: 0,
-  cash: 0,
-  holdings: [],
-});
+export const usePortfolio = (isAuthenticated) => {
+    const [holdings, setHoldings] = useState([]);
+    const [orders, setOrders] = useState([]);
+    const [livePrices, setLivePrices] = useState({});
+    const [loading, setLoading] = useState(false);
+
+    const refresh = useCallback(async () => {
+        if (!isAuthenticated) return;
+        setLoading(true);
+        const [portResult, orderResult] = await Promise.all([
+            fetchPortfolio(),
+            fetchOrders({ status: 'open' })
+        ]);
+
+        if (portResult.success) setHoldings(portResult.holdings);
+        if (orderResult.success) setOrders(orderResult.orders);
+        setLoading(false);
+    }, [isAuthenticated]);
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            refresh();
+            const interval = setInterval(refresh, 10000); // Poll every 10s
+            return () => clearInterval(interval);
+        }
+    }, [isAuthenticated, refresh]);
+
+    // Subscribe to live prices for all held symbols
+    useEffect(() => {
+        if (!holdings.length) return;
+        const unsubs = holdings.map(h => {
+            return dataManager.subscribe(h.symbol, (data) => {
+                setLivePrices(prev => ({ ...prev, [h.symbol]: data.ticker.price }));
+            });
+        });
+        return () => unsubs.forEach(u => u());
+    }, [holdings]);
+
+    // Compute derived metrics
+    let unrealisedPnL = 0;
+    let totalEquity = 100000; // Mock cash starting point, backend would ideally provide this
+
+    const positions = holdings.map(h => {
+        const currentPrice = livePrices[h.symbol] || h.current_price || h.avg_cost;
+        const marketValue = h.quantity * currentPrice;
+        const costBasis = h.quantity * h.avg_cost;
+        const pnl = marketValue - costBasis;
+        unrealisedPnL += pnl;
+        
+        return { ...h, currentPrice, marketValue, pnl };
+    });
+
+    totalEquity += unrealisedPnL;
+
+    return { holdings: positions, orders, unrealisedPnL, totalEquity, loading, refresh };
+};

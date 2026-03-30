@@ -11,10 +11,9 @@ export default function MarketWatch({ activeSymbol, comparisonSymbols, onSelectS
 
     useEffect(() => {
         const unsubs = [];
-        const basePairs = ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'SYN/USDT', 'DOGE/USDT', 'ADA/USDT', 'XRP/USDT'];
         
         const tickDataMap = {};
-        basePairs.forEach(pair => {
+        dataManager.basePairs.forEach(pair => {
             const unsub = dataManager.subscribe(pair, (data) => {
                 tickDataMap[pair] = { 
                     pair, 

@@ -1,25 +1,37 @@
 import React, { useState } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
+import { login, register } from '../../services/api/authApi';
 
 export default function AuthModal({ onClose, onSuccess }) {
     const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isSignUp, setIsSignUp] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-    const handleNormalLogin = (e) => {
+    const handleNormalLogin = async (e) => {
         e.preventDefault();
-        if (!email || !password) {
-            setError('Please enter both email and password.');
+        setError('');
+        
+        if (!password || (isSignUp && (!email || !username)) || (!isSignUp && !username)) {
+            setError('Please fill in all required fields.');
             return;
         }
         
+        setLoading(true);
+        let result;
         if (isSignUp) {
-            console.log("Normal Sign Up Successful:", email);
-            onSuccess(email);
+            result = await register(username, email, password);
         } else {
-            console.log("Normal Login Successful:", email);
-            onSuccess(email);
+            result = await login(username, password);
+        }
+        setLoading(false);
+
+        if (result.success) {
+            onSuccess(result.user.username);
+        } else {
+            setError(result.error);
         }
     };
 
@@ -46,14 +58,26 @@ export default function AuthModal({ onClose, onSuccess }) {
 
                 <form onSubmit={handleNormalLogin} style={styles.formMode}>
                     <div style={styles.inputGroup}>
-                        <label style={styles.label}>Email/Phone number</label>
+                        <label style={styles.label}>Username</label>
                         <input 
                             type="text" 
                             style={styles.input} 
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
                         />
                     </div>
+
+                    {isSignUp && (
+                        <div style={styles.inputGroup}>
+                            <label style={styles.label}>Email (Sign Up Only)</label>
+                            <input 
+                                type="email" 
+                                style={styles.input} 
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                        </div>
+                    )}
 
                     <div style={styles.inputGroup}>
                         <label style={styles.label}>Password</label>
@@ -65,7 +89,9 @@ export default function AuthModal({ onClose, onSuccess }) {
                         />
                     </div>
 
-                    <button type="submit" style={styles.loginBtn}>{isSignUp ? 'Sign Up' : 'Log In'}</button>
+                    <button type="submit" style={styles.loginBtn} disabled={loading}>
+                        {loading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Log In')}
+                    </button>
                     {!isSignUp && <a href="#" style={styles.forgot}>Forgot Password?</a>}
                 </form>
 
