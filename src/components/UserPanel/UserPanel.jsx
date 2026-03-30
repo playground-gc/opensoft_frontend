@@ -1,20 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { dataManager } from '../../services/dataManager';
+import React, { useState } from 'react';
+import { usePortfolio } from '../../hooks/usePortfolio';
 
-export default function UserPanel() {
-    const [activeTab, setActiveTab] = useState('Trade History');
-    const tabs = ['Open Orders(0)', 'Order History', 'Trade History', 'Holdings', 'Bots'];
+export default function UserPanel({ isAuthenticated }) {
+    const [activeTab, setActiveTab] = useState('Holdings');
+    const { holdings, orders, unrealisedPnL, totalEquity, loading } = usePortfolio(isAuthenticated);
     
-    const [trades, setTrades] = useState([]);
-
-    useEffect(() => {
-        // Just listening to BTC/USDT trades for demo purposes
-        const unsub = dataManager.subscribe('BTC/USDT', (data) => {
-            setTrades([...data.latestTrades]);
-        });
-        return unsub;
-    }, []);
-
+    const tabs = [`Open Orders(${orders.length})`, 'Holdings', 'Trade History', 'Bots'];
+    
     return (
         <div style={styles.container}>
             <div style={styles.tabsStrip}>
@@ -23,10 +15,10 @@ export default function UserPanel() {
                         key={tab} 
                         style={{
                             ...styles.tab, 
-                            color: activeTab === tab ? '#FCD535' : 'var(--color-text-muted)',
-                            borderBottom: activeTab === tab ? '2px solid #FCD535' : '2px solid transparent'
+                            color: activeTab.startsWith(tab.split('(')[0]) ? '#FCD535' : 'var(--color-text-muted)',
+                            borderBottom: activeTab.startsWith(tab.split('(')[0]) ? '2px solid #FCD535' : '2px solid transparent'
                         }}
-                        onClick={() => setActiveTab(tab)}
+                        onClick={() => setActiveTab(tab.split('(')[0])}
                     >
                         {tab}
                     </div>
@@ -34,53 +26,80 @@ export default function UserPanel() {
             </div>
             
             <div style={styles.content}>
-                {activeTab === 'Trade History' && (
-                    <div style={styles.table}>
-                        <div style={styles.headerRow}>
-                            <div style={{...styles.cell, flex: 1}}>Date</div>
-                            <div style={{...styles.cell, flex: 1}}>Trading Pair</div>
-                            <div style={{...styles.cell, flex: 1}}>Side</div>
-                            <div style={{...styles.cell, flex: 1}}>Price</div>
-                            <div style={{...styles.cell, flex: 1}}>Executed</div>
-                            <div style={{...styles.cell, flex: 1}}>Role</div>
-                        </div>
-                        <div style={styles.list}>
-                            {trades.map((trade, i) => {
-                                const side = trade.isBuyerMaker ? 'Sell' : 'Buy';
-                                const color = side === 'Buy' ? 'var(--color-neon-green)' : 'var(--color-coral-red)';
-                                
-                                return (
-                                    <div key={`trade-${trade.time}-${i}`} style={styles.row}>
-                                        <div style={{...styles.cell, flex: 1}}>
-                                            {new Date(trade.time).toLocaleTimeString()}
+                {!isAuthenticated ? (
+                    <div style={styles.empty}>Please log in to view portfolio</div>
+                ) : loading ? (
+                    <div style={styles.empty}>Loading...</div>
+                ) : (
+                    <>
+                        {activeTab === 'Holdings' && (
+                            <div style={styles.table}>
+                                <div style={styles.headerRow}>
+                                    <div style={{...styles.cell, flex: 2}}>Symbol</div>
+                                    <div style={{...styles.cell, flex: 1}}>Quantity</div>
+                                    <div style={{...styles.cell, flex: 1}}>Avg Cost</div>
+                                    <div style={{...styles.cell, flex: 1}}>Price</div>
+                                    <div style={{...styles.cell, flex: 1, textAlign: 'right'}}>P&L</div>
+                                </div>
+                                <div style={styles.list}>
+                                    {holdings.map((h, i) => (
+                                        <div key={h.symbol} style={styles.row}>
+                                            <div style={{...styles.cell, flex: 2, fontWeight: 'bold'}}>{h.symbol}</div>
+                                            <div style={{...styles.cell, flex: 1}}>{h.quantity.toFixed(2)}</div>
+                                            <div style={{...styles.cell, flex: 1}}>${h.avg_cost.toFixed(2)}</div>
+                                            <div style={{...styles.cell, flex: 1}}>${h.currentPrice.toFixed(2)}</div>
+                                            <div style={{...styles.cell, flex: 1, textAlign: 'right', color: h.pnl >= 0 ? 'var(--color-neon-green)' : 'var(--color-coral-red)'}}>
+                                                {h.pnl >= 0 ? '+' : ''}{h.pnl.toFixed(2)}
+                                            </div>
                                         </div>
-                                        <div style={{...styles.cell, flex: 1}}>BTC/USDT</div>
-                                        <div style={{...styles.cell, flex: 1, color, fontWeight: 'bold'}}>{side}</div>
-                                        <div style={{...styles.cell, flex: 1}}>{trade.price.toFixed(2)}</div>
-                                        <div style={{...styles.cell, flex: 1}}>{trade.size.toFixed(3)}</div>
-                                        <div style={{...styles.cell, flex: 1}}>
-                                            {trade.isBuyerMaker ? 'Maker' : 'Taker'}
+                                    ))}
+                                    {holdings.length === 0 && <div style={styles.empty}>No holdings yet</div>}
+                                </div>
+                            </div>
+                        )}
+                        
+                        {activeTab === 'Open Orders' && (
+                            <div style={styles.table}>
+                                <div style={styles.headerRow}>
+                                    <div style={{...styles.cell, flex: 1}}>Symbol</div>
+                                    <div style={{...styles.cell, flex: 1}}>Side</div>
+                                    <div style={{...styles.cell, flex: 1}}>Price</div>
+                                    <div style={{...styles.cell, flex: 1}}>Quantity</div>
+                                    <div style={{...styles.cell, flex: 1, textAlign: 'right'}}>Status</div>
+                                </div>
+                                <div style={styles.list}>
+                                    {orders.map((o) => (
+                                        <div key={o.id} style={styles.row}>
+                                            <div style={{...styles.cell, flex: 1}}>{o.symbol}</div>
+                                            <div style={{...styles.cell, flex: 1, color: o.side === 'buy' ? 'var(--color-neon-green)' : 'var(--color-coral-red)'}}>{o.side.toUpperCase()}</div>
+                                            <div style={{...styles.cell, flex: 1}}>{o.price ? o.price.toFixed(2) : 'Market'}</div>
+                                            <div style={{...styles.cell, flex: 1}}>{o.quantity}</div>
+                                            <div style={{...styles.cell, flex: 1, textAlign: 'right', color: 'var(--color-text-muted)'}}>{o.status}</div>
                                         </div>
-                                    </div>
-                                );
-                            })}
+                                    ))}
+                                    {orders.length === 0 && <div style={styles.empty}>No open orders</div>}
+                                </div>
+                            </div>
+                        )}
+                        
+                        {(activeTab === 'Trade History' || activeTab === 'Bots') && (
+                            <div style={styles.empty}>
+                                Feature currently disabled in backend-only mode
+                            </div>
+                        )}
+
+                        <div style={styles.portfolioSummary}>
+                             <div style={styles.balanceCard}>
+                                <div style={styles.balanceLabel}>Account Equity (Estimated)</div>
+                                <div style={styles.balanceValue}>
+                                    $ {totalEquity.toLocaleString(undefined, {minimumFractionDigits: 2})} 
+                                    <span style={{...styles.balanceDim, marginLeft: 8, color: unrealisedPnL >= 0 ? 'var(--color-neon-green)' : 'var(--color-coral-red)'}}>
+                                        ({unrealisedPnL >= 0 ? '+' : ''}{unrealisedPnL.toFixed(2)})
+                                    </span>
+                                </div>
+                             </div>
                         </div>
-                    </div>
-                )}
-                
-                {activeTab === 'Holdings' && (
-                    <div style={styles.portfolio}>
-                        <div style={styles.balanceCard}>
-                            <div style={styles.balanceLabel}>Estimated Balance</div>
-                            <div style={styles.balanceValue}>$ 100,000.00 <span style={styles.balanceDim}>USD</span></div>
-                        </div>
-                    </div>
-                )}
-                
-                {['Open Orders(0)', 'Order History', 'Bots'].includes(activeTab) && (
-                    <div style={styles.empty}>
-                        No data available
-                    </div>
+                    </>
                 )}
             </div>
         </div>

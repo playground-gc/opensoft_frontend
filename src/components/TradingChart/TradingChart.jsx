@@ -8,15 +8,13 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
     const chartContainerRef = useRef();
     const chartRef = useRef();
     const seriesRef = useRef();
-
     const compSeriesRefs = useRef({});
 
-    const [activeTimeframe, setActiveTimeframe] = useState('1D');
-    const timeframes = ['1s', '15m', '1H', '4H', '1D', '1W'];
-
-    // Options: 'Candles', 'Line', 'Bar', 'Area'
+    const [activeTimeframe, setActiveTimeframe] = useState('1m');
+    const timeframes = ['1s', '1m', '15m', '1H', '4H', '1D', '1W'];
     const [chartType, setChartType] = useState('Candles');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [hasData, setHasData] = useState(false);
 
     const toggleFullScreen = () => {
         if (!document.fullscreenElement) {
@@ -38,15 +36,14 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
             }
         };
 
-        const isCrypto = symbol.includes('USDT') && symbol !== 'BTC/USDT';
-        const priceScaleMode = isCrypto ? 4 : 2;
+        const priceScaleMode = 2; 
         const isComparing = comparisonSymbols.length > 0;
 
         const chart = createChart(chartContainerRef.current, {
             layout: {
                 background: { type: 'solid', color: '#1E2329' },
                 textColor: 'rgba(255, 255, 255, 0.9)',
-                fontFamily: 'Roboto Mono',
+                fontFamily: 'Inter, system-ui, sans-serif',
             },
             grid: {
                 vertLines: { color: '#2B3139' },
@@ -54,7 +51,7 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
             },
             timeScale: {
                 timeVisible: true,
-                secondsVisible: false,
+                secondsVisible: activeTimeframe === '1s',
                 borderColor: '#2B3139',
             },
             rightPriceScale: {
@@ -66,16 +63,16 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
             }
         });
 
-        // Instantiate selected series format
         let mainSeries;
         const formatOptions = {
-             priceFormat: {
-                 type: 'price',
-                 precision: priceScaleMode,
-                 minMove: 1 / Math.pow(10, priceScaleMode)
-             }
+            priceFormat: {
+                type: 'price',
+                precision: priceScaleMode,
+                minMove: 1 / Math.pow(10, priceScaleMode)
+            }
         };
 
+        // Initialize Main Series based on selected type
         if (chartType === 'Candles') {
             mainSeries = chart.addSeries(CandlestickSeries, {
                 ...formatOptions,
@@ -100,7 +97,7 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
                 crosshairMarkerVisible: true
             });
         } else {
-             mainSeries = chart.addSeries(LineSeries, {
+            mainSeries = chart.addSeries(LineSeries, {
                 ...formatOptions,
                 color: '#FCD535',
                 lineWidth: 2,
@@ -111,56 +108,99 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
         chartRef.current = chart;
         seriesRef.current = mainSeries;
 
-        const colors = ['#FCD535', '#2962FF', '#E040FB'];
-
-        comparisonSymbols.forEach((sym, idx) => {
-            const lineSeries = chart.addLineSeries({
-                color: colors[idx % colors.length],
-                lineWidth: 2,
-                crosshairMarkerVisible: true
-            });
-            compSeriesRefs.current[sym] = lineSeries;
-        });
-
         const unsubs = [];
         let currentBar = null;
+        let fittedOnce = false; // Tracks if we've auto-zoomed the chart yet
 
+        // Convert OHLC bar to the format the current series type expects
+        const toSeriesItem = (bar) => {
+            if (chartType === 'Line' || chartType === 'Area') {
+                return { time: bar.time, value: bar.close };
+            }
+            return bar;
+        };
+
+        // --- STEP 1: Attempt History Fetch ---
         dataManager.fetchHistoricalKlines(symbol, activeTimeframe).then(historicalData => {
             if (historicalData.length > 0 && seriesRef.current) {
-                seriesRef.current.setData(historicalData);
+                seriesRef.current.setData(historicalData.map(toSeriesItem));
                 currentBar = { ...historicalData[historicalData.length - 1] };
+                setHasData(true);
+                chartRef.current?.timeScale().fitContent();
+                fittedOnce = true;
             }
         });
 
+        // Returns the candle-period bucket (in seconds) for a given epoch second
+        const snapToTimeframe = (epochSeconds) => {
+            const tfSeconds = {
+                '1s': 1, '1m': 60, '15m': 900,
+                '1H': 3600, '4H': 14400, '1D': 86400, '1W': 604800
+            };
+            const period = tfSeconds[activeTimeframe] ?? 60;
+            return epochSeconds - (epochSeconds % period);
+        };
+
+        // --- STEP 2: Live Data Subscription ---
+        // Backend only sends orderbook events; we build candles from the mid-price.
         unsubs.push(dataManager.subscribe(symbol, (data) => {
-            if (seriesRef.current && currentBar) {
-                 const price = data.ticker.price;
-                 currentBar.close = price;
-                 currentBar.high = Math.max(currentBar.high, price);
-                 currentBar.low = Math.min(currentBar.low, price);
-                 
-                 if (chartType === 'Area' || chartType === 'Line') {
-                     seriesRef.current.update({ time: currentBar.time, value: currentBar.close });
-                 } else {
-                     seriesRef.current.update(currentBar);
-                 }
+            if (!seriesRef.current) return;
+
+            const price = data.ticker?.price;
+            if (!price || price <= 0) return;
+
+            const snappedTime = snapToTimeframe(Math.floor(Date.now() / 1000));
+
+            if (!currentBar) {
+                // First tick — start the first real candle, no fake data
+                currentBar = { time: snappedTime, open: price, high: price, low: price, close: price };
+                setHasData(true);
+                if (!fittedOnce) {
+                    chartRef.current?.timeScale().fitContent();
+                    fittedOnce = true;
+                }
+            } else if (snappedTime > currentBar.time) {
+                // New candle period — open with previous close
+                currentBar = { time: snappedTime, open: currentBar.close, high: price, low: price, close: price };
+            } else {
+                currentBar.close = price;
+                currentBar.high = Math.max(currentBar.high, price);
+                currentBar.low  = Math.min(currentBar.low,  price);
+            }
+
+            try {
+                if (chartType === 'Area' || chartType === 'Line') {
+                    seriesRef.current.update({ time: currentBar.time, value: currentBar.close });
+                } else {
+                    seriesRef.current.update(currentBar);
+                }
+                // Keep the chart scrolled to the latest candle
+                chartRef.current?.timeScale().scrollToRealTime();
+            } catch (err) {
+                console.error("[CHART] Render Error:", err);
             }
         }));
 
-        const compCurrentBars = {};
-        comparisonSymbols.forEach(sym => {
-            dataManager.fetchHistoricalKlines(sym, activeTimeframe).then(historicalData => {
-               if (historicalData.length > 0 && compSeriesRefs.current[sym]) {
-                   const closeOnly = historicalData.map(d => ({ time: d.time, value: d.close }));
-                   compSeriesRefs.current[sym].setData(closeOnly);
-                   compCurrentBars[sym] = { ...closeOnly[closeOnly.length - 1] };
+        // --- STEP 3: Handle Comparisons (if any) ---
+        comparisonSymbols.forEach((sym, idx) => {
+            const colors = ['#FCD535', '#2962FF', '#E040FB'];
+            const lineSeries = chart.addSeries(LineSeries, {
+                color: colors[idx % colors.length],
+                lineWidth: 2,
+            });
+            compSeriesRefs.current[sym] = lineSeries;
+
+            dataManager.fetchHistoricalKlines(sym, activeTimeframe).then(hist => {
+               if (hist.length > 0) {
+                   lineSeries.setData(hist.map(d => ({ time: d.time, value: d.close })));
                }
             });
 
-            unsubs.push(dataManager.subscribe(sym, (data) => {
-                if (compSeriesRefs.current[sym] && compCurrentBars[sym]) {
-                    compCurrentBars[sym].value = data.ticker.price;
-                    compSeriesRefs.current[sym].update(compCurrentBars[sym]);
+            // Subscribe comparison symbols to live data
+            unsubs.push(dataManager.subscribe(sym, (d) => {
+                if (d.ticker?.price > 0 && compSeriesRefs.current[sym]) {
+                    const snapped = snapToTimeframe(Math.floor(Date.now() / 1000));
+                    compSeriesRefs.current[sym].update({ time: snapped, value: d.ticker.price });
                 }
             }));
         });
@@ -176,26 +216,22 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
         };
     }, [symbol, comparisonSymbols, chartType, activeTimeframe]);
 
-    const colors = ['#FCD535', '#2962FF', '#E040FB'];
-
     return (
         <div ref={wrapperRef} style={styles.container}>
             <div style={styles.toolbar}>
                 <div style={styles.toolbarLeft}>
-                    <div style={{fontWeight: 'bold', color: 'var(--color-text-main)', marginRight: 16}}>
+                    <div style={{fontWeight: 'bold', color: '#EAECEF', marginRight: 16}}>
                         {symbol}
                     </div>
-                    {comparisonSymbols.map((sym, idx) => (
-                        <div key={sym} style={{color: colors[idx % colors.length], fontWeight: 'bold', fontSize: '10px'}}>
-                            + {sym}
-                        </div>
-                    ))}
-                    
                     <div style={styles.timeframes}>
                         {timeframes.map(tf => (
                             <span 
                                 key={tf}
-                                style={{color: activeTimeframe === tf ? '#FCD535' : 'var(--color-text-muted)', cursor: 'pointer', fontWeight: '500'}}
+                                style={{
+                                    color: activeTimeframe === tf ? '#FCD535' : '#848E9C', 
+                                    cursor: 'pointer', 
+                                    fontWeight: '500'
+                                }}
                                 onClick={() => setActiveTimeframe(tf)}
                             >
                                 {tf}
@@ -221,34 +257,131 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
                             </div>
                         )}
                     </div>
-
                 </div>
 
                 <div style={styles.toolbarRight}>
                     <div title="Full Screen" style={styles.iconBtn} onClick={toggleFullScreen}>
-                        <Maximize size={16} color="var(--color-text-muted)" />
+                        <Maximize size={16} color="#848E9C" />
                     </div>
                 </div>
             </div>
             
-            <div 
-                ref={chartContainerRef} 
-                style={styles.chartWrapper}
-            />
+            <div style={styles.chartWrapper}>
+                {!hasData && (
+                    <div style={styles.overlay}>
+                        <div style={styles.loaderLine} />
+                        Connecting to {symbol} Stream...
+                    </div>
+                )}
+                <div 
+                    ref={chartContainerRef} 
+                    style={{width: '100%', height: '100%'}}
+                />
+            </div>
         </div>
     );
 }
 
 const styles = {
-    container: { width: '100%', height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: '#1E2329', overflow: 'hidden' },
-    toolbar: { height: '36px', borderBottom: '1px solid #2B3139', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', fontSize: '12px' },
-    toolbarLeft: { display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--color-text-muted)' },
-    toolbarRight: { display: 'flex', alignItems: 'center' },
-    timeframes: { display: 'flex', gap: '8px', marginLeft: '12px', paddingRight: '12px', borderRight: '1px solid #2B3139' },
-    menuWrapper: { position: 'relative', marginLeft: '12px' },
-    menuLabel: { display: 'flex', alignItems: 'center', cursor: 'pointer', color: 'var(--color-text-main)' },
-    menuDropdown: { position: 'absolute', top: '24px', left: 0, backgroundColor: '#1E2329', border: '1px solid #2B3139', padding: '4px', borderRadius: '4px', zIndex: 10, display: 'flex', flexDirection: 'column' },
-    menuItem: { padding: '4px 8px', cursor: 'pointer', color: 'var(--color-text-main)', borderRadius: '4px' },
-    iconBtn: { marginLeft: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', borderRadius: '4px' },
-    chartWrapper: { flex: 1, width: '100%', position: 'relative', overflow: 'hidden', minHeight: 0 }
+    container: { 
+        width: '100%', 
+        height: '100%', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        backgroundColor: '#1E2329', 
+        overflow: 'hidden' 
+    },
+    toolbar: { 
+        height: '36px', 
+        borderBottom: '1px solid #2B3139', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-between', 
+        padding: '0 16px', 
+        fontSize: '12px' 
+    },
+    toolbarLeft: { 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '12px' 
+    },
+    toolbarRight: { 
+        display: 'flex', 
+        alignItems: 'center' 
+    },
+    timeframes: { 
+        display: 'flex', 
+        gap: '8px', 
+        marginLeft: '12px', 
+        paddingRight: '12px', 
+        borderRight: '1px solid #2B3139' 
+    },
+    menuWrapper: { 
+        position: 'relative', 
+        marginLeft: '12px' 
+    },
+    menuLabel: { 
+        display: 'flex', 
+        alignItems: 'center', 
+        cursor: 'pointer', 
+        color: '#EAECEF' 
+    },
+    menuDropdown: { 
+        position: 'absolute', 
+        top: '28px', 
+        left: 0, 
+        backgroundColor: '#1E2329', 
+        border: '1px solid #2B3139', 
+        padding: '4px', 
+        borderRadius: '4px', 
+        zIndex: 100, 
+        display: 'flex', 
+        flexDirection: 'column', 
+        width: '100px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
+    },
+    menuItem: { 
+        padding: '8px', 
+        cursor: 'pointer', 
+        color: '#EAECEF', 
+        borderRadius: '4px',
+        transition: 'background 0.2s'
+    },
+    iconBtn: { 
+        marginLeft: '12px', 
+        cursor: 'pointer', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        opacity: 0.8
+    },
+    chartWrapper: { 
+        flex: 1, 
+        width: '100%', 
+        position: 'relative', 
+        minHeight: 0 
+    },
+    overlay: { 
+        position: 'absolute', 
+        top: 0, 
+        left: 0, 
+        right: 0, 
+        bottom: 0, 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        backgroundColor: 'rgba(30, 35, 41, 0.9)', 
+        color: '#FCD535', 
+        zIndex: 20, 
+        fontSize: '13px',
+        textAlign: 'center'
+    },
+    loaderLine: { 
+        width: '40px', 
+        height: '2px', 
+        backgroundColor: '#FCD535', 
+        marginBottom: '12px',
+        borderRadius: '2px'
+    }
 };

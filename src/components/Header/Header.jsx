@@ -37,10 +37,10 @@ export default function Header({ symbol }) {
           <div style={styles.statGroup}>
             <div style={styles.statValue}>
                 <span className={isUp ? 'up-color' : 'down-color'} style={styles.price}>
-                    {ticker.price.toFixed(4)}
+                    {ticker.price.toFixed(2)}
                 </span>
             </div>
-            <div style={styles.statLabel}>$ {ticker.price.toFixed(4)}</div>
+            <div style={styles.statLabel}>$ {ticker.price.toFixed(2)}</div>
           </div>
           
           <div style={styles.statGroup}>
@@ -67,26 +67,12 @@ export default function Header({ symbol }) {
       </div>
 
       <div style={styles.rightGroup}>
-          {isLoggedIn ? (
-              <div style={{color: '#FCD535', fontWeight: 'bold'}}>{userName}</div>
+          {user ? (
+              <div style={{color: '#FCD535', fontWeight: 'bold'}}>{user}</div>
           ) : (
-             <>
-                <button style={styles.loginBtn} onClick={() => setShowAuthModal(true)}>Log In</button>
-                <button style={styles.signupBtn} onClick={() => setShowAuthModal(true)}>Sign Up</button>
-             </>
+             <div style={{color: 'var(--color-text-muted)', fontSize: '12px'}}>Guest Mode</div>
           )}
       </div>
-
-      {showAuthModal && (
-        <AuthModal 
-            onClose={() => setShowAuthModal(false)} 
-            onSuccess={(name) => {
-                setUserName(name);
-                setIsLoggedIn(true);
-                setShowAuthModal(false);
-            }} 
-        />
-      )}
     </div>
   );
 }

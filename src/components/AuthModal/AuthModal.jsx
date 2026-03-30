@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { register, login } from '../../services/api';
 import { useAuthStore } from '../../store';
 import { useGoogleLogin } from '@react-oauth/google';
+import { login, register } from '../../services/api/authApi';
 
 export default function AuthModal({ onClose, onSuccess }) {
     const setAuth = useAuthStore(state => state.setAuth);
     const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [username, setUsername] = useState('');
     const [error, setError] = useState('');
@@ -80,6 +82,18 @@ export default function AuthModal({ onClose, onSuccess }) {
                             onChange={(e) => setEmail(e.target.value)}
                         />
                     </div>
+
+                    {isSignUp && (
+                        <div style={styles.inputGroup}>
+                            <label style={styles.label}>Email (Sign Up Only)</label>
+                            <input 
+                                type="email" 
+                                style={styles.input} 
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                        </div>
+                    )}
 
                     <div style={styles.inputGroup}>
                         <label style={styles.label}>Password</label>

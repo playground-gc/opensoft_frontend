@@ -1,13 +1,25 @@
+import { useState } from 'react';
+import { placeOrder } from '../services/api/ordersApi';
+
 /**
  * @file useOrderSubmit.js
- * @description Handles order form submission: validates input, dispatches optimistic update to
- * orderStore, calls the REST API via React Query mutation, and rolls back on failure.
- * @exports useOrderSubmit  () => { submit, isSubmitting, error }
- * @note Optimistic rollback must restore the exact pre-submit orderStore snapshot.
+ * @description Hook to manage order placement state.
  */
 
-export const useOrderSubmit = () => ({
-  submit: () => Promise.resolve(),
-  isSubmitting: false,
-  error: null,
-});
+export const useOrderSubmit = () => {
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState(null);
+
+    const submit = async (params) => {
+        setIsSubmitting(true);
+        setError(null);
+        const result = await placeOrder(params);
+        setIsSubmitting(false);
+        if (!result.success) {
+            setError(result.error);
+        }
+        return result;
+    };
+
+    return { submit, isSubmitting, error };
+};
