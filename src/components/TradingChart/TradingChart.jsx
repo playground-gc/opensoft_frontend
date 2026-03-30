@@ -10,6 +10,8 @@ import {
 } from '../../utils/indicators';
 import IndicatorModal from './IndicatorModal';
 import IndicatorPanel from './IndicatorPanel';
+import DrawingToolbar from './DrawingToolbar';
+import useDrawingTools from './useDrawingTools';
 
 // ─── Default indicator config (MA enabled at startup) ─────────────────────────
 const DEFAULT_CONFIG = {
@@ -129,12 +131,26 @@ function applyMainOverlays(chart, candles, indicatorConfig, overlaySeriesRef) {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function TradingChart({ symbol, comparisonSymbols = [] }) {
-    const wrapperRef       = useRef();
+    const wrapperRef        = useRef();
     const chartContainerRef = useRef();
-    const chartRef         = useRef();
-    const seriesRef        = useRef();
-    const overlaySeriesRef = useRef({});
-    const compSeriesRefs   = useRef({});
+    const chartRef          = useRef();
+    const seriesRef         = useRef();
+    const overlaySeriesRef  = useRef({});
+    const compSeriesRefs    = useRef({});
+    const canvasRef         = useRef();
+
+    const [toastMsg, setToastMsg] = useState('');
+    const showToast = useCallback((msg) => {
+        if (!msg) return;
+        setToastMsg(msg);
+        setTimeout(() => setToastMsg(''), 2500);
+    }, []);
+
+    const {
+        activeTool, setActiveTool,
+        handleAction, resizeCanvas,
+        drawings, selectedId,
+    } = useDrawingTools(canvasRef, chartRef, showToast);
 
     const [activeTimeframe, setActiveTimeframe] = useState('1D');
     const timeframes = ['1s', '15m', '1H', '4H', '1D', '1W'];
@@ -188,6 +204,7 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
                     height: chartContainerRef.current.clientHeight
                 });
             }
+            resizeCanvas();
         };
 
         const isCrypto     = symbol.includes('USDT') && symbol !== 'BTC/USDT';
@@ -312,6 +329,17 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
     const activeCount = Object.values(indicatorConfig).filter(v => v?.enabled).length;
     const compColors  = ['#FCD535', '#2962FF', '#E040FB'];
 
+    // Cursor style based on active tool
+    const toolCursor = {
+        pointer: 'crosshair',
+        'cursor-arrow': 'default',
+        move:    'move',
+        text:    'text',
+        pen:     'crosshair',
+        hline:   'crosshair',
+        vline:   'crosshair',
+    }[activeTool] || 'crosshair';
+
     return (
         <div ref={wrapperRef} style={s.container}>
             {/* Toolbar */}
@@ -377,10 +405,33 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
                 </div>
             </div>
 
-            {/* Main chart */}
-            <div ref={chartContainerRef} style={s.chartWrapper} />
+            {/* Body: sidebar + chart */}
+            <div style={s.body}>
+                {/* Drawing tools sidebar */}
+                <DrawingToolbar
+                    activeTool={activeTool}
+                    onToolChange={setActiveTool}
+                    onAction={handleAction}
+                    drawings={drawings}
+                    selectedId={selectedId}
+                />
 
-            {/* Sub-indicator panels */}
+                {/* Chart area with canvas overlay */}
+                <div style={s.chartArea}>
+                    <div ref={chartContainerRef} style={s.chartWrapper} />
+                    {/* Drawing canvas — pointer-events only when not in pointer/move mode */}
+                    <canvas
+                        ref={canvasRef}
+                        style={{
+                            ...s.drawingCanvas,
+                            cursor: toolCursor,
+                            pointerEvents: activeTool === 'pointer' ? 'none' : 'auto',
+                        }}
+                    />
+                </div>
+            </div>
+
+            {/* Sub-indicator panels — outside the body flex row */}
             {activeSubIndicators.length > 0 && (
                 <div style={s.subPanels}>
                     {activeSubIndicators.map(key =>
@@ -406,25 +457,40 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
                     onLiveChange={handleLiveChange}
                 />
             )}
+
+            {/* Toast Notification */}
+            {toastMsg && (
+                <div style={s.toast}>
+                    {toastMsg}
+                </div>
+            )}
         </div>
     );
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const s = {
-    container:   { width: '100%', height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: '#1E2329', overflow: 'hidden' },
-    toolbar:     { height: '36px', borderBottom: '1px solid #2B3139', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', fontSize: '12px', flexShrink: 0 },
-    toolbarLeft: { display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--color-text-muted)' },
-    toolbarRight:{ display: 'flex', alignItems: 'center' },
-    timeframes:  { display: 'flex', gap: '8px', marginLeft: '12px', paddingRight: '12px', borderRight: '1px solid #2B3139' },
-    menuWrapper: { position: 'relative', marginLeft: '4px' },
-    menuLabel:   { display: 'flex', alignItems: 'center', cursor: 'pointer', color: 'var(--color-text-main)' },
-    menuDropdown:{ position: 'absolute', top: '24px', left: 0, backgroundColor: '#1E2329', border: '1px solid #2B3139', padding: '4px', borderRadius: '4px', zIndex: 10, display: 'flex', flexDirection: 'column' },
-    menuItem:    { padding: '4px 8px', cursor: 'pointer', color: 'var(--color-text-main)', borderRadius: '4px' },
-    iconBtn:     { marginLeft: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', borderRadius: '4px' },
-    chartWrapper:{ flex: 1, width: '100%', position: 'relative', overflow: 'hidden', minHeight: 0 },
-    subPanels:   { flexShrink: 0, width: '100%', display: 'flex', flexDirection: 'column', maxHeight: '45%', overflowY: 'auto' },
-    indicatorBtn:{
+    container:    { width: '100%', height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: '#1E2329', overflow: 'hidden' },
+    toolbar:      { height: '36px', borderBottom: '1px solid #2B3139', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', fontSize: '12px', flexShrink: 0 },
+    toolbarLeft:  { display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--color-text-muted)' },
+    toolbarRight: { display: 'flex', alignItems: 'center' },
+    timeframes:   { display: 'flex', gap: '8px', marginLeft: '12px', paddingRight: '12px', borderRight: '1px solid #2B3139' },
+    menuWrapper:  { position: 'relative', marginLeft: '4px' },
+    menuLabel:    { display: 'flex', alignItems: 'center', cursor: 'pointer', color: 'var(--color-text-main)' },
+    menuDropdown: { position: 'absolute', top: '24px', left: 0, backgroundColor: '#1E2329', border: '1px solid #2B3139', padding: '4px', borderRadius: '4px', zIndex: 10, display: 'flex', flexDirection: 'column' },
+    menuItem:     { padding: '4px 8px', cursor: 'pointer', color: 'var(--color-text-main)', borderRadius: '4px' },
+    iconBtn:      { marginLeft: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', borderRadius: '4px' },
+    // ── New layout ──
+    body:         { flex: 1, display: 'flex', flexDirection: 'row', overflow: 'hidden', minHeight: 0 },
+    chartArea:    { flex: 1, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', minWidth: 0 },
+    chartWrapper: { flex: 1, width: '100%', position: 'relative', overflow: 'hidden', minHeight: 0 },
+    drawingCanvas:{
+        position: 'absolute', top: 0, left: 0,
+        width: '100%', height: '100%',
+        zIndex: 5,
+    },
+    subPanels:    { flexShrink: 0, width: '100%', display: 'flex', flexDirection: 'column', maxHeight: '45%', overflowY: 'auto' },
+    indicatorBtn: {
         display: 'flex', alignItems: 'center', gap: '4px',
         background: 'none', border: '1px solid #2B3139',
         color: 'var(--color-text-muted)', borderRadius: '4px', padding: '3px 7px',
@@ -436,5 +502,11 @@ const s = {
         background: '#FCD535', color: '#1E2329', borderRadius: '8px',
         padding: '0 5px', fontSize: '10px', fontWeight: '700',
         marginLeft: '2px'
+    },
+    toast: {
+        position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)',
+        backgroundColor: 'rgba(30,35,41,0.95)', color: '#fff', padding: '8px 16px',
+        borderRadius: '6px', border: '1px solid #FCD535', zIndex: 100000,
+        fontSize: '13px', pointerEvents: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
     },
 };
