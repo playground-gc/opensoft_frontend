@@ -137,6 +137,7 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
     const seriesRef         = useRef();
     const overlaySeriesRef  = useRef({});
     const compSeriesRefs    = useRef({});
+    const volumeSeriesRef   = useRef();
     const canvasRef         = useRef();
 
     const [toastMsg, setToastMsg] = useState('');
@@ -255,6 +256,15 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
         seriesRef.current   = mainSeries;
         overlaySeriesRef.current = {};
 
+        const volSeries = chart.addSeries(HistogramSeries, {
+            priceFormat: { type: 'volume' },
+            priceScaleId: '', // set as an overlay
+        });
+        volSeries.priceScale().applyOptions({
+            scaleMargins: { top: 0.8, bottom: 0 },
+        });
+        volumeSeriesRef.current = volSeries;
+
         // Seed with history
         const candles = dataManager.getCandles(symbol);
         if (candles && candles.length > 0) {
@@ -263,6 +273,12 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
             } else {
                 mainSeries.setData(candles);
             }
+            
+            volSeries.setData(candles.map(c => ({
+                time: c.time,
+                value: c.volume || 0,
+                color: c.close >= (c.open ?? c.close) ? '#0ECB81' : '#F6465D'
+            })));
             // ⚠ Do NOT apply overlays here — let the [indicatorConfig, chartReady] effect own that.
         }
 
@@ -283,6 +299,14 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
                 } else {
                     seriesRef.current.update(data.chartCandle);
                 }
+            }
+            if (volumeSeriesRef.current) {
+                const c = data.chartCandle;
+                volumeSeriesRef.current.update({
+                    time: c.time,
+                    value: c.volume || 0,
+                    color: c.close >= (c.open ?? c.close) ? '#0ECB81' : '#F6465D'
+                });
             }
         }));
         comparisonSymbols.forEach(sym => {
