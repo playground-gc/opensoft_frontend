@@ -4,139 +4,122 @@
  */
 
 class DataManager {
-    constructor() {
-        this.subscribers = new Map();
-        this.buffers = {};
-        this.sockets = {};
-        
-        // Verified backend symbols
-        this.basePairs = ['AAPL_S', 'GOOGL_S', 'TSLA_S', 'MSFT_S', 'AMZN_S'];
+  constructor() {
+    this.subscribers = new Map(); // Map<Symbol, Set<Callback>>
+    this.buffers = {};
+    this.candleHistory = {}; // Map<Symbol, candle[]>
+    
+    // Configurable symbols
+    const symbols = [
+        { pair: 'BTC/USDT', basePrice: 68142.00, volume: 3474 },
+        { pair: 'ETH/USDT', basePrice: 3412.50, volume: 15320 },
+        { pair: 'SOL/USDT', basePrice: 142.10, volume: 450123 },
+        { pair: 'SYN/USD', basePrice: 15302.50, volume: 45012 },
+        { pair: 'DOGE/USDT', basePrice: 0.162, volume: 9945012 },
+        { pair: 'ADA/USDT', basePrice: 0.58, volume: 1245012 },
+        { pair: 'XRP/USDT', basePrice: 0.61, volume: 545012 }
+    ];
 
-        this.basePairs.forEach(pair => {
-            this.buffers[pair] = {
-                ticker: { symbol: pair, price: 0, change: 0, high: 0, low: 0, volume: 0 },
-                orderBook: { bids: [], asks: [] },
-                candleTick: null,
-            };
-            this.subscribers.set(pair, new Set());
-        });
-
-        // Use 127.0.0.1 to avoid WSL IPv6 resolution issues
-        this.host = '127.0.0.1'; 
-        this.connectWebSockets();
-        this.startFlushLoop();
-    }
-
-    /**
-     * 1. REST: Fetch Historical Candles (Port 8000)
-     */
-    async fetchHistoricalKlines(symbol, timeframe) {
-        const intervalMap = { '1s': '1s', '10s': '10s', '1m': '1m', '15m': '15m', '1H': '1h', '4H': '4h', '1D': '1d', '1W': '1w' };
-        const interval = intervalMap[timeframe] || '1m';
-        
-        try {
-            const res = await fetch(`http://${this.host}:8000/api/v1/candles/${symbol}?interval=${interval}&limit=500`);
-            if (!res.ok) return [];
-            const data = await res.json();
-            
-            // Map backend candle format to Lightweight Charts format
-            if (!data.candles) return [];
-            const mapped = data.candles.map(c => {
-                // Accept either ms (>1e10) or seconds timestamps
-                const rawTs = c.timestamp ?? c.time ?? Date.now();
-                const time = rawTs > 1e10 ? Math.floor(rawTs / 1000) : Math.floor(rawTs);
-                return {
-                    time,
-                    open: parseFloat(c.open),
-                    high: parseFloat(c.high),
-                    low: parseFloat(c.low),
-                    close: parseFloat(c.close)
-                };
-            });
-            // Lightweight Charts requires strictly ascending, deduplicated timestamps
-            const seen = new Set();
-            return mapped
-                .sort((a, b) => a.time - b.time)
-                .filter(c => { if (seen.has(c.time)) return false; seen.add(c.time); return true; });
-        } catch (err) {
-            console.error(`[DataManager] History fetch failed for ${symbol}:`, err);
-            return [];
-        }
-    }
-
-    /**
-     * 2. WS: Connect to Live Stream (Port 8001)
-     */
-    setupSocket(pair) {
-        if (this.sockets[pair]) {
-            try { this.sockets[pair].close(); } catch(e){}
-        }
-        
-        // Backend expects symbol in path: /ws/AAPL_S
-        const wsUrl = `ws://${this.host}:8001/ws/${pair}`;
-        const ws = new WebSocket(wsUrl);
-
-        ws.onopen = () => {
-            console.log(`%c[WS Connected] ${pair} on Port 8001`, "color: #0ecb81; font-weight: bold");
-        };
-
-        ws.onmessage = (event) => {
-            try {
-                const message = JSON.parse(event.data);
-                const buffer = this.buffers[pair];
-
-                if (message.event === 'orderbook') {
-                    // 1. Safely grab the best Bid and best Ask from the JSON arrays
-                    const bestAsk = message.asks && message.asks.length > 0 ? parseFloat(message.asks[0][0]) : 0;
-                    const bestBid = message.bids && message.bids.length > 0 ? parseFloat(message.bids[0][0]) : 0;
-
-                    // 2. Calculate the Mid-Price
-                    let currentPrice = buffer.ticker.price; 
-                    if (bestAsk > 0 && bestBid > 0) {
-                        currentPrice = (bestAsk + bestBid) / 2;
-                    } else if (bestBid > 0) {
-                        currentPrice = bestBid;
-                    } else if (bestAsk > 0) {
-                        currentPrice = bestAsk;
-                    }
-                    
-                    
-                    // 3. FORCE the ticker price to update so the Chart wakes up!
-                    if (currentPrice > 0) {
-                        buffer.ticker.price = currentPrice;
-                    }
-
-                    // 4. Process the visual Order Book bars
-                    let askTotal = 0;
-                    buffer.orderBook.asks = (message.asks || []).map(a => {
-                        const price = parseFloat(a[0]);
-                        const size = parseFloat(a[1]);
-                        askTotal += size;
-                        return { price, size, total: askTotal };
-                    });
-
-                    let bidTotal = 0;
-                    buffer.orderBook.bids = (message.bids || []).map(b => {
-                        const price = parseFloat(b[0]);
-                        const size = parseFloat(b[1]);
-                        bidTotal += size;
-                        return { price, size, total: bidTotal };
-                    });
-                } 
-                else if (message.event === 'candle') {
-                    // Just in case the backend ever starts sending these again
-                    buffer.ticker.price = parseFloat(message.close);
-                    buffer.ticker.high = parseFloat(message.high);
-                    buffer.ticker.low = parseFloat(message.low);
-                }
-            } catch (err) {
-                // Silently catch JSON parse errors to keep the stream alive
+    symbols.forEach(s => {
+        this.buffers[s.pair] = {
+            ticker: {
+                symbol: s.pair,
+                price: s.basePrice,
+                change: (Math.random() * 5) - 2.5,
+                high: s.basePrice * 1.05,
+                low: s.basePrice * 0.95,
+                volume: s.volume,
+            },
+            orderBook: { bids: [], asks: [] },
+            latestTrades: [],
+            chartCandle: {
+                time: Math.floor(Date.now() / 1000),
+                open: s.basePrice,
+                high: s.basePrice,
+                low: s.basePrice,
+                close: s.basePrice
             }
         };
+        this.subscribers.set(s.pair, new Set());
+        this.initOrderBook(s.pair);
+        this.seedCandleHistory(s.pair, s.basePrice);
+        // Set initial live candle time to just after last seeded candle
+        const lastSeedTime = this.candleHistory[s.pair]?.slice(-1)[0]?.time ?? Math.floor(Date.now() / 1000);
+        this.buffers[s.pair].chartCandle = {
+            time: lastSeedTime + 60,
+            open: s.basePrice, high: s.basePrice, low: s.basePrice, close: s.basePrice
+        };
+    });
 
-        ws.onclose = () => {
-            console.warn(`[WS Closed] ${pair}. Reconnecting...`);
-            setTimeout(() => this.setupSocket(pair), 3000);
+    this.startMockWebSocket();
+    this.startFlushLoop();
+  }
+
+  initOrderBook(symbol) {
+    let currentPrice = this.buffers[symbol].ticker.price;
+    const isCrypto = symbol.includes('USDT') && currentPrice < 10;
+    const step = isCrypto ? currentPrice * 0.001 : currentPrice * 0.0005;
+    
+    const bids = [];
+    const asks = [];
+    let bidTotal = 0;
+    let askTotal = 0;
+    
+    for (let i = 0; i < 20; i++) {
+        // Bids go down
+        const bidPrice = +(currentPrice - (i * step) - (Math.random()*step)).toFixed(4);
+        const bidSize = +(Math.random() * 5).toFixed(3);
+        bidTotal += bidSize;
+        bids.push({ price: bidPrice, size: bidSize, total: bidTotal });
+
+        // Asks go up
+        const askPrice = +(currentPrice + (i * step) + (Math.random()*step)).toFixed(4);
+        const askSize = +(Math.random() * 5).toFixed(3);
+        askTotal += askSize;
+        asks.push({ price: askPrice, size: askSize, total: askTotal });
+    }
+    
+    this.buffers[symbol].orderBook.bids = bids;
+    this.buffers[symbol].orderBook.asks = asks;
+  }
+
+  startMockWebSocket() {
+    setInterval(() => {
+      Object.keys(this.buffers).forEach(symbol => {
+          this.simulateIncomingTick(symbol);
+      });
+    }, 15); // Slightly slower to accommodate multiple syms easily
+  }
+
+  simulateIncomingTick(symbol) {
+    const buffer = this.buffers[symbol];
+    const isCrypto = symbol.includes('USDT') && buffer.ticker.price < 5;
+    const volatility = isCrypto ? buffer.ticker.price * 0.005 : buffer.ticker.price * 0.001;
+    
+    const change = (Math.random() - 0.5) * volatility;
+    let newPrice = buffer.ticker.price + change;
+    if (newPrice < 0.0001) newPrice = 0.0001;
+    newPrice = +newPrice.toFixed(4);
+    
+    buffer.ticker.price = newPrice;
+    
+    // Update candle
+    const candle = buffer.chartCandle;
+    const now = Math.floor(Date.now() / 1000);
+    
+    if (now > candle.time + 60) {
+        // Push completed candle to history before rotating
+        const completed = { ...candle, volume: Math.floor(Math.random() * 5000) + 500 };
+        if (!this.candleHistory[symbol]) this.candleHistory[symbol] = [];
+        this.candleHistory[symbol].push(completed);
+        if (this.candleHistory[symbol].length > 500) this.candleHistory[symbol].shift();
+
+        buffer.chartCandle = {
+            time: now,
+            open: newPrice,
+            high: newPrice,
+            low: newPrice,
+            close: newPrice
         };
 
         this.sockets[pair] = ws;
@@ -157,14 +140,68 @@ class DataManager {
             });
         }, 100); 
     }
+  }
 
-    subscribe(symbol, callback) {
-        if (!this.subscribers.has(symbol)) {
-            console.warn(`[DataManager] Unsupported symbol: ${symbol}`);
-            return () => {};
+  startFlushLoop() {
+    setInterval(() => {
+      Object.keys(this.buffers).forEach(symbol => {
+          const subs = this.subscribers.get(symbol);
+          if (subs && subs.size > 0) {
+              const snapshot = { ...this.buffers[symbol] };
+              subs.forEach(cb => cb(snapshot));
+          }
+      });
+    }, 50);
+  }
+
+  seedCandleHistory(symbol, basePrice) {
+    const history = [];
+    const now = Math.floor(Date.now() / 1000);
+    let price = basePrice;
+    const isCrypto = symbol.includes('USDT') && price < 5;
+    const volatility = isCrypto ? price * 0.005 : price * 0.001;
+    for (let i = 200; i >= 0; i--) {
+        const t = now - i * 60;
+        const open = price;
+        const change = (Math.random() - 0.49) * volatility * 10;
+        price = Math.max(0.0001, +(price + change).toFixed(4));
+        const close = price;
+        const high = Math.max(open, close) + Math.random() * volatility * 5;
+        const low = Math.min(open, close) - Math.random() * volatility * 5;
+        const volume = Math.floor(Math.random() * 5000) + 500;
+        history.push({ time: t, open, high: +high.toFixed(4), low: +Math.max(0.0001, low).toFixed(4), close, volume });
+    }
+    this.candleHistory[symbol] = history;
+  }
+
+  getCandles(symbol) {
+    const history = this.candleHistory[symbol] ?? [];
+    const current = this.buffers[symbol]?.chartCandle;
+    let all = [...history];
+    if (current) {
+        // Only append live candle if it's strictly after last history candle
+        const lastTime = all.length > 0 ? all[all.length - 1].time : 0;
+        if (current.time > lastTime) {
+            all.push({ ...current, volume: current.volume ?? 0 });
+        } else if (current.time === lastTime) {
+            // Update the last candle with latest live data
+            all[all.length - 1] = { ...all[all.length - 1], ...current };
         }
-        this.subscribers.get(symbol).add(callback);
-        return () => this.subscribers.get(symbol).delete(callback);
+    }
+    // Safety: sort by time and remove any duplicates
+    all.sort((a, b) => a.time - b.time);
+    const seen = new Set();
+    return all.filter(c => {
+        if (seen.has(c.time)) return false;
+        seen.add(c.time);
+        return true;
+    });
+  }
+
+  subscribe(symbol, callback) {
+    if (!this.buffers[symbol]) {
+        console.warn(`Symbol ${symbol} not supported by DataManager`);
+        return () => {};
     }
 }
 
