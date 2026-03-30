@@ -1,37 +1,42 @@
 import React, { useState } from 'react';
+import { register, login } from '../../services/api';
+import { useAuthStore } from '../../store';
 import { useGoogleLogin } from '@react-oauth/google';
 import { login, register } from '../../services/api/authApi';
 
 export default function AuthModal({ onClose, onSuccess }) {
+    const setAuth = useAuthStore(state => state.setAuth);
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [username, setUsername] = useState('');
     const [error, setError] = useState('');
     const [isSignUp, setIsSignUp] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const handleNormalLogin = async (e) => {
         e.preventDefault();
-        setError('');
-        
-        if (!password || (isSignUp && (!email || !username)) || (!isSignUp && !username)) {
-            setError('Please fill in all required fields.');
+        // setError('');
+        if (!password || (!email && !username)) {
+            setError('Please enter username/email and password.');
             return;
         }
-        
         setLoading(true);
-        let result;
-        if (isSignUp) {
-            result = await register(username, email, password);
-        } else {
-            result = await login(username, password);
-        }
-        setLoading(false);
-
-        if (result.success) {
-            onSuccess(result.user.username);
-        } else {
-            setError(result.error);
+        try {
+            if (isSignUp) {
+                const res = await register({ username: username || email, email, password });
+                setAuth({ token: res.access_token, username: res.username, userId: res.user_id });
+                onSuccess(res.username);
+            } else {
+                const res = await login({ username: username || email, password });
+                setAuth({ token: res.access_token, username: res.username, userId: res.user_id });
+                onSuccess(res.username);
+            }
+            onClose();
+        } catch (err) {
+            setError(err.message || 'Authentication failed');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -57,13 +62,24 @@ export default function AuthModal({ onClose, onSuccess }) {
                 {error && <div style={styles.error}>{error}</div>}
 
                 <form onSubmit={handleNormalLogin} style={styles.formMode}>
+                    {isSignUp && (
+                        <div style={styles.inputGroup}>
+                            <label style={styles.label}>Username</label>
+                            <input
+                                type="text"
+                                style={styles.input}
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                            />
+                        </div>
+                    )}
                     <div style={styles.inputGroup}>
-                        <label style={styles.label}>Username</label>
-                        <input 
-                            type="text" 
-                            style={styles.input} 
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                        <label style={styles.label}>Email</label>
+                        <input
+                            type="email"
+                            style={styles.input}
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                         />
                     </div>
 
@@ -90,7 +106,7 @@ export default function AuthModal({ onClose, onSuccess }) {
                     </div>
 
                     <button type="submit" style={styles.loginBtn} disabled={loading}>
-                        {loading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Log In')}
+                        {loading ? 'Please wait...' : (isSignUp ? 'Sign Up' : 'Log In')}
                     </button>
                     {!isSignUp && <a href="#" style={styles.forgot}>Forgot Password?</a>}
                 </form>

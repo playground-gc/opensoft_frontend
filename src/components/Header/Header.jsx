@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { dataManager } from '../../services/dataManager';
+import { useAuthStore } from '../../store';
+import AuthModal from '../AuthModal/AuthModal';
 
-export default function Header({ symbol, user }) {
+export default function Header({ symbol }) {
+  const { token, username } = useAuthStore();
   const [ticker, setTicker] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(!!token);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [userName, setUserName] = useState(username || '');
 
   useEffect(() => {
     const unsub = dataManager.subscribe(symbol, (data) => {
@@ -10,6 +16,11 @@ export default function Header({ symbol, user }) {
     });
     return unsub;
   }, [symbol]);
+
+  useEffect(() => {
+    setIsLoggedIn(!!token);
+    if (username) setUserName(username);
+  }, [token, username]);
 
   if (!ticker) return <div style={styles.header}>Loading...</div>;
 
