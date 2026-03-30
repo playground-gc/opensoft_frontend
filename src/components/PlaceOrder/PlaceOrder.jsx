@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useOrderSubmit } from '../../hooks/useOrderSubmit';
 import { dataManager } from '../../services/dataManager';
 
 export default function PlaceOrder({ symbol }) {
+    const { submit, isSubmitting, error: submitError } = useOrderSubmit();
     const [marginMode, setMarginMode] = useState('Spot');
     const [orderType, setOrderType] = useState('Limit');
     const [price, setPrice] = useState('');
@@ -11,13 +13,13 @@ export default function PlaceOrder({ symbol }) {
     const [currentPrice, setCurrentPrice] = useState(0);
 
     const availableBalanceUSD = 100000;
-    const availableBalanceCrypto = 50; // Mock starting crypto
+    const availableBalanceCrypto = 50; 
 
     useEffect(() => {
         const unsub = dataManager.subscribe(symbol, (data) => {
              setCurrentPrice(data.ticker.price);
              if (orderType === 'Limit' && price === '') {
-                 setPrice(data.ticker.price.toFixed(4));
+                 setPrice(data.ticker.price.toFixed(2));
              }
         });
         return unsub;
@@ -35,26 +37,39 @@ export default function PlaceOrder({ symbol }) {
         setAmountSell(maxSpend.toFixed(4));
     };
 
-    const placeBuy = () => alert(`Placing Buy Order for ${amountBuy} ${symbol} at ${orderType}`);
-    const placeSell = () => alert(`Placing Sell Order for ${amountSell} ${symbol} at ${orderType}`);
+    const placeBuy = async () => {
+        const result = await submit({
+            symbol,
+            type: orderType.toLowerCase(),
+            side: 'buy',
+            price: orderType === 'Market' ? null : price,
+            quantity: parseFloat(amountBuy)
+        });
+        if (result.success) {
+            alert('Buy Order Placed Successfully!');
+            setAmountBuy('');
+        }
+    };
+    
+    const placeSell = async () => {
+        const result = await submit({
+            symbol,
+            type: orderType.toLowerCase(),
+            side: 'sell',
+            price: orderType === 'Market' ? null : price,
+            quantity: parseFloat(amountSell)
+        });
+        if (result.success) {
+            alert('Sell Order Placed Successfully!');
+            setAmountSell('');
+        }
+    };
 
-    const baseAsset = symbol.split('/')[0] || 'BTC';
-    const quoteAsset = symbol.split('/')[1] || 'USDT';
+    const baseAsset = symbol.replace('_S', '');
+    const quoteAsset = 'USD';
 
     return (
         <div style={styles.container}>
-            {/* Top Row: Spot / Cross / Isolated / Grid  */}
-            <div style={styles.marginStrip}>
-                {['Spot', 'Cross', 'Isolated', 'Grid'].map(t => (
-                    <span 
-                        key={t}
-                        style={{...styles.marginTab, color: marginMode === t ? 'white' : 'var(--color-text-muted)'}}
-                        onClick={() => setMarginMode(t)}
-                    >
-                        {t}
-                    </span>
-                ))}
-            </div>
 
             {/* Second Row: Limit / Market / Stop Limit */}
             <div style={styles.tabsStrip}>
@@ -67,7 +82,6 @@ export default function PlaceOrder({ symbol }) {
                        {t}
                     </span>
                  ))}
-                 <span style={{...styles.tab, color: 'var(--color-text-muted)'}}>OCO ▼</span>
             </div>
 
             <div style={styles.formsContainer}>

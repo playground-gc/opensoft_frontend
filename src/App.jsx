@@ -1,16 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './components/Header/Header';
 import MarketWatch from './components/MarketWatch/MarketWatch';
 import ChartGrid from './components/ChartGrid/ChartGrid';
 import OrderBook from './components/OrderBook/OrderBook';
 import PlaceOrder from './components/PlaceOrder/PlaceOrder';
 import UserPanel from './components/UserPanel/UserPanel';
+import AuthModal from './components/AuthModal/AuthModal';
+import { isAuthenticated as checkAuth, getCurrentUser } from './services/api/authApi';
 
 function App() {
-  const [activeSymbol, setActiveSymbol] = useState('BTC/USDT');
+  const [activeSymbol, setActiveSymbol] = useState('AAPL_S');
+  const [user, setUser] = useState(getCurrentUser()?.username || null);
+  const [isAuthenticated, setIsAuthenticated] = useState(checkAuth());
+  const [showAuth, setShowAuth] = useState(!checkAuth());
   
-  // Array of comparison symbols plotted on top of the main chart
   const [comparisonSymbols, setComparisonSymbols] = useState([]);
+
+  const handleLoginSuccess = (username) => {
+    setUser(username);
+    setIsAuthenticated(true);
+    setShowAuth(false);
+  };
 
   const toggleComparison = (symbol) => {
     if (symbol === activeSymbol) return;
@@ -24,7 +34,7 @@ function App() {
   return (
     <div className="app-container">
       <div className="panel header-area">
-        <Header symbol={activeSymbol} />
+        <Header symbol={activeSymbol} user={user} />
       </div>
       
       {/* Left Column -> Order Book (Swapped based on prompt) */}
@@ -35,16 +45,16 @@ function App() {
       {/* Center Column -> Chart, PlaceOrder, and UserPanel stacked */}
       <div className="center-stack">
         <div className="panel" style={{flex: '0 0 auto', height: '600px', minHeight: '600px'}}>
-          <ChartGrid 
-             mainSymbol={activeSymbol} 
+          <ChartGrid
+             mainSymbol={activeSymbol}
              comparisonSymbols={comparisonSymbols}
           />
         </div>
         <div className="panel" style={{flexShrink: 0, height: '300px'}}>
-          <PlaceOrder symbol={activeSymbol} />
+          <PlaceOrder symbol={activeSymbol} isAuthenticated={isAuthenticated} />
         </div>
         <div className="panel" style={{flexShrink: 0, height: '240px'}}>
-          <UserPanel />
+          <UserPanel isAuthenticated={isAuthenticated} />
         </div>
       </div>
 
@@ -57,6 +67,13 @@ function App() {
             onToggleComparison={toggleComparison}
         />
       </div>
+
+      {showAuth && (
+          <AuthModal 
+            onClose={() => setShowAuth(false)} 
+            onSuccess={handleLoginSuccess} 
+          />
+      )}
       
     </div>
   );

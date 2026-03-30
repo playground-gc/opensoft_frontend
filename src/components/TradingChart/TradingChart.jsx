@@ -158,6 +158,7 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
 
     const [chartType, setChartType]   = useState('Candles');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [hasData, setHasData] = useState(false);
 
     const [showIndicatorModal, setShowIndicatorModal] = useState(false);
     const [indicatorConfig, setIndicatorConfig]       = useState(DEFAULT_CONFIG);

@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { dataManager } from '../../services/dataManager';
+import { useAuthStore } from '../../store';
 import AuthModal from '../AuthModal/AuthModal';
 
 export default function Header({ symbol }) {
+  const { token, username } = useAuthStore();
   const [ticker, setTicker] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(!!token);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [userName, setUserName] = useState('');
+  const [userName, setUserName] = useState(username || '');
 
   useEffect(() => {
     const unsub = dataManager.subscribe(symbol, (data) => {
@@ -14,6 +16,11 @@ export default function Header({ symbol }) {
     });
     return unsub;
   }, [symbol]);
+
+  useEffect(() => {
+    setIsLoggedIn(!!token);
+    if (username) setUserName(username);
+  }, [token, username]);
 
   if (!ticker) return <div style={styles.header}>Loading...</div>;
 
@@ -30,10 +37,10 @@ export default function Header({ symbol }) {
           <div style={styles.statGroup}>
             <div style={styles.statValue}>
                 <span className={isUp ? 'up-color' : 'down-color'} style={styles.price}>
-                    {ticker.price.toFixed(4)}
+                    {ticker.price.toFixed(2)}
                 </span>
             </div>
-            <div style={styles.statLabel}>$ {ticker.price.toFixed(4)}</div>
+            <div style={styles.statLabel}>$ {ticker.price.toFixed(2)}</div>
           </div>
           
           <div style={styles.statGroup}>
@@ -60,26 +67,12 @@ export default function Header({ symbol }) {
       </div>
 
       <div style={styles.rightGroup}>
-          {isLoggedIn ? (
-              <div style={{color: '#FCD535', fontWeight: 'bold'}}>{userName}</div>
+          {user ? (
+              <div style={{color: '#FCD535', fontWeight: 'bold'}}>{user}</div>
           ) : (
-             <>
-                <button style={styles.loginBtn} onClick={() => setShowAuthModal(true)}>Log In</button>
-                <button style={styles.signupBtn} onClick={() => setShowAuthModal(true)}>Sign Up</button>
-             </>
+             <div style={{color: 'var(--color-text-muted)', fontSize: '12px'}}>Guest Mode</div>
           )}
       </div>
-
-      {showAuthModal && (
-        <AuthModal 
-            onClose={() => setShowAuthModal(false)} 
-            onSuccess={(name) => {
-                setUserName(name);
-                setIsLoggedIn(true);
-                setShowAuthModal(false);
-            }} 
-        />
-      )}
     </div>
   );
 }
