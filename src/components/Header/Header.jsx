@@ -4,7 +4,7 @@ import { dataManager } from "../../services/dataManager";
 import { useAuthStore } from "../../store";
 import AuthModal from "../AuthModal/AuthModal";
 
-export default function Header({ symbol }) {
+export default function Header({ symbol, onLoginClick }) {
   const { token, username, clearAuth } = useAuthStore();
   const [ticker, setTicker] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(!!token);
@@ -29,6 +29,7 @@ export default function Header({ symbol }) {
 
   return (
     <div style={styles.header}>
+      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} onSuccess={(user) => { setUserName(user); setIsLoggedIn(true); setShowAuthModal(false); }} />}
       <div style={styles.leftGroup}>
         <div style={styles.symbolGroup}>
           <h1 style={styles.symbol}>{ticker.symbol}</h1>
@@ -105,15 +106,11 @@ export default function Header({ symbol }) {
             </button>
           </div>
         ) : (
-          <div
-            style={{
-              color: "rgba(255, 255, 255, 0.5)",
-              fontSize: "12px",
-              textTransform: "uppercase",
-              letterSpacing: "1px",
-            }}
-          >
-            Guest Mode
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <div style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: "12px", textTransform: "uppercase", letterSpacing: "1px" }}>
+              Guest Mode
+            </div>
+            <button onClick={onLoginClick || (() => setShowAuthModal(true))} style={styles.loginBtn}>Sign In / Sign Up</button>
           </div>
         )}
       </div>

@@ -36,7 +36,7 @@ function TradingTerminal() {
   return (
     <div className="app-container">
       <div className="panel header-area">
-        <Header symbol={activeSymbol} />
+        <Header symbol={activeSymbol} onLoginClick={() => setShowAuth(true)} />
       </div>
 
       {/* Left Column -> Order Book (Swapped based on prompt) */}
