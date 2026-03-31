@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header/Header';
 import MarketWatch from './components/MarketWatch/MarketWatch';
 import ChartGrid from './components/ChartGrid/ChartGrid';
@@ -8,7 +9,7 @@ import UserPanel from './components/UserPanel/UserPanel';
 import AuthModal from './components/AuthModal/AuthModal';
 import { useAuthStore } from './store';
 
-function App() {
+function TradingTerminal() {
   const { token, username: storedUsername } = useAuthStore();
   const [activeSymbol, setActiveSymbol] = useState('AAPL_S');
   const [user, setUser] = useState(storedUsername || null);
@@ -77,6 +78,18 @@ function App() {
       )}
       
     </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/trading-charts" replace />} />
+        <Route path="/trading-charts" element={<TradingTerminal />} />
+        <Route path="*" element={<Navigate to="/trading-charts" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
