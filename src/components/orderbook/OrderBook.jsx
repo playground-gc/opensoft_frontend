@@ -54,10 +54,11 @@ export default function OrderBook({ symbol }) {
             <div style={styles.orderList}>
                 {/* Asks (Sells) - Red */}
                 {askRows.map((ask, i) => {
-                    const depthWidth = `${(ask.total / maxTotal) * 100}%`;
+                    const pct = ask.total / maxTotal;
+                    const depthWidth = `${pct * 100}%`;
                     return (
                         <div key={`ask-${i}`} style={styles.row}>
-                            <div style={styles.depthBarRed(depthWidth)} />
+                            <div style={styles.depthBarRed(depthWidth, pct)} />
                             <div style={{...styles.cell, width: '33.3%', color: 'var(--color-coral-red)'}}>
                                 {ask.price.toFixed(2)}
                             </div>
@@ -87,10 +88,11 @@ export default function OrderBook({ symbol }) {
 
                 {/* Bids (Buys) - Green */}
                 {bidRows.map((bid, i) => {
-                    const depthWidth = `${(bid.total / maxTotal) * 100}%`;
+                    const pct = bid.total / maxTotal;
+                    const depthWidth = `${pct * 100}%`;
                     return (
                         <div key={`bid-${i}`} style={styles.row}>
-                            <div style={styles.depthBarGreen(depthWidth)} />
+                            <div style={styles.depthBarGreen(depthWidth, pct)} />
                             <div style={{...styles.cell, width: '33.3%', color: 'var(--color-neon-green)'}}>
                                 {bid.price.toFixed(2)}
                             </div>
@@ -135,13 +137,13 @@ const styles = {
         alignItems: 'center',
     },
     cell: { zIndex: 1 },
-    depthBarRed: (width) => ({ 
-        position: 'absolute', right: 0, top: 0, bottom: 0, width, 
-        backgroundColor: 'rgba(246, 70, 93, 0.15)', zIndex: 0 
+    depthBarRed: (width, pct) => ({
+        position: 'absolute', right: 0, top: 0, bottom: 0, width,
+        backgroundColor: `rgba(246, 70, 93, ${(0.08 + pct * 0.35).toFixed(3)})`, zIndex: 0
     }),
-    depthBarGreen: (width) => ({ 
-        position: 'absolute', right: 0, top: 0, bottom: 0, width, 
-        backgroundColor: 'rgba(14, 203, 129, 0.15)', zIndex: 0 
+    depthBarGreen: (width, pct) => ({
+        position: 'absolute', right: 0, top: 0, bottom: 0, width,
+        backgroundColor: `rgba(14, 203, 129, ${(0.08 + pct * 0.35).toFixed(3)})`, zIndex: 0
     }),
     spreadRow: { 
         padding: '10px 16px', 

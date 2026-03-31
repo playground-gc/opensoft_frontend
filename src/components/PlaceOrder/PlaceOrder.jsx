@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useOrderSubmit } from '../../hooks/useOrderSubmit';
+import { usePortfolio } from '../../hooks/usePortfolio';
 import { dataManager } from '../../services/dataManager';
 
-export default function PlaceOrder({ symbol }) {
+export default function PlaceOrder({ symbol, isAuthenticated }) {
     const { submit, isSubmitting, error: submitError } = useOrderSubmit();
+    const { cashBalance, holdings } = usePortfolio(isAuthenticated);
     const [marginMode, setMarginMode] = useState('Spot');
     const [orderType, setOrderType] = useState('Limit');
     const [price, setPrice] = useState('');
@@ -11,9 +13,12 @@ export default function PlaceOrder({ symbol }) {
     const [amountSell, setAmountSell] = useState('');
 
     const [currentPrice, setCurrentPrice] = useState(0);
+    const [buyError, setBuyError] = useState('');
+    const [sellError, setSellError] = useState('');
 
-    const availableBalanceUSD = 100000;
-    const availableBalanceCrypto = 50; 
+    const availableBalanceUSD = cashBalance;
+    const heldPosition = holdings.find(h => h.symbol === symbol);
+    const availableBalanceCrypto = heldPosition ? heldPosition.quantity : 0;
 
     useEffect(() => {
         const unsub = dataManager.subscribe(symbol, (data) => {
@@ -38,30 +43,48 @@ export default function PlaceOrder({ symbol }) {
     };
 
     const placeBuy = async () => {
+        setBuyError('');
+        const qty = parseFloat(amountBuy);
+        if (!qty || qty <= 0) { setBuyError('Enter a valid amount'); return; }
+        if (orderType !== 'Market' && (!parseFloat(price) || parseFloat(price) <= 0)) {
+            setBuyError('Enter a valid price'); return;
+        }
+        const typeMap = { 'Limit': 'limit', 'Market': 'market', 'Stop Limit': 'stop_limit' };
         const result = await submit({
             symbol,
-            type: orderType.toLowerCase(),
+            type: typeMap[orderType] || 'limit',
             side: 'buy',
             price: orderType === 'Market' ? null : price,
-            quantity: parseFloat(amountBuy)
+            quantity: qty
         });
         if (result.success) {
             alert('Buy Order Placed Successfully!');
             setAmountBuy('');
+        } else {
+            setBuyError(result.error || 'Order failed');
         }
     };
-    
+
     const placeSell = async () => {
+        setSellError('');
+        const qty = parseFloat(amountSell);
+        if (!qty || qty <= 0) { setSellError('Enter a valid amount'); return; }
+        if (orderType !== 'Market' && (!parseFloat(price) || parseFloat(price) <= 0)) {
+            setSellError('Enter a valid price'); return;
+        }
+        const typeMap = { 'Limit': 'limit', 'Market': 'market', 'Stop Limit': 'stop_limit' };
         const result = await submit({
             symbol,
-            type: orderType.toLowerCase(),
+            type: typeMap[orderType] || 'limit',
             side: 'sell',
             price: orderType === 'Market' ? null : price,
-            quantity: parseFloat(amountSell)
+            quantity: qty
         });
         if (result.success) {
             alert('Sell Order Placed Successfully!');
             setAmountSell('');
+        } else {
+            setSellError(result.error || 'Order failed');
         }
     };
 
@@ -131,7 +154,15 @@ export default function PlaceOrder({ symbol }) {
                         <label htmlFor="tpslBuy" style={styles.chkLabel}>TP/SL</label>
                     </div>
 
-                    <button style={styles.buyBtn} onClick={placeBuy}>Buy {baseAsset}</button>
+                    {buyError && <div style={styles.errorMsg}>{buyError}</div>}
+                    <button
+                        style={{...styles.buyBtn, opacity: (isSubmitting || !isAuthenticated) ? 0.5 : 1, cursor: (isSubmitting || !isAuthenticated) ? 'not-allowed' : 'pointer'}}
+                        onClick={isAuthenticated ? placeBuy : undefined}
+                        disabled={isSubmitting || !isAuthenticated}
+                        title={!isAuthenticated ? 'Please log in to trade' : ''}
+                    >
+                        {isSubmitting ? 'Placing...' : !isAuthenticated ? 'Login to Buy' : `Buy ${baseAsset}`}
+                    </button>
                 </div>
 
                 {/* SELL COLUMN */}
@@ -143,9 +174,9 @@ export default function PlaceOrder({ symbol }) {
 
                     <div style={styles.inputGroup}>
                         <span style={styles.prefix}>Price</span>
-                        <input 
-                            style={styles.input} 
-                            disabled={orderType === 'Market'} 
+                        <input
+                            style={styles.input}
+                            disabled={orderType === 'Market'}
                             placeholder={orderType === 'Market' ? 'Market' : ''}
                             value={orderType === 'Market' ? '' : price}
                             onChange={(e) => setPrice(e.target.value)}
@@ -155,7 +186,7 @@ export default function PlaceOrder({ symbol }) {
 
                     <div style={styles.inputGroup}>
                         <span style={styles.prefix}>Amount</span>
-                        <input 
+                        <input
                            style={styles.input}
                            value={amountSell}
                            onChange={(e) => setAmountSell(e.target.value)}
@@ -166,9 +197,9 @@ export default function PlaceOrder({ symbol }) {
                     <div style={styles.sliderContainer}>
                         <div style={styles.sliderLine} />
                         {[0, 25, 50, 75, 100].map(pct => (
-                            <div 
-                                key={`sell-pct-${pct}`} 
-                                style={styles.diamond} 
+                            <div
+                                key={`sell-pct-${pct}`}
+                                style={styles.diamond}
                                 onClick={() => handleSellPct(pct)}
                                 title={`${pct}%`}
                             />
@@ -180,7 +211,15 @@ export default function PlaceOrder({ symbol }) {
                         <label htmlFor="tpslSell" style={styles.chkLabel}>TP/SL</label>
                     </div>
 
-                    <button style={styles.sellBtn} onClick={placeSell}>Sell {baseAsset}</button>
+                    {sellError && <div style={styles.errorMsg}>{sellError}</div>}
+                    <button
+                        style={{...styles.sellBtn, opacity: (isSubmitting || !isAuthenticated) ? 0.5 : 1, cursor: (isSubmitting || !isAuthenticated) ? 'not-allowed' : 'pointer'}}
+                        onClick={isAuthenticated ? placeSell : undefined}
+                        disabled={isSubmitting || !isAuthenticated}
+                        title={!isAuthenticated ? 'Please log in to trade' : ''}
+                    >
+                        {isSubmitting ? 'Placing...' : !isAuthenticated ? 'Login to Sell' : `Sell ${baseAsset}`}
+                    </button>
                 </div>
             </div>
         </div>
@@ -208,5 +247,6 @@ const styles = {
     chk: { accentColor: '#FCD535', cursor: 'pointer' },
     chkLabel: { color: 'var(--color-text-muted)', cursor: 'pointer' },
     buyBtn: { backgroundColor: '#0ECB81', color: 'white', border: 'none', borderRadius: '4px', height: '36px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer', marginTop: 'auto' },
-    sellBtn: { backgroundColor: '#F6465D', color: 'white', border: 'none', borderRadius: '4px', height: '36px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer', marginTop: 'auto' }
+    sellBtn: { backgroundColor: '#F6465D', color: 'white', border: 'none', borderRadius: '4px', height: '36px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer', marginTop: 'auto' },
+    errorMsg: { color: '#F6465D', fontSize: '10px', textAlign: 'center' }
 };

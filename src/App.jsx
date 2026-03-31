@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header/Header';
 import MarketWatch from './components/MarketWatch/MarketWatch';
 import ChartGrid from './components/ChartGrid/ChartGrid';
@@ -6,13 +7,14 @@ import OrderBook from './components/OrderBook/OrderBook';
 import PlaceOrder from './components/PlaceOrder/PlaceOrder';
 import UserPanel from './components/UserPanel/UserPanel';
 import AuthModal from './components/AuthModal/AuthModal';
-import { isAuthenticated as checkAuth, getCurrentUser } from './services/api/authApi';
+import { useAuthStore } from './store';
 
-function App() {
+function TradingTerminal() {
+  const { token, username: storedUsername } = useAuthStore();
   const [activeSymbol, setActiveSymbol] = useState('AAPL_S');
-  const [user, setUser] = useState(getCurrentUser()?.username || null);
-  const [isAuthenticated, setIsAuthenticated] = useState(checkAuth());
-  const [showAuth, setShowAuth] = useState(!checkAuth());
+  const [user, setUser] = useState(storedUsername || null);
+  const [isAuthenticated, setIsAuthenticated] = useState(!!token);
+  const [showAuth, setShowAuth] = useState(!token);
   
   const [comparisonSymbols, setComparisonSymbols] = useState([]);
 
@@ -34,7 +36,7 @@ function App() {
   return (
     <div className="app-container">
       <div className="panel header-area">
-        <Header symbol={activeSymbol} user={user} />
+        <Header symbol={activeSymbol} />
       </div>
       
       {/* Left Column -> Order Book (Swapped based on prompt) */}
@@ -76,6 +78,18 @@ function App() {
       )}
       
     </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/trading-charts" replace />} />
+        <Route path="/trading-charts" element={<TradingTerminal />} />
+        <Route path="*" element={<Navigate to="/trading-charts" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

@@ -11,19 +11,24 @@ export default function MarketWatch({ activeSymbol, comparisonSymbols, onSelectS
 
     useEffect(() => {
         const unsubs = [];
-        
         const tickDataMap = {};
-        dataManager.basePairs.forEach(pair => {
-            const unsub = dataManager.subscribe(pair, (data) => {
-                tickDataMap[pair] = { 
-                    pair, 
-                    price: data.ticker.price, 
-                    change: data.ticker.change 
-                };
-                setAssets(Object.values(tickDataMap));
+
+        const subscribe = (pairs) => {
+            pairs.forEach(pair => {
+                if (tickDataMap[pair] !== undefined) return;
+                const unsub = dataManager.subscribe(pair, (data) => {
+                    tickDataMap[pair] = {
+                        pair,
+                        price: data.ticker.price,
+                        change: data.ticker.change,
+                    };
+                    setAssets(Object.values(tickDataMap));
+                });
+                unsubs.push(unsub);
             });
-            unsubs.push(unsub);
-        });
+        };
+
+        dataManager.onReady(subscribe);
 
         return () => unsubs.forEach(u => u());
     }, []);

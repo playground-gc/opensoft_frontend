@@ -50,10 +50,10 @@ export const cancelOrder = async (orderId) => {
 
 export const fetchOrders = async (params = {}) => {
     try {
-        const url = new URL(`${API_BASE_URL}/orders`);
-        Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
-        
-        const response = await fetch(url.toString(), {
+        const qs = new URLSearchParams(params).toString();
+        const urlStr = qs ? `${API_BASE_URL}/orders?${qs}` : `${API_BASE_URL}/orders`;
+
+        const response = await fetch(urlStr, {
             method: 'GET',
             headers: getAuthHeader()
         });
@@ -65,6 +65,30 @@ export const fetchOrders = async (params = {}) => {
         }
     } catch (err) {
         console.error('FetchOrders API Error:', err);
+        return { success: false, error: 'Network failure' };
+    }
+};
+
+export const fetchTrades = async ({ symbol, limit } = {}) => {
+    try {
+        const params = new URLSearchParams();
+        if (symbol) params.set('symbol', symbol);
+        if (limit)  params.set('limit', limit);
+        const qs = params.toString();
+        const url = qs ? `${API_BASE_URL}/my/trades?${qs}` : `${API_BASE_URL}/my/trades`;
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: getAuthHeader()
+        });
+        const data = await response.json();
+        if (response.ok) {
+            return { success: true, trades: Array.isArray(data) ? data : [] };
+        } else {
+            return { success: false, error: 'Failed to fetch trades' };
+        }
+    } catch (err) {
+        console.error('FetchTrades API Error:', err);
         return { success: false, error: 'Network failure' };
     }
 };
