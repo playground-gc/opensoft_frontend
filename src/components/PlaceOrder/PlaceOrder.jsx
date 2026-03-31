@@ -173,11 +173,11 @@ export default function PlaceOrder({ symbol, isAuthenticated }) {
             key={t}
             style={{
               ...styles.tab,
-              color: orderType === t ? "#e8a020" : "rgba(255, 255, 255, 0.5)",
+              color: orderType === t ? "#ff4500" : "rgba(255, 255, 255, 0.5)",
               borderBottom:
-                orderType === t ? "2px solid #e8a020" : "2px solid transparent",
+                orderType === t ? "2px solid #ff4500" : "2px solid transparent",
               textShadow:
-                orderType === t ? "0 0 8px rgba(232, 160, 32, 0.4)" : "none",
+                orderType === t ? "0 0 8px rgba(255, 69, 0, 0.4)" : "none",
             }}
             onClick={() => setOrderType(t)}
           >
@@ -392,7 +392,7 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     height: "100%",
-    background: "rgba(255, 255, 255, 0.02)",
+    background: "transparent",
     backdropFilter: "blur(10px)",
   },
   tabsStrip: {
@@ -421,7 +421,7 @@ const styles = {
     alignItems: "center",
     backgroundColor: "rgba(255, 255, 255, 0.05)",
     border: "1px solid rgba(255, 255, 255, 0.1)",
-    borderRadius: "6px",
+    borderRadius: "0px",
     padding: "8px 12px",
     height: "38px",
     transition: "border-color 0.2s",
@@ -489,7 +489,7 @@ const styles = {
     backgroundColor: "rgba(14, 203, 129, 0.1)",
     color: "#0ecb81",
     border: "1px solid rgba(14, 203, 129, 0.3)",
-    borderRadius: "6px",
+    borderRadius: "0px",
     height: "40px",
     fontWeight: "700",
     fontSize: "14px",
@@ -503,7 +503,7 @@ const styles = {
     backgroundColor: "rgba(246, 70, 93, 0.1)",
     color: "#f6465d",
     border: "1px solid rgba(246, 70, 93, 0.3)",
-    borderRadius: "6px",
+    borderRadius: "0px",
     height: "40px",
     fontWeight: "700",
     fontSize: "14px",
@@ -519,6 +519,6 @@ const styles = {
     textAlign: "center",
     backgroundColor: "rgba(246, 70, 93, 0.1)",
     padding: "4px",
-    borderRadius: "4px",
+    borderRadius: "0px",
   },
 };

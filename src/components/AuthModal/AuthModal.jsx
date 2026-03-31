@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Mail, Lock, User, LogIn, UserPlus } from 'lucide-react';
 import { useAuthStore } from '../../store';
 import { useGoogleLogin } from '@react-oauth/google';
 import { login, register } from '../../services/api/authApi';
@@ -63,36 +64,48 @@ export default function AuthModal({ onClose, onSuccess }) {
                     {isSignUp && (
                         <div style={styles.inputGroup}>
                             <label style={styles.label}>Username</label>
-                            <input
-                                type="text"
-                                style={styles.input}
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                            />
+                            <div style={styles.inputWrapper}>
+                                <User size={18} style={styles.inputIcon} />
+                                <input
+                                    type="text"
+                                    style={{...styles.input, paddingLeft: '40px'}}
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    placeholder="Enter username"
+                                />
+                            </div>
                         </div>
                     )}
                     <div style={styles.inputGroup}>
                         <label style={styles.label}>Email</label>
-                        <input
-                            type="email"
-                            style={styles.input}
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
+                        <div style={styles.inputWrapper}>
+                            <Mail size={18} style={styles.inputIcon} />
+                            <input
+                                type="email"
+                                style={{...styles.input, paddingLeft: '40px'}}
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="Enter email"
+                            />
+                        </div>
                     </div>
 
                     <div style={styles.inputGroup}>
                         <label style={styles.label}>Password</label>
-                        <input 
-                            type="password" 
-                            style={styles.input} 
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
+                        <div style={styles.inputWrapper}>
+                            <Lock size={18} style={styles.inputIcon} />
+                            <input
+                                type="password"
+                                style={{...styles.input, paddingLeft: '40px'}}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder="••••••••"
+                            />
+                        </div>
                     </div>
 
                     <button type="submit" style={styles.loginBtn} disabled={loading}>
-                        {loading ? 'Please wait...' : (isSignUp ? 'Sign Up' : 'Log In')}
+                        {loading ? 'Please wait...' : (isSignUp ? <><UserPlus size={18} style={{marginRight: 8, verticalAlign: 'middle'}}/>Sign Up</> : <><LogIn size={18} style={{marginRight: 8, verticalAlign: 'middle'}}/>Log In</>)}
                     </button>
                     {!isSignUp && <a href="#" style={styles.forgot}>Forgot Password?</a>}
                 </form>
@@ -121,12 +134,12 @@ export default function AuthModal({ onClose, onSuccess }) {
                     {isSignUp ? (
                         <>
                             <span style={{color: 'var(--color-text-muted)'}}>Already have an account?</span>{' '}
-                            <span style={{color: '#FCD535', cursor: 'pointer', fontWeight: 'bold'}} onClick={() => setIsSignUp(false)}>Log In</span>
+                            <span style={{color: '#ff4500', cursor: 'pointer', fontWeight: 'bold'}} onClick={() => setIsSignUp(false)}>Log In</span>
                         </>
                     ) : (
                         <>
                             <span style={{color: 'var(--color-text-muted)'}}>New to Synthetic-Bull?</span>{' '}
-                            <span style={{color: '#FCD535', cursor: 'pointer', fontWeight: 'bold'}} onClick={() => setIsSignUp(true)}>Create Account</span>
+                            <span style={{color: '#ff4500', cursor: 'pointer', fontWeight: 'bold'}} onClick={() => setIsSignUp(true)}>Create Account</span>
                         </>
                     )}
                 </div>
@@ -150,28 +163,30 @@ const styles = {
         backdropFilter: 'blur(2px)'
     },
     modal: {
-        backgroundColor: '#1E2329',
+        backgroundColor: 'rgba(10, 10, 10, 0.85)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255, 69, 0, 0.3)', boxShadow: '0 0 40px rgba(255, 69, 0, 0.15), inset 0 0 20px rgba(255, 69, 0, 0.05)',
         width: '400px',
-        borderRadius: '8px',
+        borderRadius: "0px",
         padding: '32px',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+        
         display: 'flex',
         flexDirection: 'column',
     },
     header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' },
     title: { margin: 0, fontSize: '28px', color: 'var(--color-text-main)', fontWeight: 'bold' },
     closeBtn: { fontSize: '20px', color: 'var(--color-text-muted)', cursor: 'pointer' },
-    error: { backgroundColor: 'rgba(246, 70, 93, 0.1)', color: '#F6465D', padding: '12px', borderRadius: '4px', marginBottom: '16px', fontSize: '13px', textAlign: 'center' },
+    error: { backgroundColor: 'rgba(246, 70, 93, 0.1)', color: '#F6465D', padding: '12px', borderRadius: "0px", marginBottom: '16px', fontSize: '13px', textAlign: 'center' },
     formMode: { display: 'flex', flexDirection: 'column', gap: '20px' },
-    inputGroup: { display: 'flex', flexDirection: 'column', gap: '8px' },
+    inputGroup: { display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' },
+    inputWrapper: { position: 'relative', display: 'flex', alignItems: 'center' },
+    inputIcon: { position: 'absolute', left: '12px', color: 'rgba(255, 255, 255, 0.4)' },
     label: { color: 'var(--color-text-muted)', fontSize: '14px' },
-    input: { backgroundColor: '#2B3139', border: '1px solid #474D57', color: 'white', padding: '12px 16px', borderRadius: '4px', outline: 'none', fontSize: '16px', transition: 'border 0.2s' },
-    loginBtn: { backgroundColor: '#FCD535', color: '#1E2329', border: 'none', padding: '14px', borderRadius: '4px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', marginTop: '12px' },
-    forgot: { color: '#FCD535', fontSize: '13px', textDecoration: 'none', alignSelf: 'flex-start' },
+    input: { width: '100%', boxSizing: 'border-box', backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'white', padding: '12px 16px', borderRadius: "0px", outline: 'none', fontSize: '16px', transition: 'border 0.2s' },
+    loginBtn: { backgroundColor: '#ff4500', color: '#050505', border: 'none', padding: '14px', borderRadius: "0px", fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', marginTop: '12px' },
+    forgot: { color: '#ff4500', fontSize: '13px', textDecoration: 'none', alignSelf: 'flex-start' },
     divider: { display: 'flex', alignItems: 'center', margin: '24px 0' },
-    dividerLine: { flex: 1, height: '1px', backgroundColor: '#2B3139' },
+    dividerLine: { flex: 1, height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.05)' },
     dividerText: { margin: '0 12px', color: 'var(--color-text-muted)', fontSize: '14px' },
-    googleBtn: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', backgroundColor: 'transparent', border: '1px solid #474D57', color: 'white', padding: '12px', borderRadius: '4px', fontSize: '16px', fontWeight: '500', cursor: 'pointer', transition: 'background 0.2s' },
+    googleBtn: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', backgroundColor: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'white', padding: '12px', borderRadius: "0px", fontSize: '16px', fontWeight: '500', cursor: 'pointer', transition: 'background 0.2s' },
     googleIcon: { width: '20px', height: '20px' },
     footerLink: { marginTop: '32px', textAlign: 'center', fontSize: '14px' }
 };

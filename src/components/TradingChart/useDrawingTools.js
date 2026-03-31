@@ -76,7 +76,7 @@ export default function useDrawingTools(canvasRef, chartRef, onMessage) {
                 case 'arrow': {
                     const { p1, p2 } = d;
                     ctx.beginPath();
-                    ctx.strokeStyle = d.color || '#FCD535';
+                    ctx.strokeStyle = d.color || '#ff4500';
                     ctx.lineWidth = sel ? 2.5 : 1.5;
                     ctx.setLineDash([]);
                     if (d.type === 'ray') {
@@ -96,7 +96,7 @@ export default function useDrawingTools(canvasRef, chartRef, onMessage) {
                         const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
                         const hs = 10;
                         ctx.beginPath();
-                        ctx.fillStyle = d.color || '#FCD535';
+                        ctx.fillStyle = d.color || '#ff4500';
                         ctx.moveTo(p2.x, p2.y);
                         ctx.lineTo(p2.x - hs * Math.cos(angle - 0.4), p2.y - hs * Math.sin(angle - 0.4));
                         ctx.lineTo(p2.x - hs * Math.cos(angle + 0.4), p2.y - hs * Math.sin(angle + 0.4));
@@ -108,7 +108,7 @@ export default function useDrawingTools(canvasRef, chartRef, onMessage) {
                 }
                 case 'hline': {
                     ctx.beginPath();
-                    ctx.strokeStyle = d.color || '#2962FF';
+                    ctx.strokeStyle = d.color || '#ff4500';
                     ctx.lineWidth = sel ? 2 : 1.5;
                     ctx.setLineDash([8, 5]);
                     ctx.moveTo(0, d.y);
@@ -120,7 +120,7 @@ export default function useDrawingTools(canvasRef, chartRef, onMessage) {
                 }
                 case 'vline': {
                     ctx.beginPath();
-                    ctx.strokeStyle = d.color || '#2962FF';
+                    ctx.strokeStyle = d.color || '#ff4500';
                     ctx.lineWidth = sel ? 2 : 1.5;
                     ctx.setLineDash([8, 5]);
                     ctx.moveTo(d.x, 0);
@@ -132,7 +132,7 @@ export default function useDrawingTools(canvasRef, chartRef, onMessage) {
                 }
                 case 'crossline': {
                     ctx.beginPath();
-                    ctx.strokeStyle = d.color || '#2962FF';
+                    ctx.strokeStyle = d.color || '#ff4500';
                     ctx.lineWidth = sel ? 2 : 1.5;
                     ctx.setLineDash([8, 5]);
                     ctx.moveTo(0, d.pt.y);
@@ -208,7 +208,7 @@ export default function useDrawingTools(canvasRef, chartRef, onMessage) {
                 }
                 case 'ruler': {
                     const { p1, p2 } = d;
-                    ctx.strokeStyle = '#FCD535';
+                    ctx.strokeStyle = '#ff4500';
                     ctx.lineWidth = 1;
                     ctx.setLineDash([4, 3]);
                     ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p1.y); ctx.stroke();
@@ -217,7 +217,7 @@ export default function useDrawingTools(canvasRef, chartRef, onMessage) {
                     // Label
                     const dx = Math.abs(p2.x - p1.x).toFixed(0);
                     const dy2 = Math.abs(p2.y - p1.y).toFixed(0);
-                    ctx.fillStyle = '#FCD535';
+                    ctx.fillStyle = '#ff4500';
                     ctx.font = '10px Roboto Mono, monospace';
                     ctx.fillText(`${dx}px / ${dy2}px`, Math.min(p1.x, p2.x) + 4, Math.min(p1.y, p2.y) - 4);
                     if (sel) drawHandles(ctx, [p1, p2]);
@@ -226,7 +226,7 @@ export default function useDrawingTools(canvasRef, chartRef, onMessage) {
                 case 'fib': {
                     const { p1, p2 } = d;
                     const levels = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1];
-                    const colors = ['#2962FF','#E040FB','#FCD535','#0ECB81','#FCD535','#E040FB','#2962FF'];
+                    const colors = ['#ff4500','#E040FB','#ff4500','#0ECB81','#ff4500','#E040FB','#ff4500'];
                     const totalH = p2.y - p1.y;
                     levels.forEach((lvl, i) => {
                         const y = p1.y + totalH * lvl;
@@ -249,7 +249,7 @@ export default function useDrawingTools(canvasRef, chartRef, onMessage) {
                     ctx.fillText(d.text || '', d.x, d.y);
                     if (sel) {
                         const m = ctx.measureText(d.text || '');
-                        ctx.strokeStyle = '#FCD535';
+                        ctx.strokeStyle = '#ff4500';
                         ctx.lineWidth = 1;
                         ctx.setLineDash([3, 3]);
                         ctx.strokeRect(d.x - 2, d.y - (d.fontSize || 13) - 2, m.width + 4, (d.fontSize || 13) + 6);
@@ -272,9 +272,9 @@ export default function useDrawingTools(canvasRef, chartRef, onMessage) {
         pts.forEach(p => {
             ctx.beginPath();
             ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-            ctx.fillStyle = '#FCD535';
+            ctx.fillStyle = '#ff4500';
             ctx.fill();
-            ctx.strokeStyle = '#1E2329';
+            ctx.strokeStyle = 'transparent';
             ctx.lineWidth = 1.5;
             ctx.stroke();
         });
@@ -294,7 +294,7 @@ export default function useDrawingTools(canvasRef, chartRef, onMessage) {
             case 'channel': {
                 if (drawingStepRef.current === 2) {
                     const { p1: rp1, p2: rp2 } = pendingChannelRef.current;
-                    ctx.strokeStyle = '#FCD535';
+                    ctx.strokeStyle = '#ff4500';
                     ctx.lineWidth = 1.5;
                     ctx.setLineDash([5, 3]);
                     ctx.beginPath(); ctx.moveTo(rp1.x, rp1.y); ctx.lineTo(rp2.x, rp2.y); ctx.stroke();
@@ -304,7 +304,7 @@ export default function useDrawingTools(canvasRef, chartRef, onMessage) {
                     ctx.beginPath(); ctx.moveTo(rp1.x, rp1.y + dy); ctx.lineTo(rp2.x, rp2.y + dy); ctx.stroke();
                     ctx.setLineDash([]);
                 } else {
-                    ctx.strokeStyle = '#FCD535';
+                    ctx.strokeStyle = '#ff4500';
                     ctx.lineWidth = 1.5;
                     ctx.setLineDash([5, 3]);
                     ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
@@ -313,7 +313,7 @@ export default function useDrawingTools(canvasRef, chartRef, onMessage) {
                 break;
             }
             case 'ray': {
-                ctx.strokeStyle = '#FCD535';
+                ctx.strokeStyle = '#ff4500';
                 ctx.lineWidth = 1.5;
                 ctx.setLineDash([5, 3]);
                 ctx.beginPath();
@@ -327,7 +327,7 @@ export default function useDrawingTools(canvasRef, chartRef, onMessage) {
                 break;
             }
             case 'arrow': {
-                ctx.strokeStyle = '#FCD535';
+                ctx.strokeStyle = '#ff4500';
                 ctx.lineWidth = 1.5;
                 ctx.setLineDash([5, 3]);
                 ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
@@ -336,7 +336,7 @@ export default function useDrawingTools(canvasRef, chartRef, onMessage) {
                 const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
                 const hs = 10;
                 ctx.beginPath();
-                ctx.fillStyle = '#FCD535';
+                ctx.fillStyle = '#ff4500';
                 ctx.moveTo(p2.x, p2.y);
                 ctx.lineTo(p2.x - hs * Math.cos(angle - 0.4), p2.y - hs * Math.sin(angle - 0.4));
                 ctx.lineTo(p2.x - hs * Math.cos(angle + 0.4), p2.y - hs * Math.sin(angle + 0.4));
@@ -388,7 +388,7 @@ export default function useDrawingTools(canvasRef, chartRef, onMessage) {
                 break;
             }
             case 'hline': {
-                ctx.strokeStyle = '#2962FF';
+                ctx.strokeStyle = '#ff4500';
                 ctx.lineWidth = 1.5;
                 ctx.setLineDash([8, 5]);
                 ctx.beginPath(); ctx.moveTo(0, p1.y); ctx.lineTo(canvas.width, p1.y);
@@ -396,7 +396,7 @@ export default function useDrawingTools(canvasRef, chartRef, onMessage) {
                 break;
             }
             case 'vline': {
-                ctx.strokeStyle = '#2962FF';
+                ctx.strokeStyle = '#ff4500';
                 ctx.lineWidth = 1.5;
                 ctx.setLineDash([8, 5]);
                 ctx.beginPath(); ctx.moveTo(p1.x, 0); ctx.lineTo(p1.x, canvas.height);
@@ -404,7 +404,7 @@ export default function useDrawingTools(canvasRef, chartRef, onMessage) {
                 break;
             }
             case 'crossline': {
-                ctx.strokeStyle = '#2962FF';
+                ctx.strokeStyle = '#ff4500';
                 ctx.lineWidth = 1.5;
                 ctx.setLineDash([8, 5]);
                 ctx.beginPath();
@@ -571,10 +571,10 @@ export default function useDrawingTools(canvasRef, chartRef, onMessage) {
 
         switch (tool) {
             // ── Line & ray family ──────────────────────────────────────────────
-            case 'trendline': newDrawing = { type: 'trendline', p1, p2, color: '#FCD535' }; break;
-            case 'ray':       newDrawing = { type: 'ray',       p1, p2, color: '#FCD535' }; break;
+            case 'trendline': newDrawing = { type: 'trendline', p1, p2, color: '#ff4500' }; break;
+            case 'ray':       newDrawing = { type: 'ray',       p1, p2, color: '#ff4500' }; break;
             // ── Arrow family ───────────────────────────────────────────────────
-            case 'arrow': newDrawing = { type: 'arrow', p1, p2, color: '#FCD535' }; break;
+            case 'arrow': newDrawing = { type: 'arrow', p1, p2, color: '#ff4500' }; break;
             // ── Shapes ─────────────────────────────────────────────────────────
             case 'rectangle': {
                 if (Math.abs(p2.x - p1.x) > 5 && Math.abs(p2.y - p1.y) > 5)
@@ -600,9 +600,9 @@ export default function useDrawingTools(canvasRef, chartRef, onMessage) {
                 break;
             }
             // ── Price lines ────────────────────────────────────────────────────
-            case 'hline': newDrawing = { type: 'hline', y: p1.y, color: '#2962FF' }; break;
-            case 'vline': newDrawing = { type: 'vline', x: p1.x, color: '#2962FF' }; break;
-            case 'crossline': newDrawing = { type: 'crossline', pt: p1, color: '#2962FF' }; break;
+            case 'hline': newDrawing = { type: 'hline', y: p1.y, color: '#ff4500' }; break;
+            case 'vline': newDrawing = { type: 'vline', x: p1.x, color: '#ff4500' }; break;
+            case 'crossline': newDrawing = { type: 'crossline', pt: p1, color: '#ff4500' }; break;
             // ── Channels ───────────────────────────────────────────────────────
             case 'channel': {
                 if (Math.abs(p2.x - p1.x) > 5 || Math.abs(p2.y - p1.y) > 5) {
@@ -613,7 +613,7 @@ export default function useDrawingTools(canvasRef, chartRef, onMessage) {
                 return;
             }
             // ── Measure ────────────────────────────────────────────────────────
-            case 'ruler': newDrawing = { type: 'ruler', p1, p2, color: '#FCD535' }; break;
+            case 'ruler': newDrawing = { type: 'ruler', p1, p2, color: '#ff4500' }; break;
             // ── Fibonacci ──────────────────────────────────────────────────────
             case 'fib':
             case 'fibfan':    newDrawing = { type: 'fib', p1, p2, color: '#AB47BC' }; break;
@@ -650,10 +650,10 @@ export default function useDrawingTools(canvasRef, chartRef, onMessage) {
             position: 'fixed',
             left: `${rect.left + pt.x}px`,
             top:  `${rect.top + pt.y - 20}px`,
-            background: 'rgba(30,35,41,0.9)',
+            background: 'rgba(10,10,10,0.9)',
             color: '#eaecef',
-            border: '1px solid #FCD535',
-            borderRadius: '3px',
+            border: '1px solid #ff4500',
+            borderRadius: "0px",
             padding: '2px 6px',
             fontSize: '13px',
             fontFamily: 'Roboto Mono, monospace',

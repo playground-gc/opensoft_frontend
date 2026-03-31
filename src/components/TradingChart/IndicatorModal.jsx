@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, RotateCcw, Check, Hash, Settings2 } from 'lucide-react';
 
 // ─── Indicator full names ────────────────────────────────────────────────────
 const INDICATOR_NAMES = {
@@ -22,7 +22,7 @@ const INDICATOR_NAMES = {
     WR:       'Williams Percent Range',
 };
 
-const LINE_COLORS = ['#FCD535', '#E040FB', '#AB47BC', '#F6465D', '#0ECB81', '#FF9800'];
+const LINE_COLORS = ['#ff4500', '#E040FB', '#AB47BC', '#F6465D', '#0ECB81', '#FF9800'];
 
 function makeMultiLine() {
     return {
@@ -41,7 +41,7 @@ const MAIN_INDICATORS = [
     { key: 'MA',    label: 'MA',    defaultParams: makeMultiLine() },
     { key: 'EMA',   label: 'EMA',   defaultParams: makeMultiLine() },
     { key: 'WMA',   label: 'WMA',   defaultParams: makeMultiLine() },
-    { key: 'BOLL',  label: 'BOLL',  defaultParams: { period: 20, stdDev: 2, upperColor: '#2962FF', middleColor: '#FCD535', lowerColor: '#2962FF' } },
+    { key: 'BOLL',  label: 'BOLL',  defaultParams: { period: 20, stdDev: 2, upperColor: '#ff4500', middleColor: '#ff4500', lowerColor: '#ff4500' } },
     { key: 'VWAP',  label: 'VWAP',  defaultParams: { color: '#00BCD4' } },
     { key: 'SAR',   label: 'SAR',   defaultParams: { step: 0.02, max: 0.2 } },
     { key: 'SUPER', label: 'SUPER', defaultParams: { period: 10, multiplier: 3 } },
@@ -65,11 +65,11 @@ const SUB_INDICATORS = [
     },
     { key: 'RSI',      label: 'RSI',      defaultParams: { period: 14, color: '#E040FB' } },
     { key: 'MFI',      label: 'MFI',      defaultParams: { period: 14, color: '#00BCD4' } },
-    { key: 'KDJ',      label: 'KDJ',      defaultParams: { period: 9,  kColor: '#FCD535', dColor: '#E040FB', jColor: '#0ECB81' } },
-    { key: 'OBV',      label: 'OBV',      defaultParams: { color: '#2962FF' } },
+    { key: 'KDJ',      label: 'KDJ',      defaultParams: { period: 9,  kColor: '#ff4500', dColor: '#E040FB', jColor: '#0ECB81' } },
+    { key: 'OBV',      label: 'OBV',      defaultParams: { color: '#ff4500' } },
     { key: 'CCI',      label: 'CCI',      defaultParams: { period: 20, color: '#FF9800' } },
-    { key: 'StochRSI', label: 'StochRSI', defaultParams: { rsiPeriod: 14, stochPeriod: 14, kColor: '#2962FF', dColor: '#E040FB' } },
-    { key: 'WR',       label: 'WR',       defaultParams: { period: 14, color: '#FCD535' } },
+    { key: 'StochRSI', label: 'StochRSI', defaultParams: { rsiPeriod: 14, stochPeriod: 14, kColor: '#ff4500', dColor: '#E040FB' } },
+    { key: 'WR',       label: 'WR',       defaultParams: { period: 14, color: '#ff4500' } },
 ];
 
 // ─── Shared sub-components ───────────────────────────────────────────────────
@@ -98,11 +98,14 @@ function NumInput({ value, onChange, min = 1, step = 1 }) {
 
 function SrcSelect({ value, onChange }) {
     return (
-        <select value={value} onChange={e => onChange(e.target.value)} style={p.select}>
-            {['close', 'open', 'high', 'low'].map(s => (
-                <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
-            ))}
-        </select>
+        <div style={{position: 'relative', display: 'flex', alignItems: 'center', width: '100%'}}>
+            <Settings2 size={12} style={{position: 'absolute', left: 8, color: 'rgba(255,255,255,0.4)', pointerEvents: 'none'}} />
+            <select value={value} onChange={e => onChange(e.target.value)} style={{...p.select, paddingLeft: 26, background: 'rgba(0, 0, 0, 0.4)'}}>
+                {['close', 'open', 'high', 'low'].map(s => (
+                    <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                ))}
+            </select>
+        </div>
     );
 }
 
@@ -117,7 +120,7 @@ function LineWidthSelect({ value, onChange }) {
                 onClick={() => setOpen(o => !o)}
             >
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-                    <div style={{ height: value || 1, background: '#FFFFFF', borderRadius: 1, width: '100%' }} />
+                    <div style={{ height: value || 1, background: '#FFFFFF', borderRadius: 0, width: '100%' }} />
                 </div>
                 <span style={{ color: 'var(--color-text-muted)', fontSize: 10, lineHeight: 1 }}>▾</span>
             </div>
@@ -130,11 +133,11 @@ function LineWidthSelect({ value, onChange }) {
                             key={w}
                             style={{
                                 ...p.lwOption,
-                                background: w === (value || 1) ? '#2B3139' : 'transparent'
+                                background: w === (value || 1) ? 'rgba(255, 255, 255, 0.05)' : 'transparent'
                             }}
                             onClick={() => { onChange(w); setOpen(false); }}
                         >
-                            <div style={{ height: w, background: '#FFFFFF', borderRadius: 1, width: '100%' }} />
+                            <div style={{ height: w, background: '#FFFFFF', borderRadius: 0, width: '100%' }} />
                         </div>
                     ))}
                 </div>
@@ -152,11 +155,35 @@ function Row({ label, children }) {
     );
 }
 
+
+function CustomCheckbox({ checked, onChange }) {
+    return (
+        <div 
+            onClick={(e) => { e.stopPropagation(); onChange({ target: { checked: !checked } }); }}
+            style={{
+                width: 18, height: 18, borderRadius: '50%',
+                border: `2px solid ${checked ? '#ff4500' : 'rgba(255,255,255,0.3)'}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', transition: 'all 0.2s',
+                backgroundColor: checked ? 'rgba(255,69,0,0.15)' : 'rgba(0,0,0,0.2)',
+                flexShrink: 0
+            }}
+        >
+            <div style={{
+                width: 8, height: 8, borderRadius: '50%', 
+                backgroundColor: '#ff4500',
+                transform: checked ? 'scale(1)' : 'scale(0)',
+                transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)'
+            }} />
+        </div>
+    );
+}
+
 function CheckRow({ label, checked, onCheck, children }) {
     return (
         <div style={p.checkRow}>
             <label style={p.checkLabel} onClick={e => e.stopPropagation()}>
-                <input type="checkbox" checked={checked} onChange={onCheck} style={p.checkbox} />
+                <CustomCheckbox checked={checked} onChange={onCheck} />
                 <span style={p.checkText}>{label}</span>
             </label>
             <div style={p.rowControls}>{children}</div>
@@ -178,7 +205,7 @@ function MultiLineEditor({ lineLabel, params, onChange }) {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             {/* Header row — same grid as data rows */}
-            <div style={{ display: 'grid', gridTemplateColumns: ML_GRID, alignItems: 'center', gap: '8px', padding: '4px 0 8px 0', borderBottom: '1px solid #2B3139' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: ML_GRID, alignItems: 'center', gap: '8px', padding: '4px 0 8px 0', borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <span />
                 <span style={p.mlColLabel}>{lineLabel}</span>
                 <span style={p.mlColLabel}>Period</span>
@@ -187,13 +214,8 @@ function MultiLineEditor({ lineLabel, params, onChange }) {
                 <span style={p.mlColLabel}>Color</span>
             </div>
             {lines.map((line, i) => (
-                <div key={i} style={{ display: 'grid', gridTemplateColumns: ML_GRID, alignItems: 'center', gap: '8px', padding: '8px 0', borderBottom: '1px solid #2B3139' }}>
-                    <input
-                        type="checkbox"
-                        checked={line.enabled}
-                        onChange={e => setLine(i, 'enabled', e.target.checked)}
-                        style={p.checkbox}
-                    />
+                <div key={i} style={{ display: 'grid', gridTemplateColumns: ML_GRID, alignItems: 'center', gap: '8px', padding: '8px 0', borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                    <CustomCheckbox checked={line.enabled} onChange={e => setLine(i, 'enabled', e.target.checked)} />
                     <span style={p.mlLineName}>{lineLabel}{i + 1}</span>
                     <NumInput value={line.period} onChange={v => setLine(i, 'period', v)} />
                     <SrcSelect value={line.source} onChange={v => setLine(i, 'source', v)} />
@@ -440,12 +462,7 @@ export default function IndicatorModal({ initialConfig = {}, onSave, onClose, on
                                     style={m.checkLabel}
                                     onClick={e => { e.stopPropagation(); }}
                                 >
-                                    <input
-                                        type="checkbox"
-                                        checked={config[ind.key]?.enabled ?? false}
-                                        onChange={() => toggleEnabled(ind.key)}
-                                        style={m.checkbox}
-                                    />
+                                    <CustomCheckbox checked={config[ind.key]?.enabled ?? false} onChange={() => toggleEnabled(ind.key)} />
                                 </label>
                                 <span style={m.sideLabel}>{ind.label}</span>
                                 <span style={m.chevron}>›</span>
@@ -474,8 +491,8 @@ export default function IndicatorModal({ initialConfig = {}, onSave, onClose, on
 
                 {/* Footer */}
                 <div style={m.footer}>
-                    <button style={m.btnReset} onClick={handleReset}>Reset</button>
-                    <button style={m.btnSave} onClick={handleSave}>Save</button>
+                    <button style={m.btnReset} onClick={handleReset}> <RotateCcw size={14} style={{marginRight: 6, display: 'inline-block', verticalAlign: 'middle'}} /> Reset</button>
+                    <button style={m.btnSave} onClick={handleSave}> <Check size={14} style={{marginRight: 6, display: 'inline-block', verticalAlign: 'middle'}} /> Save</button>
                 </div>
             </div>
         </div>
@@ -490,14 +507,14 @@ const m = {
         display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
     },
     modal: {
-        background: '#1E2329', border: '1px solid #2B3139', borderRadius: '8px',
+        background: 'rgba(10, 10, 10, 0.6)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255, 69, 0, 0.4)', borderRadius: "0px",
         width: '640px', maxWidth: '96vw', maxHeight: '82vh',
         display: 'flex', flexDirection: 'column', overflow: 'hidden',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.7)'
+        boxShadow: '0 0 40px rgba(255, 69, 0, 0.15), inset 0 0 20px rgba(255, 69, 0, 0.05)'
     },
     header: {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        borderBottom: '1px solid #2B3139', padding: '0 18px', height: '48px', flexShrink: 0
+        borderBottom: '1px solid rgba(255, 255, 255, 0.05)', padding: '0 18px', height: '48px', flexShrink: 0
     },
     tabs: { display: 'flex', gap: '24px', height: '100%', alignItems: 'stretch' },
     tab: {
@@ -507,15 +524,15 @@ const m = {
         padding: '0 2px', borderBottom: '2px solid transparent', transition: 'color 0.2s',
         letterSpacing: '-0.01em'
     },
-    tabActive: { color: '#FFFFFF', borderBottomColor: '#FCD535', fontWeight: '700' },
+    tabActive: { color: '#FFFFFF', borderBottomColor: '#ff4500', fontWeight: '700' },
     closeBtn: {
         background: 'none', border: 'none', cursor: 'pointer',
-        color: 'var(--color-text-muted)', padding: '4px', borderRadius: '4px',
+        color: 'var(--color-text-muted)', padding: '4px', borderRadius: "0px",
         display: 'flex', alignItems: 'center'
     },
     body: { display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 },
     sidebar: {
-        width: '148px', flexShrink: 0, borderRight: '1px solid #2B3139',
+        width: '148px', flexShrink: 0, borderRight: '1px solid rgba(255, 255, 255, 0.05)',
         overflowY: 'auto', padding: '6px 0'
     },
     sideTitle: {
@@ -526,73 +543,74 @@ const m = {
         display: 'flex', alignItems: 'center', padding: '8px 14px',
         cursor: 'pointer', transition: 'background 0.15s', gap: '8px'
     },
-    sideItemActive: { background: '#2B3139' },
+    sideItemActive: { background: 'rgba(255, 255, 255, 0.05)' },
     checkLabel: { display: 'flex', alignItems: 'center', cursor: 'pointer' },
-    checkbox: { accentColor: '#FCD535', cursor: 'pointer', width: 14, height: 14 },
+    checkbox: { accentColor: '#ff4500', cursor: 'pointer', width: 14, height: 14 },
     sideLabel: { flex: 1, color: 'var(--color-text-main)', fontSize: '13px' },
     chevron: { color: 'var(--color-text-muted)', fontSize: '15px' },
     rightPane: { flex: 1, overflowY: 'auto', padding: '18px 20px' },
     rightTitle: {
         fontSize: '14px', fontWeight: '600', color: 'var(--color-text-main)',
-        marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid #2B3139'
+        marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
     },
     params: { display: 'flex', flexDirection: 'column' },
     footer: {
         display: 'flex', justifyContent: 'flex-end', gap: '10px',
-        padding: '12px 18px', borderTop: '1px solid #2B3139', flexShrink: 0
+        padding: '12px 18px', borderTop: '1px solid rgba(255, 255, 255, 0.05)', flexShrink: 0
     },
     btnReset: {
-        background: '#2B3139', border: '1px solid #3D4654', color: 'var(--color-text-main)',
-        padding: '8px 22px', borderRadius: '5px', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px'
+        background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'var(--color-text-main)',
+        padding: '8px 22px', borderRadius: "0px", cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px'
     },
     btnSave: {
-        background: '#FCD535', border: 'none', color: '#1E2329', fontWeight: '700',
-        padding: '8px 26px', borderRadius: '5px', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px'
+        background: '#ff4500', border: 'none', color: '#050505', fontWeight: '700',
+        padding: '8px 26px', borderRadius: "0px", cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px'
     },
 };
 
 const p = {
     row: {
         display: 'flex', alignItems: 'center', padding: '9px 0',
-        borderBottom: '1px solid #2B3139', gap: '12px', minHeight: 40
+        borderBottom: '1px solid rgba(255, 255, 255, 0.05)', gap: '12px', minHeight: 40
     },
     rowLabel: { flex: 1, color: 'var(--color-text-muted)', fontSize: '12px' },
     rowControls: { display: 'flex', gap: '8px', alignItems: 'center' },
     checkRow: {
         display: 'flex', alignItems: 'center', padding: '9px 0',
-        borderBottom: '1px solid #2B3139', gap: '12px', minHeight: 40
+        borderBottom: '1px solid rgba(255, 255, 255, 0.05)', gap: '12px', minHeight: 40
     },
     checkLabel: { display: 'flex', alignItems: 'center', gap: '8px', flex: 1, cursor: 'pointer' },
     checkText: { color: 'var(--color-text-main)', fontSize: '13px' },
-    checkbox: { accentColor: '#FCD535', cursor: 'pointer', width: 14, height: 14 },
+    checkbox: { accentColor: '#ff4500', cursor: 'pointer', width: 14, height: 14 },
     numInput: {
-        width: '100%', background: '#2B3139', border: '1px solid #3D4654',
-        color: 'var(--color-text-main)', borderRadius: '4px', padding: '5px 7px',
+        width: '100%', background: 'rgba(0, 0, 0, 0.4)', border: '1px solid rgba(255, 255, 255, 0.1)',
+        transition: 'border 0.2s, box-shadow 0.2s',
+        color: 'var(--color-text-main)', borderRadius: "0px", padding: '5px 7px',
         fontFamily: 'inherit', fontSize: '13px', outline: 'none', boxSizing: 'border-box'
     },
-    select: {
-        width: '100%', background: '#2B3139', border: '1px solid #3D4654',
-        color: 'var(--color-text-main)', borderRadius: '4px', padding: '5px 6px',
+    select: { appearance: 'none', backgroundImage: 'url("data:image/svg+xml;utf8,<svg fill=%27white%27 height=%2724%27 viewBox=%270 0 24 24%27 width=%2724%27 xmlns=%27http://www.w3.org/2000/svg%27><path d=%27M7 10l5 5 5-5z%27/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 4px center', backgroundSize: '14px', 
+        width: '100%', background: 'rgba(0, 0, 0, 0.4)', border: '1px solid rgba(255, 255, 255, 0.1)',
+        color: 'var(--color-text-main)', borderRadius: "0px", padding: '5px 20px 5px 6px',
         fontFamily: 'inherit', fontSize: '13px', outline: 'none', cursor: 'pointer', boxSizing: 'border-box'
     },
     swatch: { cursor: 'pointer', display: 'flex', justifyContent: 'center' },
-    swatchInner: { width: '26px', height: '26px', borderRadius: '4px', border: '1px solid #3D4654' },
-    divider: { height: '1px', background: '#2B3139', margin: '4px 0' },
+    swatchInner: { width: '26px', height: '26px', borderRadius: "0px", border: '1px solid rgba(255, 255, 255, 0.1)' },
+    divider: { height: '1px', background: 'rgba(255, 255, 255, 0.05)', margin: '4px 0' },
     // Line-width picker (custom dropdown)
     lwWrapper: {
-        display: 'flex', alignItems: 'center', background: '#2B3139',
-        border: '1px solid #3D4654', borderRadius: '4px', padding: '0 8px',
+        display: 'flex', alignItems: 'center', background: 'rgba(0, 0, 0, 0.4)',
+        border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: "0px", padding: '0 8px',
         gap: '6px', height: '32px', boxSizing: 'border-box', cursor: 'pointer',
     },
     lwDropdown: {
         position: 'absolute', top: '36px', left: 0, right: 0, zIndex: 200,
-        background: '#1E2329', border: '1px solid #3D4654', borderRadius: '4px',
+        background: 'rgba(10, 10, 10, 0.95)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: "0px", backdropFilter: 'blur(8px)',
         padding: '4px', display: 'flex', flexDirection: 'column', gap: '2px',
         boxShadow: '0 4px 16px rgba(0,0,0,0.6)',
     },
     lwOption: {
         display: 'flex', alignItems: 'center', padding: '6px 8px',
-        borderRadius: '3px', cursor: 'pointer',
+        borderRadius: "0px", cursor: 'pointer',
     },
     // Multi-line table styles
     mlColLabel: {

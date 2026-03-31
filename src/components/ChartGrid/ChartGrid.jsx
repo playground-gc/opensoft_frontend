@@ -97,7 +97,7 @@ export default function ChartGrid({ mainSymbol, comparisonSymbols }) {
                 )}
             </div>
 
-            <div style={{flex: 1, overflow: 'hidden', backgroundColor: '#161a1e'}}>
+            <div style={{flex: 1, overflow: 'hidden', backgroundColor: 'transparent'}}>
                {renderCharts()}
             </div>
         </div>
@@ -111,7 +111,7 @@ const styles = {
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
-        backgroundColor: '#161a1e'
+        backgroundColor: 'transparent'
     },
     chartContainer: {
         width: '100%',
@@ -123,7 +123,7 @@ const styles = {
         width: '100%',
         height: '100%',
         gap: '2px',
-        backgroundColor: '#2B3139'
+        backgroundColor: 'rgba(255, 255, 255, 0.05)'
     },
     flexCol: {
         display: 'flex',
@@ -131,13 +131,13 @@ const styles = {
         width: '100%',
         height: '100%',
         gap: '2px',
-        backgroundColor: '#2B3139'
+        backgroundColor: 'rgba(255, 255, 255, 0.05)'
     },
     flexItem: {
         flex: 1,
         minWidth: 0,
         minHeight: 0,
-        backgroundColor: '#161a1e'
+        backgroundColor: 'transparent'
     },
     dropdownContainer: {
         position: 'absolute',
@@ -148,21 +148,21 @@ const styles = {
     dropdownToggle: {
         display: 'flex',
         alignItems: 'center',
-        color: '#d1d4dc',
+        color: 'var(--color-text-main)',
         cursor: 'pointer',
         padding: '4px 10px',
-        borderRadius: '4px',
-        backgroundColor: 'rgba(30, 35, 41, 0.9)',
-        border: '1px solid #2B3139',
+        borderRadius: "0px",
+        backgroundColor: 'rgba(10, 10, 10, 0.9)',
+        border: '1px solid rgba(255, 255, 255, 0.05)',
         backdropFilter: 'blur(4px)'
     },
     dropdownMenu: {
         position: 'absolute',
         top: '32px',
         right: '0',
-        backgroundColor: '#1e2329',
-        border: '1px solid #2b3139',
-        borderRadius: '4px',
+        backgroundColor: 'transparent',
+        border: '1px solid rgba(255, 255, 255, 0.05)',
+        borderRadius: "0px",
         padding: '6px',
         display: 'flex',
         flexDirection: 'column',
@@ -175,10 +175,10 @@ const styles = {
         alignItems: 'center',
         padding: '8px 10px',
         cursor: 'pointer',
-        color: '#d1d4dc',
-        borderRadius: '4px',
+        color: 'var(--color-text-main)',
+        borderRadius: "0px",
         fontSize: '11px',
         transition: 'background 0.2s',
-        '&:hover': { backgroundColor: '#2b3139' }
+        '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.05)' }
     }
 };

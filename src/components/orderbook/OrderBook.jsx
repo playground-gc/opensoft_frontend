@@ -133,7 +133,7 @@ export default function OrderBook({ symbol }) {
                 : "0 0 10px rgba(246, 70, 93, 0.3)",
             }}
           >
-            {price.toFixed(2)} {isUp ? "↑" : "↓"}
+            {price.toFixed(2)} {isUp ? <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{ display: "inline-block", verticalAlign: "middle", marginRight: "2px" }}><path d="M12 4l8 16H4z"/></svg> : <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{ display: "inline-block", verticalAlign: "middle", marginRight: "2px" }}><path d="M12 20L4 4h16z"/></svg>}
           </span>
           <span
             style={{
@@ -253,6 +253,6 @@ const styles = {
     borderTop: "1px solid rgba(255, 255, 255, 0.05)",
     borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
     margin: "8px 0",
-    background: "rgba(255, 255, 255, 0.02)",
+    background: "transparent",
   },
 };

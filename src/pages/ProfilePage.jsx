@@ -6,36 +6,32 @@ import {
   fetchMe,
   fetchOrders,
   fetchPortfolio,
-  fetchTrades,
-} from "../services/api";
+  fetchTrades} from "../services/api";
 import { useAuthStore } from "../store";
 
 const glassCardStyle = {
-  background: "rgba(255, 255, 255, 0.03)",
+  background: "rgba(0, 0, 0, 0.4)",
   backdropFilter: "blur(12px)",
   WebkitBackdropFilter: "blur(12px)",
-  border: "1px solid rgba(255, 255, 255, 0.05)",
-  borderRadius: "16px",
-  boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-  overflow: "hidden",
+  border: "1px solid rgba(255, 69, 0, 0.1)",
+  borderRadius: "0px",
+  boxShadow: "0 0 25px rgba(255, 69, 0, 0.03), inset 0 0 15px rgba(255, 69, 0, 0.01)",
+  overflow: "hidden"
 };
 
 const neonTextStyle = {
-  color: "#e8a020",
-  textShadow: "0 0 8px rgba(232, 160, 32, 0.4)",
-};
+  color: "#ff4500",
+  textShadow: "0 0 8px rgba(255, 69, 0, 0.4)"};
 
 const tableStyle = {
   width: "100%",
   borderCollapse: "collapse",
-  fontSize: "14px",
-};
+  fontSize: "14px"};
 
 const tdStyle = {
   padding: "16px 20px",
   borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
-  textAlign: "left",
-};
+  textAlign: "left"};
 
 const thStyle = {
   ...tdStyle,
@@ -44,8 +40,7 @@ const thStyle = {
   fontSize: "12px",
   textTransform: "uppercase",
   letterSpacing: "0.05em",
-  borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-};
+  borderBottom: "1px solid rgba(255, 255, 255, 0.1)"};
 
 const numberOrZero = (value) => {
   const n = Number(value);
@@ -56,8 +51,7 @@ const fmtCurrency = (value) =>
   new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-    maximumFractionDigits: 2,
-  }).format(numberOrZero(value));
+    maximumFractionDigits: 2}).format(numberOrZero(value));
 
 const fmtNumber = (value, digits = 4) => numberOrZero(value).toFixed(digits);
 
@@ -87,8 +81,7 @@ const normalizeMe = (data) => {
     totalAccountValue: numberOrZero(
       data.total_account_value ?? data.account_value,
     ),
-    holdings: Array.isArray(data.holdings) ? data.holdings : [],
-  };
+    holdings: Array.isArray(data.holdings) ? data.holdings : []};
 };
 
 const normalizeBalancePoints = (history = [], currentBalance = 0) => {
@@ -102,8 +95,7 @@ const normalizeBalancePoints = (history = [], currentBalance = 0) => {
         reason: item.reason || "-",
         symbol: item.symbol || "-",
         delta: numberOrZero(item.delta),
-        date: item.timestamp || item.created_at || item.time || item.date || "",
-      };
+        date: item.timestamp || item.created_at || item.time || item.date || ""};
     })
     .filter((pt) => Number.isFinite(pt.y));
 
@@ -115,16 +107,14 @@ const normalizeBalancePoints = (history = [], currentBalance = 0) => {
         reason: "Current",
         symbol: "-",
         delta: 0,
-        date: new Date().toISOString(),
-      },
+        date: new Date().toISOString()},
       {
         x: 2,
         y: currentBalance,
         reason: "Current",
         symbol: "-",
         delta: 0,
-        date: new Date().toISOString(),
-      },
+        date: new Date().toISOString()},
     ];
   }
   if (pts.length === 1) {
@@ -254,8 +244,8 @@ const BalanceChart = ({ points }) => {
     >
       <defs>
         <linearGradient id="neonGradient" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="rgba(232, 160, 32, 0.4)" />
-          <stop offset="100%" stopColor="rgba(232, 160, 32, 0)" />
+          <stop offset="0%" stopColor="rgba(255, 69, 0, 0.4)" />
+          <stop offset="100%" stopColor="rgba(255, 69, 0, 0)" />
         </linearGradient>
         <filter id="glow">
           <feGaussianBlur stdDeviation="3.5" result="coloredBlur" />
@@ -289,7 +279,7 @@ const BalanceChart = ({ points }) => {
       <path
         d={linePath}
         fill="none"
-        stroke="#e8a020"
+        stroke="#ff4500"
         strokeWidth="3"
         filter="url(#glow)"
         strokeLinejoin="round"
@@ -303,7 +293,7 @@ const BalanceChart = ({ points }) => {
           cy={toY(p.y)}
           r="4"
           fill="#000"
-          stroke="#e8a020"
+          stroke="#ff4500"
           strokeWidth="2"
           style={{ transition: "all 0.2s ease" }}
         >
@@ -407,9 +397,8 @@ export default function ProfilePage() {
         style={{
           padding: "40px",
           color: "#fff",
-          background: "#050505",
-          minHeight: "100vh",
-        }}
+          background: "transparent",
+          minHeight: "100vh"}}
       >
         <div
           style={{
@@ -417,8 +406,7 @@ export default function ProfilePage() {
             padding: "40px",
             maxWidth: "400px",
             margin: "0 auto",
-            textAlign: "center",
-          }}
+            textAlign: "center"}}
         >
           <h1 style={{ marginBottom: "16px", ...neonTextStyle }}>
             Access Denied
@@ -430,16 +418,15 @@ export default function ProfilePage() {
             to="/trading-charts"
             style={{
               display: "inline-block",
-              background: "rgba(232, 160, 32, 0.1)",
-              border: "1px solid #e8a020",
-              color: "#e8a020",
+              background: "rgba(255, 69, 0, 0.1)",
+              border: "1px solid #ff4500",
+              color: "#ff4500",
               padding: "12px 24px",
-              borderRadius: "8px",
+              borderRadius: "0px",
               textDecoration: "none",
               fontWeight: "600",
               transition: "all 0.3s",
-              boxShadow: "0 0 15px rgba(232, 160, 32, 0.2)",
-            }}
+              boxShadow: "0 0 15px rgba(255, 69, 0, 0.2)"}}
           >
             Return to Terminal
           </Link>
@@ -456,8 +443,7 @@ export default function ProfilePage() {
             display: "flex",
             flexDirection: "column",
             gap: "24px",
-            animation: "fadeIn 0.5s ease",
-          }}
+            }}
         >
           <div
             style={{
@@ -466,8 +452,7 @@ export default function ProfilePage() {
               display: "flex",
               flexWrap: "wrap",
               gap: "40px",
-              position: "relative",
-            }}
+              position: "relative"}}
           >
             {/* Neon glow accent in corner */}
             <div
@@ -477,11 +462,10 @@ export default function ProfilePage() {
                 right: "-50px",
                 width: "150px",
                 height: "150px",
-                background: "#e8a020",
+                background: "#ff4500",
                 filter: "blur(100px)",
                 opacity: 0.15,
-                pointerEvents: "none",
-              }}
+                pointerEvents: "none"}}
             />
 
             <div style={{ flex: "1 1 300px", zIndex: 1 }}>
@@ -491,8 +475,7 @@ export default function ProfilePage() {
                   fontSize: "14px",
                   marginBottom: "8px",
                   textTransform: "uppercase",
-                  letterSpacing: "1px",
-                }}
+                  letterSpacing: "1px"}}
               >
                 Estimated Balance
               </div>
@@ -502,8 +485,7 @@ export default function ProfilePage() {
                   fontWeight: "800",
                   color: "#fff",
                   textShadow: "0 0 20px rgba(255,255,255,0.1)",
-                  marginBottom: "8px",
-                }}
+                  marginBottom: "8px"}}
               >
                 {fmtCurrency(me.totalAccountValue)}
               </div>
@@ -513,8 +495,7 @@ export default function ProfilePage() {
                   color: "rgba(255,255,255,0.6)",
                   display: "flex",
                   alignItems: "center",
-                  gap: "8px",
-                }}
+                  gap: "8px"}}
               >
                 <span>≈ {fmtCurrency(me.cashBalance)} Available Cash</span>
               </div>
@@ -526,16 +507,14 @@ export default function ProfilePage() {
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  marginBottom: "16px",
-                }}
+                  marginBottom: "16px"}}
               >
                 <div
                   style={{
                     color: "rgba(255,255,255,0.5)",
                     fontSize: "14px",
                     textTransform: "uppercase",
-                    letterSpacing: "1px",
-                  }}
+                    letterSpacing: "1px"}}
                 >
                   Performance
                 </div>
@@ -548,11 +527,10 @@ export default function ProfilePage() {
                         ? "rgba(14, 203, 129, 0.1)"
                         : "rgba(246, 70, 93, 0.1)",
                     padding: "4px 12px",
-                    borderRadius: "20px",
-                    border: `1px solid ${me.totalUnrealizedPnl >= 0 ? "rgba(14, 203, 129, 0.2)" : "rgba(246, 70, 93, 0.2)"}`,
-                  }}
+                    borderRadius: "0px",
+                    border: `1px solid ${me.totalUnrealizedPnl >= 0 ? "rgba(14, 203, 129, 0.2)" : "rgba(246, 70, 93, 0.2)"}`}}
                 >
-                  {me.totalUnrealizedPnl >= 0 ? "+" : ""}
+                  {me.totalUnrealizedPnl >= 0 ? <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{ display: "inline-block", verticalAlign: "middle", marginRight: "2px" }}><path d="M12 4l8 16H4z"/></svg> : <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{ display: "inline-block", verticalAlign: "middle", marginRight: "2px" }}><path d="M12 20L4 4h16z"/></svg>}
                   {fmtCurrency(me.totalUnrealizedPnl)} PnL
                 </div>
               </div>
@@ -568,16 +546,14 @@ export default function ProfilePage() {
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-              gap: "24px",
-            }}
+              gap: "24px"}}
           >
             {[
               { label: "Account Username", val: me.username },
               { label: "Contact Email", val: me.email },
               {
                 label: "Total Asset Value",
-                val: fmtCurrency(me.portfolioValue),
-              },
+                val: fmtCurrency(me.portfolioValue)},
             ].map((stat, i) => (
               <div key={i} style={{ ...glassCardStyle, padding: "24px" }}>
                 <div
@@ -586,8 +562,7 @@ export default function ProfilePage() {
                     fontSize: "12px",
                     textTransform: "uppercase",
                     letterSpacing: "1px",
-                    marginBottom: "12px",
-                  }}
+                    marginBottom: "12px"}}
                 >
                   {stat.label}
                 </div>
@@ -595,8 +570,7 @@ export default function ProfilePage() {
                   style={{
                     fontSize: "20px",
                     fontWeight: "600",
-                    color: "rgba(255,255,255,0.9)",
-                  }}
+                    color: "rgba(255,255,255,0.9)"}}
                 >
                   {stat.val}
                 </div>
@@ -609,12 +583,11 @@ export default function ProfilePage() {
 
     if (activeTab === "assets") {
       return (
-        <div style={{ ...glassCardStyle, animation: "fadeIn 0.5s ease" }}>
+        <div style={{ ...glassCardStyle}}>
           <div
             style={{
               padding: "24px",
-              borderBottom: "1px solid rgba(255,255,255,0.05)",
-            }}
+              borderBottom: "1px solid rgba(255,255,255,0.05)"}}
           >
             <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "600" }}>
               Portfolio Holdings
@@ -640,8 +613,7 @@ export default function ProfilePage() {
                         ...tdStyle,
                         textAlign: "center",
                         padding: "60px 0",
-                        color: "rgba(255,255,255,0.4)",
-                      }}
+                        color: "rgba(255,255,255,0.4)"}}
                       colSpan={6}
                     >
                       No assets found.
@@ -669,23 +641,21 @@ export default function ProfilePage() {
                           style={{
                             display: "flex",
                             alignItems: "center",
-                            gap: "12px",
-                          }}
+                            gap: "12px"}}
                         >
                           <div
                             style={{
                               width: "32px",
                               height: "32px",
-                              borderRadius: "8px",
-                              background: "rgba(232, 160, 32, 0.1)",
-                              border: "1px solid rgba(232, 160, 32, 0.2)",
-                              color: "#e8a020",
+                              borderRadius: "0px",
+                              background: "rgba(255, 69, 0, 0.1)",
+                              border: "1px solid rgba(255, 69, 0, 0.2)",
+                              color: "#ff4500",
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
                               fontWeight: "bold",
-                              fontSize: "14px",
-                            }}
+                              fontSize: "14px"}}
                           >
                             {symbol.charAt(0)}
                           </div>
@@ -708,10 +678,9 @@ export default function ProfilePage() {
                         style={{
                           ...tdStyle,
                           color: isUp ? "#0ECB81" : "#F6465D",
-                          fontWeight: "600",
-                        }}
+                          fontWeight: "600"}}
                       >
-                        {isUp ? "+" : ""}
+                        {isUp ? <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{ display: "inline-block", verticalAlign: "middle", marginRight: "2px" }}><path d="M12 4l8 16H4z"/></svg> : <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{ display: "inline-block", verticalAlign: "middle", marginRight: "2px" }}><path d="M12 20L4 4h16z"/></svg>}
                         {fmtCurrency(pnl)}
                       </td>
                     </tr>
@@ -726,12 +695,11 @@ export default function ProfilePage() {
 
     if (activeTab === "orders") {
       return (
-        <div style={{ ...glassCardStyle, animation: "fadeIn 0.5s ease" }}>
+        <div style={{ ...glassCardStyle}}>
           <div
             style={{
               padding: "24px",
-              borderBottom: "1px solid rgba(255,255,255,0.05)",
-            }}
+              borderBottom: "1px solid rgba(255,255,255,0.05)"}}
           >
             <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "600" }}>
               Order History
@@ -760,8 +728,7 @@ export default function ProfilePage() {
                         ...tdStyle,
                         textAlign: "center",
                         padding: "60px 0",
-                        color: "rgba(255,255,255,0.4)",
-                      }}
+                        color: "rgba(255,255,255,0.4)"}}
                       colSpan={9}
                     >
                       No active or past orders.
@@ -788,8 +755,7 @@ export default function ProfilePage() {
                         style={{
                           ...tdStyle,
                           color: "rgba(255,255,255,0.5)",
-                          fontSize: "13px",
-                        }}
+                          fontSize: "13px"}}
                       >
                         {fmtDateTime(order.created_at)}
                       </td>
@@ -801,8 +767,7 @@ export default function ProfilePage() {
                           ...tdStyle,
                           textTransform: "uppercase",
                           fontSize: "12px",
-                          letterSpacing: "1px",
-                        }}
+                          letterSpacing: "1px"}}
                       >
                         {order.order_type || "-"}
                       </td>
@@ -812,8 +777,7 @@ export default function ProfilePage() {
                           color: isBuy ? "#0ECB81" : "#F6465D",
                           textTransform: "uppercase",
                           fontWeight: "bold",
-                          fontSize: "12px",
-                        }}
+                          fontSize: "12px"}}
                       >
                         {order.side || "-"}
                       </td>
@@ -835,18 +799,17 @@ export default function ProfilePage() {
                               order.status === "filled"
                                 ? "rgba(14, 203, 129, 0.1)"
                                 : order.status === "open"
-                                  ? "rgba(232, 160, 32, 0.1)"
+                                  ? "rgba(255, 69, 0, 0.1)"
                                   : "rgba(255,255,255,0.05)",
                             color:
                               order.status === "filled"
                                 ? "#0ECB81"
                                 : order.status === "open"
-                                  ? "#e8a020"
+                                  ? "#ff4500"
                                   : "rgba(255,255,255,0.6)",
                             padding: "4px 8px",
-                            borderRadius: "4px",
-                            fontSize: "12px",
-                          }}
+                            borderRadius: "0px",
+                            fontSize: "12px"}}
                         >
                           {order.status || "-"}
                         </span>
@@ -859,7 +822,7 @@ export default function ProfilePage() {
                             onClick={() => onCancelOrder(orderId)}
                             style={{
                               padding: "6px 14px",
-                              borderRadius: "6px",
+                              borderRadius: "0px",
                               border: "1px solid rgba(246, 70, 93, 0.3)",
                               background: "rgba(246, 70, 93, 0.1)",
                               color: "#F6465D",
@@ -867,8 +830,7 @@ export default function ProfilePage() {
                               cursor: "pointer",
                               transition: "all 0.2s",
                               fontSize: "12px",
-                              textTransform: "uppercase",
-                            }}
+                              textTransform: "uppercase"}}
                             onMouseOver={(e) =>
                               (e.target.style.background =
                                 "rgba(246, 70, 93, 0.2)")
@@ -878,7 +840,7 @@ export default function ProfilePage() {
                                 "rgba(246, 70, 93, 0.1)")
                             }
                           >
-                            {cancellingId === orderId ? "Wait" : "Cancel"}
+                            {cancellingId === orderId ? "Wait" : <span style={{display:"flex",alignItems:"center"}}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight:"4px"}}><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>Cancel</span>}
                           </button>
                         ) : (
                           <span style={{ color: "rgba(255,255,255,0.2)" }}>
@@ -898,12 +860,11 @@ export default function ProfilePage() {
 
     if (activeTab === "trades") {
       return (
-        <div style={{ ...glassCardStyle, animation: "fadeIn 0.5s ease" }}>
+        <div style={{ ...glassCardStyle}}>
           <div
             style={{
               padding: "24px",
-              borderBottom: "1px solid rgba(255,255,255,0.05)",
-            }}
+              borderBottom: "1px solid rgba(255,255,255,0.05)"}}
           >
             <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "600" }}>
               Trade Executions
@@ -929,8 +890,7 @@ export default function ProfilePage() {
                         ...tdStyle,
                         textAlign: "center",
                         padding: "60px 0",
-                        color: "rgba(255,255,255,0.4)",
-                      }}
+                        color: "rgba(255,255,255,0.4)"}}
                       colSpan={6}
                     >
                       No trades executed.
@@ -958,8 +918,7 @@ export default function ProfilePage() {
                         style={{
                           ...tdStyle,
                           color: "rgba(255,255,255,0.5)",
-                          fontSize: "13px",
-                        }}
+                          fontSize: "13px"}}
                       >
                         {fmtDateTime(trade.timestamp || trade.created_at)}
                       </td>
@@ -972,8 +931,7 @@ export default function ProfilePage() {
                           color: isBuy ? "#0ECB81" : "#F6465D",
                           textTransform: "uppercase",
                           fontWeight: "bold",
-                          fontSize: "12px",
-                        }}
+                          fontSize: "12px"}}
                       >
                         {role}
                       </td>
@@ -983,8 +941,7 @@ export default function ProfilePage() {
                         style={{
                           ...tdStyle,
                           fontWeight: "500",
-                          color: "rgba(255,255,255,0.9)",
-                        }}
+                          color: "rgba(255,255,255,0.9)"}}
                       >
                         {fmtCurrency(price * qty)}
                       </td>
@@ -1012,16 +969,14 @@ export default function ProfilePage() {
         height: "100vh",
         display: "flex",
         flexDirection: "column",
-        background: "radial-gradient(circle at 50% -20%, #1a1a1a, #050505 80%)",
+        background: "radial-gradient(circle at 50% -20%, #0a0a0a, #050505 80%)",
         color: "#fff",
-        fontFamily: "'Inter', 'Segoe UI', sans-serif",
-      }}
+        fontFamily: "'Inter', 'Segoe UI', sans-serif"}}
     >
       <style>{`
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 0px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
       `}</style>
 
@@ -1036,21 +991,19 @@ export default function ProfilePage() {
           background: "rgba(0,0,0,0.4)",
           backdropFilter: "blur(20px)",
           borderBottom: "1px solid rgba(255,255,255,0.05)",
-          zIndex: 10,
-        }}
+          zIndex: 10}}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <div
             style={{
               width: "32px",
               height: "32px",
-              background: "linear-gradient(135deg, #e8a020, #f5d061)",
-              borderRadius: "8px",
-              boxShadow: "0 0 15px rgba(232, 160, 32, 0.4)",
+              background: "linear-gradient(135deg, #ff4500, #f5d061)",
+              borderRadius: "0px",
+              boxShadow: "0 0 15px rgba(255, 69, 0, 0.4)",
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
-            }}
+              justifyContent: "center"}}
           >
             <svg
               width="18"
@@ -1070,8 +1023,7 @@ export default function ProfilePage() {
               fontSize: "18px",
               fontWeight: "800",
               letterSpacing: "2px",
-              ...neonTextStyle,
-            }}
+              ...neonTextStyle}}
           >
             SYNTHETIC
           </div>
@@ -1086,22 +1038,20 @@ export default function ProfilePage() {
               background: "rgba(255,255,255,0.03)",
               border: "1px solid rgba(255,255,255,0.05)",
               padding: "6px 16px 6px 6px",
-              borderRadius: "30px",
-            }}
+              borderRadius: "0px"}}
           >
             <div
               style={{
                 width: "28px",
                 height: "28px",
-                background: "rgba(232, 160, 32, 0.2)",
+                background: "rgba(255, 69, 0, 0.2)",
                 borderRadius: "50%",
-                color: "#e8a020",
+                color: "#ff4500",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 fontWeight: "bold",
-                fontSize: "14px",
-              }}
+                fontSize: "14px"}}
             >
               {me.username ? me.username.charAt(0).toUpperCase() : "U"}
             </div>
@@ -1109,8 +1059,7 @@ export default function ProfilePage() {
               style={{
                 fontSize: "14px",
                 fontWeight: "500",
-                color: "rgba(255,255,255,0.8)",
-              }}
+                color: "rgba(255,255,255,0.8)"}}
             >
               {me.username || "Trader"}
             </span>
@@ -1120,25 +1069,24 @@ export default function ProfilePage() {
             style={{
               textDecoration: "none",
               color: "#000",
-              background: "linear-gradient(90deg, #e8a020, #f0b942)",
+              background: "linear-gradient(90deg, #ff4500, #f0b942)",
               padding: "10px 24px",
-              borderRadius: "8px",
+              borderRadius: "0px",
               fontSize: "13px",
               fontWeight: "700",
               textTransform: "uppercase",
               letterSpacing: "1px",
-              boxShadow: "0 4px 15px rgba(232, 160, 32, 0.3)",
-              transition: "transform 0.2s, box-shadow 0.2s",
-            }}
+              boxShadow: "0 4px 15px rgba(255, 69, 0, 0.3)",
+              transition: "transform 0.2s, box-shadow 0.2s"}}
             onMouseOver={(e) => {
               e.currentTarget.style.transform = "translateY(-1px)";
               e.currentTarget.style.boxShadow =
-                "0 6px 20px rgba(232, 160, 32, 0.4)";
+                "0 6px 20px rgba(255, 69, 0, 0.4)";
             }}
             onMouseOut={(e) => {
               e.currentTarget.style.transform = "none";
               e.currentTarget.style.boxShadow =
-                "0 4px 15px rgba(232, 160, 32, 0.3)";
+                "0 4px 15px rgba(255, 69, 0, 0.3)";
             }}
           >
             Terminal
@@ -1157,8 +1105,7 @@ export default function ProfilePage() {
             flexDirection: "column",
             gap: "8px",
             zIndex: 5,
-            background: "rgba(0,0,0,0.2)",
-          }}
+            background: "rgba(0,0,0,0.2)"}}
         >
           <div
             style={{
@@ -1167,8 +1114,7 @@ export default function ProfilePage() {
               marginBottom: "16px",
               paddingLeft: "16px",
               letterSpacing: "2px",
-              fontWeight: "700",
-            }}
+              fontWeight: "700"}}
           >
             PORTFOLIO MENU
           </div>
@@ -1182,21 +1128,20 @@ export default function ProfilePage() {
                 style={{
                   padding: "16px 20px",
                   cursor: "pointer",
-                  borderRadius: "12px",
+                  borderRadius: "0px",
                   display: "flex",
                   alignItems: "center",
                   gap: "16px",
                   background: isActive
-                    ? "rgba(232, 160, 32, 0.1)"
+                    ? "rgba(255, 69, 0, 0.1)"
                     : "transparent",
-                  border: `1px solid ${isActive ? "rgba(232, 160, 32, 0.2)" : "transparent"}`,
-                  color: isActive ? "#e8a020" : "rgba(255,255,255,0.6)",
+                  border: `1px solid ${isActive ? "rgba(255, 69, 0, 0.2)" : "transparent"}`,
+                  color: isActive ? "#ff4500" : "rgba(255,255,255,0.6)",
                   fontWeight: isActive ? "600" : "400",
                   transition: "all 0.2s ease",
                   boxShadow: isActive
-                    ? "inset 0 0 20px rgba(232, 160, 32, 0.05)"
-                    : "none",
-                }}
+                    ? "inset 0 0 20px rgba(255, 69, 0, 0.05)"
+                    : "none"}}
                 onMouseOver={(e) => {
                   if (!isActive) e.currentTarget.style.color = "#fff";
                 }}
@@ -1218,16 +1163,14 @@ export default function ProfilePage() {
             flex: 1,
             padding: "40px",
             overflowY: "auto",
-            position: "relative",
-          }}
+            position: "relative"}}
         >
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
               alignItems: "flex-end",
-              marginBottom: "40px",
-            }}
+              marginBottom: "40px"}}
           >
             <div>
               <div
@@ -1239,12 +1182,11 @@ export default function ProfilePage() {
                   fontSize: "13px",
                   marginBottom: "12px",
                   textTransform: "uppercase",
-                  letterSpacing: "1px",
-                }}
+                  letterSpacing: "1px"}}
               >
                 <span>Portfolio</span>
                 <span>/</span>
-                <span style={{ color: "#e8a020" }}>
+                <span style={{ color: "#ff4500" }}>
                   {navItems.find((i) => i.id === activeTab)?.label}
                 </span>
               </div>
@@ -1260,15 +1202,14 @@ export default function ProfilePage() {
                 alignItems: "center",
                 gap: "8px",
                 padding: "10px 20px",
-                borderRadius: "8px",
+                borderRadius: "0px",
                 background: "rgba(255,255,255,0.05)",
                 border: "1px solid rgba(255,255,255,0.1)",
                 color: "#fff",
                 cursor: "pointer",
                 fontSize: "14px",
                 fontWeight: "500",
-                transition: "all 0.2s",
-              }}
+                transition: "all 0.2s"}}
               onMouseOver={(e) => {
                 e.currentTarget.style.background = "rgba(255,255,255,0.1)";
               }}
@@ -1286,19 +1227,17 @@ export default function ProfilePage() {
               style={{
                 padding: "80px 0",
                 textAlign: "center",
-                color: "rgba(232, 160, 32, 0.8)",
-              }}
+                color: "rgba(255, 69, 0, 0.8)"}}
             >
               <div
                 style={{
                   width: "40px",
                   height: "40px",
-                  border: "3px solid rgba(232, 160, 32, 0.2)",
-                  borderTopColor: "#e8a020",
+                  border: "3px solid rgba(255, 69, 0, 0.2)",
+                  borderTopColor: "#ff4500",
                   borderRadius: "50%",
                   animation: "spin 1s linear infinite",
-                  margin: "0 auto 20px",
-                }}
+                  margin: "0 auto 20px"}}
               />
               <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
               Loading secure data...
@@ -1316,8 +1255,7 @@ export default function ProfilePage() {
                 marginBottom: "32px",
                 display: "flex",
                 alignItems: "center",
-                gap: "12px",
-              }}
+                gap: "12px"}}
             >
               <svg
                 width="20"

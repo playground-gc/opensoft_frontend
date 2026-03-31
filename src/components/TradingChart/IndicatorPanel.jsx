@@ -19,20 +19,20 @@ export default function IndicatorPanel({ indicatorKey, data, params, height = 12
 
         const chart = createChart(containerRef.current, {
             layout: {
-                background: { type: 'solid', color: '#1E2329' },
+                background: { type: 'solid', color: 'transparent' },
                 textColor: 'rgba(255,255,255,0.7)',
                 fontFamily: 'Roboto Mono',
             },
             grid: {
-                vertLines: { color: '#2B3139' },
-                horzLines: { color: '#2B3139' },
+                vertLines: { color: 'rgba(255, 255, 255, 0.05)' },
+                horzLines: { color: 'rgba(255, 255, 255, 0.05)' },
             },
             timeScale: {
                 visible: false,
-                borderColor: '#2B3139',
+                borderColor: 'rgba(255, 255, 255, 0.05)',
             },
             rightPriceScale: {
-                borderColor: '#2B3139',
+                borderColor: 'rgba(255, 255, 255, 0.05)',
                 scaleMargins: { top: 0.1, bottom: 0.1 },
             },
             crosshair: { mode: 0 },
@@ -108,16 +108,16 @@ export default function IndicatorPanel({ indicatorKey, data, params, height = 12
                     .setData(data.map(p => ({ time: p.time, value: 30 })));
                 break;
             case 'KDJ':
-                addLine(data.map(p => ({ time: p.time, value: p.k })), params?.kColor ?? '#FCD535');
+                addLine(data.map(p => ({ time: p.time, value: p.k })), params?.kColor ?? '#ff4500');
                 addLine(data.map(p => ({ time: p.time, value: p.d })), params?.dColor ?? '#E040FB');
                 addLine(data.map(p => ({ time: p.time, value: p.j })), params?.jColor ?? '#0ECB81');
                 break;
             case 'StochRSI':
-                addLine(data.map(p => ({ time: p.time, value: p.k })), params?.kColor ?? '#2962FF');
+                addLine(data.map(p => ({ time: p.time, value: p.k })), params?.kColor ?? '#ff4500');
                 addLine(data.filter(p => p.d !== null).map(p => ({ time: p.time, value: p.d })), params?.dColor ?? '#E040FB');
                 break;
             case 'OBV':
-                addLine(data, params?.color ?? '#2962FF');
+                addLine(data, params?.color ?? '#ff4500');
                 break;
             case 'CCI':
                 addLine(data, params?.color ?? '#FF9800');
@@ -127,7 +127,7 @@ export default function IndicatorPanel({ indicatorKey, data, params, height = 12
                     .setData(data.map(p => ({ time: p.time, value: -100 })));
                 break;
             case 'WR':
-                addLine(data, params?.color ?? '#FCD535');
+                addLine(data, params?.color ?? '#ff4500');
                 chart.addSeries(LineSeries, { color: 'rgba(246,70,93,0.3)', lineWidth: 1, lineStyle: 2, priceLineVisible: false, lastValueVisible: false })
                     .setData(data.map(p => ({ time: p.time, value: -20 })));
                 chart.addSeries(LineSeries, { color: 'rgba(14,203,129,0.3)', lineWidth: 1, lineStyle: 2, priceLineVisible: false, lastValueVisible: false })
@@ -164,7 +164,7 @@ export default function IndicatorPanel({ indicatorKey, data, params, height = 12
     };
 
     return (
-        <div style={{ position: 'relative', width: '100%', height, flexShrink: 0, borderTop: '1px solid #2B3139' }}>
+        <div style={{ position: 'relative', width: '100%', height, flexShrink: 0, borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
             <div style={{
                 position: 'absolute', top: 4, left: 8, zIndex: 5,
                 fontSize: '10px', color: 'var(--color-text-muted)', pointerEvents: 'none'

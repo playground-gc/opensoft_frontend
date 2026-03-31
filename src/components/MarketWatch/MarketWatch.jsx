@@ -67,7 +67,7 @@ export default function MarketWatch({
               color: activeTab === tab ? "white" : "var(--color-text-muted)",
               borderBottom:
                 activeTab === tab
-                  ? "2px solid #FCD535"
+                  ? "2px solid #ff4500"
                   : "2px solid transparent",
             }}
             onClick={() => setActiveTab(tab)}
@@ -95,7 +95,7 @@ export default function MarketWatch({
               key={asset.pair}
               style={{
                 ...styles.row,
-                backgroundColor: isMain ? "#2B3139" : "transparent",
+                backgroundColor: isMain ? "rgba(255, 255, 255, 0.05)" : "transparent",
                 borderLeft: isComparing
                   ? "2px solid #0ECB81"
                   : "2px solid transparent",
@@ -123,7 +123,7 @@ export default function MarketWatch({
                       justifyContent: "center",
                       cursor: "pointer",
                       color: isComparing
-                        ? "#FCD535"
+                        ? "#ff4500"
                         : "var(--color-text-muted)",
                     }}
                     title={
@@ -170,7 +170,7 @@ export default function MarketWatch({
                 }}
                 onClick={() => onSelectSymbol(asset.pair)}
               >
-                {asset.change >= 0 ? "+" : ""}
+                {asset.change >= 0 ? <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{ display: "inline-block", verticalAlign: "middle", marginRight: "2px" }}><path d="M12 4l8 16H4z"/></svg> : <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{ display: "inline-block", verticalAlign: "middle", marginRight: "2px" }}><path d="M12 20L4 4h16z"/></svg>}
                 {asset.change.toFixed(2)}%
               </div>
             </div>
@@ -192,8 +192,8 @@ const styles = {
   searchBox: {
     display: "flex",
     alignItems: "center",
-    backgroundColor: "#2B3139",
-    borderRadius: "4px",
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    borderRadius: "0px",
     padding: "6px 12px",
     marginBottom: "12px",
   },
@@ -231,6 +231,6 @@ const styles = {
     padding: "6px 8px",
     margin: "0 -8px",
     alignItems: "center",
-    borderRadius: "4px",
+    borderRadius: "0px",
   },
 };

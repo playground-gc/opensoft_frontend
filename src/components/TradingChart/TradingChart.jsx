@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { createChart, CandlestickSeries, LineSeries, BarSeries, AreaSeries, HistogramSeries } from 'lightweight-charts';
+import { createChart, CandlestickSeries, LineSeries, BarSeries, AreaSeries, HistogramSeries, createSeriesMarkers } from 'lightweight-charts';
 import { Maximize, ChevronDown, LineChart } from 'lucide-react';
 import { dataManager } from '../../services/dataManager';
 import {
@@ -19,7 +19,7 @@ const DEFAULT_CONFIG = {
         enabled: true,
         params: {
             lines: [
-                { enabled: true,  period: 7,  source: 'close', lineWidth: 1, color: '#FCD535' },
+                { enabled: true,  period: 7,  source: 'close', lineWidth: 1, color: '#ff4500' },
                 { enabled: true,  period: 25, source: 'close', lineWidth: 1, color: '#E040FB' },
                 { enabled: true,  period: 99, source: 'close', lineWidth: 1, color: '#AB47BC' },
                 { enabled: false, period: 0,  source: 'close', lineWidth: 1, color: '#F6465D' },
@@ -83,9 +83,9 @@ function applyMainOverlays(chart, candles, indicatorConfig, overlaySeriesRef) {
     if (indicatorConfig.BOLL?.enabled) {
         const p = indicatorConfig.BOLL.params;
         const { upper, middle, lower } = calcBollingerBands(candles, p.period || 20, p.stdDev || 2);
-        const uS = addLine(upper,  p.upperColor  || '#2962FF', 1);
-        const mS = addLine(middle, p.middleColor || '#FCD535', 1, { lineStyle: 1 });
-        const lS = addLine(lower,  p.lowerColor  || '#2962FF', 1);
+        const uS = addLine(upper,  p.upperColor  || '#ff4500', 1);
+        const mS = addLine(middle, p.middleColor || '#ff4500', 1, { lineStyle: 1 });
+        const lS = addLine(lower,  p.lowerColor  || '#ff4500', 1);
         overlaySeriesRef.current['BOLL'] = [uS, mS, lS].filter(Boolean);
     }
 
@@ -102,7 +102,7 @@ function applyMainOverlays(chart, candles, indicatorConfig, overlaySeriesRef) {
         if (sarData.length > 0) {
             const s = chart.addSeries(LineSeries, { color: 'transparent', priceLineVisible: false, lastValueVisible: false });
             s.setData(sarData.map(d => ({ time: d.time, value: d.value })));
-            s.setMarkers(sarData.map(d => ({
+            createSeriesMarkers(s, sarData.map(d => ({
                 time: d.time,
                 position: d.color === '#0ECB81' ? 'belowBar' : 'aboveBar',
                 shape: 'circle', color: d.color, size: 0.5
@@ -219,16 +219,16 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
 
         const chart = createChart(chartContainerRef.current, {
             layout: {
-                background: { type: 'solid', color: '#1E2329' },
+                background: { type: 'solid', color: 'transparent' },
                 textColor: 'rgba(255,255,255,0.9)',
                 fontFamily: 'Roboto Mono',
             },
             grid: {
-                vertLines: { color: '#2B3139' },
-                horzLines: { color: '#2B3139' },
+                vertLines: { color: 'rgba(255, 255, 255, 0.05)' },
+                horzLines: { color: 'rgba(255, 255, 255, 0.05)' },
             },
-            timeScale: { timeVisible: true, secondsVisible: false, borderColor: '#2B3139' },
-            rightPriceScale: { borderColor: '#2B3139', mode: isComparing ? 2 : 0 },
+            timeScale: { timeVisible: true, secondsVisible: false, borderColor: 'rgba(255, 255, 255, 0.05)' },
+            rightPriceScale: { borderColor: 'rgba(255, 255, 255, 0.05)', mode: isComparing ? 2 : 0 },
             crosshair: { mode: 0 }
         });
 
@@ -249,12 +249,12 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
             mainSeries = chart.addSeries(BarSeries, { ...fmt, upColor: '#0ECB81', downColor: '#F6465D' });
         } else if (chartType === 'Area') {
             mainSeries = chart.addSeries(AreaSeries, {
-                ...fmt, lineColor: '#2962FF',
-                topColor: 'rgba(41,98,255,0.4)', bottomColor: 'rgba(41,98,255,0.05)',
+                ...fmt, lineColor: '#ff4500',
+                topColor: 'rgba(255, 69, 0, 0.4)', bottomColor: 'rgba(255, 69, 0, 0.05)',
                 crosshairMarkerVisible: true
             });
         } else {
-            mainSeries = chart.addSeries(LineSeries, { ...fmt, color: '#FCD535', lineWidth: 2, crosshairMarkerVisible: true });
+            mainSeries = chart.addSeries(LineSeries, { ...fmt, color: '#ff4500', lineWidth: 2, crosshairMarkerVisible: true });
         }
 
         chartRef.current    = chart;
@@ -288,7 +288,7 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
         }
 
         // Comparison symbols
-        const compColors = ['#FCD535', '#2962FF', '#E040FB'];
+        const compColors = ['#ff4500', '#ff4500', '#E040FB'];
         comparisonSymbols.forEach((sym, idx) => {
             const ls = chart.addSeries(LineSeries, {
                 color: compColors[idx % compColors.length], lineWidth: 2, crosshairMarkerVisible: true
@@ -391,7 +391,7 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
     }, [indicatorConfig, chartVersion]);
 
     const activeCount = Object.values(indicatorConfig).filter(v => v?.enabled).length;
-    const compColors  = ['#FCD535', '#2962FF', '#E040FB'];
+    const compColors  = ['#ff4500', '#ff4500', '#E040FB'];
 
     // Cursor style based on active tool
     const toolCursor = {
@@ -423,7 +423,7 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
                         {timeframes.map(tf => (
                             <span
                                 key={tf}
-                                style={{ color: activeTimeframe === tf ? '#FCD535' : 'var(--color-text-muted)', cursor: 'pointer', fontWeight: '500' }}
+                                style={{ color: activeTimeframe === tf ? '#ff4500' : 'var(--color-text-muted)', cursor: 'pointer', fontWeight: '500' }}
                                 onClick={() => {
                                     if (tf !== activeTimeframe) {
                                         setActiveTimeframe(tf);
@@ -540,16 +540,16 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const s = {
-    container:    { width: '100%', height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: '#1E2329', overflow: 'hidden' },
-    toolbar:      { height: '36px', borderBottom: '1px solid #2B3139', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', fontSize: '12px', flexShrink: 0 },
+    container:    { width: '100%', height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: 'transparent', overflow: 'hidden' },
+    toolbar:      { height: '36px', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', fontSize: '12px', flexShrink: 0 },
     toolbarLeft:  { display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--color-text-muted)' },
     toolbarRight: { display: 'flex', alignItems: 'center' },
-    timeframes:   { display: 'flex', gap: '8px', marginLeft: '12px', paddingRight: '12px', borderRight: '1px solid #2B3139' },
+    timeframes:   { display: 'flex', gap: '8px', marginLeft: '12px', paddingRight: '12px', borderRight: '1px solid rgba(255, 255, 255, 0.05)' },
     menuWrapper:  { position: 'relative', marginLeft: '4px' },
     menuLabel:    { display: 'flex', alignItems: 'center', cursor: 'pointer', color: 'var(--color-text-main)' },
-    menuDropdown: { position: 'absolute', top: '24px', left: 0, backgroundColor: '#1E2329', border: '1px solid #2B3139', padding: '4px', borderRadius: '4px', zIndex: 10, display: 'flex', flexDirection: 'column' },
-    menuItem:     { padding: '4px 8px', cursor: 'pointer', color: 'var(--color-text-main)', borderRadius: '4px' },
-    iconBtn:      { marginLeft: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', borderRadius: '4px' },
+    menuDropdown: { position: 'absolute', top: '24px', left: 0, backgroundColor: 'transparent', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '4px', borderRadius: "0px", zIndex: 10, display: 'flex', flexDirection: 'column' },
+    menuItem:     { padding: '4px 8px', cursor: 'pointer', color: 'var(--color-text-main)', borderRadius: "0px" },
+    iconBtn:      { marginLeft: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', borderRadius: "0px" },
     // ── New layout ──
     body:         { flex: 1, display: 'flex', flexDirection: 'row', overflow: 'hidden', minHeight: 0 },
     chartArea:    { flex: 1, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', minWidth: 0 },
@@ -562,21 +562,21 @@ const s = {
     subPanels:    { flexShrink: 0, width: '100%', display: 'flex', flexDirection: 'column', maxHeight: '45%', overflowY: 'auto' },
     indicatorBtn: {
         display: 'flex', alignItems: 'center', gap: '4px',
-        background: 'none', border: '1px solid #2B3139',
-        color: 'var(--color-text-muted)', borderRadius: '4px', padding: '3px 7px',
+        background: 'none', border: '1px solid rgba(255, 255, 255, 0.05)',
+        color: 'var(--color-text-muted)', borderRadius: "0px", padding: '3px 7px',
         cursor: 'pointer', fontFamily: 'inherit', fontSize: '11px',
         transition: 'border-color 0.2s, color 0.2s',
         position: 'relative'
     },
     badge: {
-        background: '#FCD535', color: '#1E2329', borderRadius: '8px',
+        background: '#ff4500', color: 'transparent', borderRadius: "0px",
         padding: '0 5px', fontSize: '10px', fontWeight: '700',
         marginLeft: '2px'
     },
     toast: {
         position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)',
-        backgroundColor: 'rgba(30,35,41,0.95)', color: '#fff', padding: '8px 16px',
-        borderRadius: '6px', border: '1px solid #FCD535', zIndex: 100000,
+        backgroundColor: 'rgba(10, 10, 10, 0.95)', color: '#fff', padding: '8px 16px',
+        borderRadius: "0px", border: '1px solid #ff4500', zIndex: 100000,
         fontSize: '13px', pointerEvents: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
     },
 };
