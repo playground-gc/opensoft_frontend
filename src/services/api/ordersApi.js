@@ -5,11 +5,21 @@ import { API_BASE_URL, getAuthHeader } from './apiConfig';
  * @description REST API calls for ordering: place new, delete, and find.
  */
 
-export const placeOrder = async ({ symbol, type, side, price, quantity }) => {
+export const placeOrder = async ({ symbol, type, side, price, stop_price, limit_price, quantity }) => {
     try {
-        const payload = { symbol, type, side, quantity };
-        if (price) payload.price = parseFloat(price);
-        
+        const payload = { symbol, type, side, quantity: parseFloat(quantity) };
+
+        // limit order uses `price`
+        if (type === 'limit' && price) payload.price = parseFloat(price);
+
+        // stop_limit / stop_market use `stop_price`; stop_limit also needs `limit_price`
+        if ((type === 'stop_limit' || type === 'stop_market') && stop_price) {
+            payload.stop_price = parseFloat(stop_price);
+        }
+        if (type === 'stop_limit' && limit_price) {
+            payload.limit_price = parseFloat(limit_price);
+        }
+
         const response = await fetch(`${API_BASE_URL}/orders`, {
             method: 'POST',
             headers: {
@@ -22,7 +32,7 @@ export const placeOrder = async ({ symbol, type, side, price, quantity }) => {
         if (response.ok) {
             return { success: true, orderId: data.order_id };
         } else {
-            return { success: false, error: data.message || 'Failed to place order' };
+            return { success: false, error: data.detail || data.message || 'Failed to place order' };
         }
     } catch (err) {
         console.error('PlaceOrder API Error:', err);
