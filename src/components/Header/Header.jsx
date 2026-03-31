@@ -78,8 +78,17 @@ export default function Header({ symbol }) {
 
       <div style={styles.rightGroup}>
         {userName ? (
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <div style={{ color: "#FCD535", fontWeight: "bold" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <div
+              style={{
+                color: "#e8a020",
+                fontWeight: "600",
+                textShadow: "0 0 8px rgba(232, 160, 32, 0.4)",
+                letterSpacing: "1px",
+                textTransform: "uppercase",
+                fontSize: "13px",
+              }}
+            >
               {userName}
             </div>
             <Link to="/portfolio" style={styles.profileBtn}>
@@ -96,7 +105,14 @@ export default function Header({ symbol }) {
             </button>
           </div>
         ) : (
-          <div style={{ color: "var(--color-text-muted)", fontSize: "12px" }}>
+          <div
+            style={{
+              color: "rgba(255, 255, 255, 0.5)",
+              fontSize: "12px",
+              textTransform: "uppercase",
+              letterSpacing: "1px",
+            }}
+          >
             Guest Mode
           </div>
         )}
@@ -110,23 +126,26 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "0 16px",
+    padding: "0 24px",
     height: "100%",
     width: "100%",
   },
-  leftGroup: { display: "flex", alignItems: "center", gap: "24px" },
-  rightGroup: { display: "flex", alignItems: "center", gap: "12px" },
+  leftGroup: { display: "flex", alignItems: "center", gap: "32px" },
+  rightGroup: { display: "flex", alignItems: "center", gap: "16px" },
   symbolGroup: { display: "flex", flexDirection: "column" },
   symbol: {
-    fontSize: "20px",
-    fontWeight: "bold",
+    fontSize: "24px",
+    fontWeight: "800",
     margin: 0,
-    color: "var(--color-text-main)",
+    color: "#fff",
+    textShadow: "0 0 10px rgba(255, 255, 255, 0.2)",
   },
   link: {
     fontSize: "11px",
-    color: "var(--color-text-muted)",
-    textDecoration: "underline",
+    color: "rgba(255, 255, 255, 0.5)",
+    textDecoration: "none",
+    textTransform: "uppercase",
+    letterSpacing: "1px",
   },
   statGroup: {
     display: "flex",
@@ -135,49 +154,60 @@ const styles = {
   },
   statLabel: {
     fontSize: "11px",
-    color: "var(--color-text-muted)",
-    marginBottom: "2px",
+    color: "rgba(255, 255, 255, 0.5)",
+    marginBottom: "4px",
+    textTransform: "uppercase",
+    letterSpacing: "1px",
   },
-  statValue: { fontSize: "12px", fontWeight: "500" },
-  price: { fontSize: "16px", fontWeight: "bold" },
+  statValue: { fontSize: "14px", fontWeight: "600", color: "#fff" },
+  price: { fontSize: "18px", fontWeight: "bold" },
   loginBtn: {
     backgroundColor: "transparent",
-    color: "#FCD535",
-    border: "none",
-    fontWeight: "bold",
-    padding: "6px 16px",
+    color: "#e8a020",
+    border: "1px solid rgba(232, 160, 32, 0.3)",
+    borderRadius: "6px",
+    fontWeight: "600",
+    padding: "8px 16px",
     cursor: "pointer",
-    fontSize: "14px",
+    fontSize: "12px",
+    textTransform: "uppercase",
+    letterSpacing: "1px",
   },
   signupBtn: {
-    backgroundColor: "#FCD535",
-    color: "#1E2329",
-    border: "none",
-    borderRadius: "4px",
-    fontWeight: "bold",
-    padding: "6px 16px",
+    backgroundColor: "rgba(232, 160, 32, 0.1)",
+    color: "#e8a020",
+    border: "1px solid rgba(232, 160, 32, 0.3)",
+    borderRadius: "6px",
+    fontWeight: "600",
+    padding: "8px 16px",
     cursor: "pointer",
-    fontSize: "14px",
+    fontSize: "12px",
+    textTransform: "uppercase",
+    letterSpacing: "1px",
   },
   profileBtn: {
-    backgroundColor: "#FCD535",
-    color: "#1E2329",
-    border: "none",
-    borderRadius: "4px",
-    fontWeight: "bold",
-    padding: "4px 12px",
+    backgroundColor: "rgba(232, 160, 32, 0.1)",
+    color: "#e8a020",
+    border: "1px solid rgba(232, 160, 32, 0.3)",
+    borderRadius: "6px",
+    fontWeight: "600",
+    padding: "6px 14px",
     cursor: "pointer",
     fontSize: "12px",
     textDecoration: "none",
+    textTransform: "uppercase",
+    letterSpacing: "1px",
   },
   logoutBtn: {
-    backgroundColor: "transparent",
-    color: "#FCD535",
-    border: "1px solid #FCD535",
-    borderRadius: "4px",
-    fontWeight: "bold",
-    padding: "4px 12px",
+    backgroundColor: "rgba(246, 70, 93, 0.1)",
+    color: "#f6465d",
+    border: "1px solid rgba(246, 70, 93, 0.3)",
+    borderRadius: "6px",
+    fontWeight: "600",
+    padding: "6px 14px",
     cursor: "pointer",
     fontSize: "12px",
+    textTransform: "uppercase",
+    letterSpacing: "1px",
   },
 };

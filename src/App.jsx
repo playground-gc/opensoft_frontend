@@ -55,7 +55,10 @@ function TradingTerminal() {
             comparisonSymbols={comparisonSymbols}
           />
         </div>
-        <div className="panel" style={{ flexShrink: 0, height: "300px" }}>
+        <div
+          className="panel"
+          style={{ flexShrink: 0, minHeight: "380px", flex: "1 0 auto" }}
+        >
           <PlaceOrder symbol={activeSymbol} isAuthenticated={isAuthenticated} />
         </div>
         <div className="panel" style={{ flexShrink: 0, height: "240px" }}>
