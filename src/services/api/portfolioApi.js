@@ -42,3 +42,33 @@ export const fetchPortfolio = async () => {
         return { success: false, error: 'Network failure' };
     }
 };
+
+export const fetchBalanceHistory = async ({ limit } = {}) => {
+    try {
+        const params = new URLSearchParams();
+        if (limit) params.set('limit', String(limit));
+        const qs = params.toString();
+        const url = qs
+            ? `${API_BASE_URL}/my/balance-history?${qs}`
+            : `${API_BASE_URL}/my/balance-history`;
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: getAuthHeader()
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+            return { success: true, history: Array.isArray(data) ? data : [] };
+        }
+
+        return {
+            success: false,
+            error: data.detail || data.message || 'Failed to fetch balance history'
+        };
+    } catch (err) {
+        console.error('FetchBalanceHistory API Error:', err);
+        return { success: false, error: 'Network failure' };
+    }
+};
+
