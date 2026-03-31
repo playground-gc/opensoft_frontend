@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/Header/Header";
 import MarketWatch from "./components/MarketWatch/MarketWatch";
@@ -8,18 +8,18 @@ import PlaceOrder from "./components/PlaceOrder/PlaceOrder";
 import UserPanel from "./components/UserPanel/UserPanel";
 import AuthModal from "./components/AuthModal/AuthModal";
 import { useAuthStore } from "./store";
+import ProfilePage from "./pages/ProfilePage.jsx";
 
 function TradingTerminal() {
-  const { token, username: storedUsername } = useAuthStore();
+  const { token } = useAuthStore();
   const [activeSymbol, setActiveSymbol] = useState("AAPL_S");
-  const [user, setUser] = useState(storedUsername || null);
   const [isAuthenticated, setIsAuthenticated] = useState(!!token);
   const [showAuth, setShowAuth] = useState(!token);
 
   const [comparisonSymbols, setComparisonSymbols] = useState([]);
 
   const handleLoginSuccess = (username) => {
-    setUser(username);
+    void username;
     setIsAuthenticated(true);
     setShowAuth(false);
   };
@@ -85,10 +85,13 @@ function TradingTerminal() {
 
 function App() {
   return (
+    // <ProfilePage/>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/trading-charts" replace />} />
         <Route path="/trading-charts" element={<TradingTerminal />} />
+        <Route path="/portfolio" element={<ProfilePage />} />
+        <Route path="/portfolio/*" element={<ProfilePage />} />
         <Route path="*" element={<Navigate to="/trading-charts" replace />} />
       </Routes>
     </BrowserRouter>
