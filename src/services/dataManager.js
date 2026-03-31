@@ -121,24 +121,31 @@ class DataManager {
             low: newPrice,
             close: newPrice
         };
-
-        this.sockets[pair] = ws;
+    } else {
+        candle.close = newPrice;
+        if (newPrice > candle.high) candle.high = newPrice;
+        if (newPrice < candle.low) candle.low = newPrice;
     }
 
-    connectWebSockets() {
-        this.basePairs.forEach(pair => this.setupSocket(pair));
+    if (Math.random() < 0.1) {
+        buffer.latestTrades.unshift({
+            price: newPrice,
+            size: +(Math.random() * 2).toFixed(3),
+            time: Date.now(),
+            isBuyerMaker: Math.random() > 0.5
+        });
+        if (buffer.latestTrades.length > 30) {
+            buffer.latestTrades.pop();
+        }
     }
 
-    startFlushLoop() {
-        setInterval(() => {
-            Object.keys(this.buffers).forEach(symbol => {
-                const subs = this.subscribers.get(symbol);
-                if (subs && subs.size > 0) {
-                    const snapshot = JSON.parse(JSON.stringify(this.buffers[symbol]));
-                    subs.forEach(cb => cb(snapshot));
-                }
-            });
-        }, 100); 
+    if (Math.random() < 0.2) {
+       if (buffer.orderBook.bids.length > 0) {
+         buffer.orderBook.bids[0].size = +(Math.random() * 5).toFixed(3);
+       }
+       if (buffer.orderBook.asks.length > 0) {
+         buffer.orderBook.asks[0].size = +(Math.random() * 5).toFixed(3);
+       }
     }
   }
 
@@ -203,6 +210,13 @@ class DataManager {
         console.warn(`Symbol ${symbol} not supported by DataManager`);
         return () => {};
     }
+    const subs = this.subscribers.get(symbol);
+    subs.add(callback);
+    callback({ ...this.buffers[symbol] });
+    return () => {
+      subs.delete(callback);
+    };
+  }
 }
 
 export const dataManager = new DataManager();
