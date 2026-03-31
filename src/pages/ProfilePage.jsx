@@ -269,10 +269,10 @@ export default function ProfilePage() {
     <main className={styles.page}>
       <div className={styles.headerRow}>
         <div>
-          <h1 className={styles.headerTitle}>Profile Dashboard</h1>
-          <p className={styles.headerSubtitle}>
-            User account, holdings, orders, trades, and balance history.
-          </p>
+          <h1 className={styles.headerTitle}>Dashboard</h1>
+          {/*<p className={styles.headerSubtitle}>*/}
+          {/*  User account, holdings, orders, trades, and balance history.*/}
+          {/*</p>*/}
         </div>
         <button type="button" onClick={loadProfileData} className={styles.refreshBtn}>
           Refresh
