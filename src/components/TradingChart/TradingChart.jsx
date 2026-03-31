@@ -132,6 +132,8 @@ function applyMainOverlays(chart, candles, indicatorConfig, overlaySeriesRef) {
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function TradingChart({ symbol, comparisonSymbols = [] }) {
     const wrapperRef        = useRef();
+    const legendCandleRef   = useRef(null);
+    const legendIndicatorsRef = useRef(null);
     const chartContainerRef = useRef();
     const chartRef          = useRef();
     const seriesRef         = useRef();
@@ -356,7 +358,59 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
             }));
         });
 
+        
+        chart.subscribeCrosshairMove(param => {
+            if (param.time) {
+                const mainData = param.seriesData.get(mainSeries);
+                if (mainData && legendCandleRef.current) {
+                    const o = mainData.open !== undefined ? mainData.open : mainData.value;
+                    const h = mainData.high !== undefined ? mainData.high : mainData.value;
+                    const l = mainData.low !== undefined ? mainData.low : mainData.value;
+                    const c = mainData.close !== undefined ? mainData.close : mainData.value;
+                    const v = param.seriesData.get(volSeries)?.value || 0;
+
+                    let color = 'var(--color-text-main)';
+                    if (c > o) color = '#0ECB81';
+                    else if (c < o) color = '#F6465D';
+
+                    const fp = (val) => val !== undefined ? val.toFixed(priceScale) : 'n/a';
+                    const fv = (val) => val >= 1000 ? (val/1000).toFixed(1) + 'k' : val.toString();
+
+                    legendCandleRef.current.innerHTML = `
+                        <span>O: <span style="color:${color}">${fp(o)}</span></span>
+                        <span>H: <span style="color:${color}">${fp(h)}</span></span>
+                        <span>L: <span style="color:${color}">${fp(l)}</span></span>
+                        <span>C: <span style="color:${color}">${fp(c)}</span></span>
+                        <span>Vol: <span style="color:${color}">${fv(v)}</span></span>
+                    `;
+                }
+
+                if (legendIndicatorsRef.current) {
+                    let indHtml = '';
+                    Object.keys(overlaySeriesRef.current).forEach(key => {
+                        const s = overlaySeriesRef.current[key];
+                        if (Array.isArray(s)) {
+                            const vals = s.map(ser => param.seriesData.get(ser)?.value).filter(v => v !== undefined);
+                            if (vals.length > 0) {
+                                indHtml += `<span>${key}: <span style="color:#ff4500">${vals.map(v => v.toFixed(priceScale)).join(', ')}</span></span>`;
+                            }
+                        } else {
+                            const val = param.seriesData.get(s)?.value;
+                            if (val !== undefined) {
+                                indHtml += `<span>${key}: <span style="color:#ff4500">${val.toFixed(priceScale)}</span></span>`;
+                            }
+                        }
+                    });
+                    legendIndicatorsRef.current.innerHTML = indHtml;
+                }
+            } else {
+                if (legendCandleRef.current) legendCandleRef.current.innerHTML = '';
+                if (legendIndicatorsRef.current) legendIndicatorsRef.current.innerHTML = '';
+            }
+        });
+
         window.addEventListener('resize', handleResize);
+
         handleResize();
         // Increment version → reliably triggers the [indicatorConfig, chartVersion] effect
         setChartVersion(v => v + 1);
@@ -488,6 +542,11 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
 
                 {/* Chart area with canvas overlay */}
                 <div style={s.chartArea}>
+                    {/* Legend / Info Overlay */}
+                    <div style={{ position: 'absolute', top: 8, left: 16, zIndex: 10, pointerEvents: 'none', display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '12px', fontFamily: 'Roboto Mono, monospace' }}>
+                        <div ref={legendCandleRef} style={{ display: 'flex', gap: '12px', color: 'var(--color-text-muted)' }}></div>
+                        <div ref={legendIndicatorsRef} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', color: 'var(--color-text-muted)' }}></div>
+                    </div>
                     <div ref={chartContainerRef} style={s.chartWrapper} />
                     {/* Drawing canvas — pointer-events only when not in pointer/move mode */}
                     <canvas
