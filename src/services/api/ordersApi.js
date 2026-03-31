@@ -36,14 +36,40 @@ export const cancelOrder = async (orderId) => {
             method: 'DELETE',
             headers: getAuthHeader()
         });
-        const data = await response.json();
+        const raw = await response.text();
+        const data = raw ? JSON.parse(raw) : {};
         if (response.ok) {
             return { success: true };
         } else {
-            return { success: false, error: data.message || 'Failed to cancel order' };
+            return {
+                success: false,
+                error: data.detail || data.message || 'Failed to cancel order'
+            };
         }
     } catch (err) {
         console.error('CancelOrder API Error:', err);
+        return { success: false, error: 'Network failure' };
+    }
+};
+
+export const fetchOrderById = async (orderId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/orders/${orderId}`, {
+            method: 'GET',
+            headers: getAuthHeader()
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+            return { success: true, order: data };
+        }
+
+        return {
+            success: false,
+            error: data.detail || data.message || 'Failed to fetch order details'
+        };
+    } catch (err) {
+        console.error('FetchOrderById API Error:', err);
         return { success: false, error: 'Network failure' };
     }
 };

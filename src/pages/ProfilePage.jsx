@@ -4,6 +4,7 @@ import {
   cancelOrder,
   fetchBalanceHistory,
   fetchMe,
+  fetchOrderById,
   fetchOrders,
   fetchPortfolio,
   fetchTrades,
@@ -33,9 +34,14 @@ const fmtDateTime = (value) => {
   return Number.isNaN(dt.getTime()) ? String(value) : dt.toLocaleString();
 };
 
+const normalizeOrderType = (type) => String(type || "").toLowerCase();
+
 const isOrderCancellable = (order) => {
   const status = (order?.status || "").toLowerCase();
-  return ["open", "partial", "pending_trigger", "triggered"].includes(status);
+  const type = normalizeOrderType(order?.order_type);
+  const isOpenState = ["open", "partial", "pending_trigger", "triggered"].includes(status);
+  const isLimitOrStop = type === "limit" || type.includes("stop");
+  return isOpenState && isLimitOrStop;
 };
 
 const normalizeMe = (data) => {
@@ -130,6 +136,10 @@ export default function ProfilePage() {
   const [balanceHistory, setBalanceHistory] = useState([]);
   const [cancellingId, setCancellingId] = useState("");
   const [activeTab, setActiveTab] = useState("holdings");
+  const [expandedOrderId, setExpandedOrderId] = useState("");
+  const [orderDetailsById, setOrderDetailsById] = useState({});
+  const [orderDetailLoadingId, setOrderDetailLoadingId] = useState("");
+  const [orderDetailErrors, setOrderDetailErrors] = useState({});
 
   const loadProfileData = useCallback(async () => {
 	if (!token) {
@@ -164,6 +174,7 @@ export default function ProfilePage() {
 		  : [],
 	);
 	setOrders(ordersRes.success ? ordersRes.orders : []);
+  setExpandedOrderId("");
 	setTrades(tradesRes.success ? tradesRes.trades : []);
 	setBalanceHistory(historyRes.success ? historyRes.history : []);
 
@@ -188,6 +199,38 @@ export default function ProfilePage() {
   }, [loadProfileData]);
 
   const points = useMemo(() => normalizeBalancePoints(balanceHistory), [balanceHistory]);
+
+  const onToggleOrderDetails = async (orderId) => {
+    if (!orderId) return;
+
+    if (expandedOrderId === orderId) {
+      setExpandedOrderId("");
+      return;
+    }
+
+    setExpandedOrderId(orderId);
+
+    if (orderDetailsById[orderId] || orderDetailLoadingId === orderId) {
+      return;
+    }
+
+    setOrderDetailLoadingId(orderId);
+    setOrderDetailErrors((prev) => ({ ...prev, [orderId]: "" }));
+
+    const detailRes = await fetchOrderById(orderId);
+
+    if (!detailRes.success) {
+      setOrderDetailErrors((prev) => ({
+        ...prev,
+        [orderId]: detailRes.error || "Failed to load order details.",
+      }));
+      setOrderDetailLoadingId("");
+      return;
+    }
+
+    setOrderDetailsById((prev) => ({ ...prev, [orderId]: detailRes.order || {} }));
+    setOrderDetailLoadingId("");
+  };
 
   const onCancelOrder = async (orderId) => {
 	if (!orderId) return;
@@ -347,6 +390,7 @@ export default function ProfilePage() {
             <table className={styles.table}>
               <thead>
                 <tr>
+                  <th className={styles.cell}>Details</th>
                   <th className={styles.cell}>Created</th>
                   <th className={styles.cell}>Symbol</th>
                   <th className={styles.cell}>Type</th>
@@ -361,7 +405,7 @@ export default function ProfilePage() {
               <tbody>
                 {!orders.length && (
                   <tr>
-                    <td className={styles.cell} colSpan={9}>
+                    <td className={styles.cell} colSpan={10}>
                       No orders found.
                     </td>
                   </tr>
@@ -370,39 +414,141 @@ export default function ProfilePage() {
                   const orderId = order.id || "";
                   const canCancel = isOrderCancellable(order);
                   return (
-                    <tr key={orderId || `${order.symbol}-${order.created_at}`}>
-                      <td className={styles.cell}>{fmtDateTime(order.created_at)}</td>
-                      <td className={styles.cell}>{order.symbol || "-"}</td>
-                      <td className={styles.cell}>{order.order_type || "-"}</td>
-                      <td
-                        className={cx(
-                          styles.cell,
-                          order.side === "buy" ? styles.positive : styles.negative,
-                        )}
-                      >
-                        {order.side || "-"}
-                      </td>
-                      <td className={styles.cell}>{fmtNumber(order.quantity, 4)}</td>
-                      <td className={styles.cell}>{fmtNumber(order.filled_qty, 4)}</td>
-                      <td className={styles.cell}>
-                        {fmtCurrency(order.price ?? order.limit_price ?? order.stop_price)}
-                      </td>
-                      <td className={styles.cell}>{order.status || "-"}</td>
-                      <td className={styles.cell}>
-                        {canCancel ? (
-                          <button
-                            type="button"
-                            disabled={cancellingId === orderId}
-                            onClick={() => onCancelOrder(orderId)}
-                            className={styles.cancelBtn}
-                          >
-                            {cancellingId === orderId ? "Cancelling..." : "Cancel"}
-                          </button>
-                        ) : (
-                          <span className={styles.muted}>-</span>
-                        )}
-                      </td>
-                    </tr>
+                    <React.Fragment key={orderId || `${order.symbol}-${order.created_at}`}>
+                      <tr>
+                        <td className={styles.cell}>
+                          {orderId ? (
+                            <button
+                              type="button"
+                              onClick={() => onToggleOrderDetails(orderId)}
+                              className={styles.detailBtn}
+                            >
+                              {expandedOrderId === orderId ? "Hide" : "View"}
+                            </button>
+                          ) : (
+                            <span className={styles.muted}>-</span>
+                          )}
+                        </td>
+                        <td className={styles.cell}>{fmtDateTime(order.created_at)}</td>
+                        <td className={styles.cell}>{order.symbol || "-"}</td>
+                        <td className={styles.cell}>{order.order_type || "-"}</td>
+                        <td
+                          className={cx(
+                            styles.cell,
+                            order.side === "buy" ? styles.positive : styles.negative,
+                          )}
+                        >
+                          {order.side || "-"}
+                        </td>
+                        <td className={styles.cell}>{fmtNumber(order.quantity, 4)}</td>
+                        <td className={styles.cell}>{fmtNumber(order.filled_qty, 4)}</td>
+                        <td className={styles.cell}>
+                          {fmtCurrency(order.price ?? order.limit_price ?? order.stop_price)}
+                        </td>
+                        <td className={styles.cell}>{order.status || "-"}</td>
+                        <td className={styles.cell}>
+                          {canCancel ? (
+                            <button
+                              type="button"
+                              disabled={cancellingId === orderId}
+                              onClick={() => onCancelOrder(orderId)}
+                              className={styles.cancelBtn}
+                            >
+                              {cancellingId === orderId ? "Cancelling..." : "Cancel"}
+                            </button>
+                          ) : (
+                            <span className={styles.muted}>Not eligible</span>
+                          )}
+                        </td>
+                      </tr>
+
+                      {expandedOrderId === orderId && (
+                        <tr>
+                          <td className={styles.detailRowCell} colSpan={10}>
+                            {orderDetailLoadingId === orderId && (
+                              <div className={styles.muted}>Loading order details...</div>
+                            )}
+
+                            {orderDetailLoadingId !== orderId && orderDetailErrors[orderId] && (
+                              <div className={styles.errorText}>{orderDetailErrors[orderId]}</div>
+                            )}
+
+                            {orderDetailLoadingId !== orderId && !orderDetailErrors[orderId] && orderDetailsById[orderId] && (
+                              <div className={styles.detailsGrid}>
+                                <div className={styles.detailItem}>
+                                  <span className={styles.detailLabel}>Order ID</span>
+                                  <span className={styles.detailValue}>{orderDetailsById[orderId].id || "-"}</span>
+                                </div>
+                                <div className={styles.detailItem}>
+                                  <span className={styles.detailLabel}>Status</span>
+                                  <span className={styles.detailValue}>{orderDetailsById[orderId].status || "-"}</span>
+                                </div>
+                                <div className={styles.detailItem}>
+                                  <span className={styles.detailLabel}>Type</span>
+                                  <span className={styles.detailValue}>{orderDetailsById[orderId].order_type || "-"}</span>
+                                </div>
+                                <div className={styles.detailItem}>
+                                  <span className={styles.detailLabel}>Side</span>
+                                  <span className={styles.detailValue}>{orderDetailsById[orderId].side || "-"}</span>
+                                </div>
+                                <div className={styles.detailItem}>
+                                  <span className={styles.detailLabel}>Price</span>
+                                  <span className={styles.detailValue}>
+                                    {fmtCurrency(
+                                      orderDetailsById[orderId].price ??
+                                        orderDetailsById[orderId].limit_price ??
+                                        orderDetailsById[orderId].stop_price,
+                                    )}
+                                  </span>
+                                </div>
+                                <div className={styles.detailItem}>
+                                  <span className={styles.detailLabel}>Stop Price</span>
+                                  <span className={styles.detailValue}>
+                                    {fmtCurrency(orderDetailsById[orderId].stop_price)}
+                                  </span>
+                                </div>
+                                <div className={styles.detailItem}>
+                                  <span className={styles.detailLabel}>Limit Price</span>
+                                  <span className={styles.detailValue}>
+                                    {fmtCurrency(orderDetailsById[orderId].limit_price)}
+                                  </span>
+                                </div>
+                                <div className={styles.detailItem}>
+                                  <span className={styles.detailLabel}>Quantity</span>
+                                  <span className={styles.detailValue}>
+                                    {fmtNumber(orderDetailsById[orderId].quantity, 4)}
+                                  </span>
+                                </div>
+                                <div className={styles.detailItem}>
+                                  <span className={styles.detailLabel}>Filled Qty</span>
+                                  <span className={styles.detailValue}>
+                                    {fmtNumber(orderDetailsById[orderId].filled_qty, 4)}
+                                  </span>
+                                </div>
+                                <div className={styles.detailItem}>
+                                  <span className={styles.detailLabel}>Created</span>
+                                  <span className={styles.detailValue}>
+                                    {fmtDateTime(orderDetailsById[orderId].created_at)}
+                                  </span>
+                                </div>
+                                <div className={styles.detailItem}>
+                                  <span className={styles.detailLabel}>Updated</span>
+                                  <span className={styles.detailValue}>
+                                    {fmtDateTime(orderDetailsById[orderId].updated_at)}
+                                  </span>
+                                </div>
+                                <div className={styles.detailItem}>
+                                  <span className={styles.detailLabel}>Expires</span>
+                                  <span className={styles.detailValue}>
+                                    {fmtDateTime(orderDetailsById[orderId].expires_at)}
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   );
                 })}
               </tbody>
