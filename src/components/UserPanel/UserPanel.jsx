@@ -3,7 +3,7 @@ import { usePortfolio } from '../../hooks/usePortfolio';
 
 export default function UserPanel({ isAuthenticated }) {
     const [activeTab, setActiveTab] = useState('Holdings');
-    const { holdings, orders, trades, unrealisedPnL, totalEquity, loading } = usePortfolio(isAuthenticated);
+    const { holdings, orders, trades, unrealisedPnL, totalEquity, cashBalance, loading } = usePortfolio(isAuthenticated);
     
     const tabs = [`Open Orders(${orders.length})`, 'Holdings', `Trade History(${trades.length})`, 'Bots'];
     
@@ -120,12 +120,15 @@ export default function UserPanel({ isAuthenticated }) {
 
                         <div style={styles.portfolioSummary}>
                              <div style={styles.balanceCard}>
-                                <div style={styles.balanceLabel}>Account Equity (Estimated)</div>
+                                <div style={styles.balanceLabel}>Account Equity</div>
                                 <div style={styles.balanceValue}>
-                                    $ {totalEquity.toLocaleString(undefined, {minimumFractionDigits: 2})} 
+                                    $ {totalEquity.toLocaleString(undefined, {minimumFractionDigits: 2})}
                                     <span style={{...styles.balanceDim, marginLeft: 8, color: unrealisedPnL >= 0 ? 'var(--color-neon-green)' : 'var(--color-coral-red)'}}>
                                         ({unrealisedPnL >= 0 ? '+' : ''}{unrealisedPnL.toFixed(2)})
                                     </span>
+                                </div>
+                                <div style={{...styles.balanceLabel, marginTop: 4}}>
+                                    Cash: ${cashBalance.toLocaleString(undefined, {minimumFractionDigits: 2})}
                                 </div>
                              </div>
                         </div>
@@ -148,6 +151,7 @@ const styles = {
     cell: { textAlign: 'left' },
     empty: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)', fontSize: '13px' },
     portfolio: { display: 'flex', padding: '16px 0' },
+    portfolioSummary: { borderTop: '1px solid var(--color-bg-border)', paddingTop: '8px', marginTop: '8px' },
     balanceCard: { display: 'flex', flexDirection: 'column' },
     balanceLabel: { color: 'var(--color-text-muted)', fontSize: '13px', marginBottom: '8px' },
     balanceValue: { fontSize: '24px', fontWeight: 'bold' },

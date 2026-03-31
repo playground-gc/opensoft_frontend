@@ -139,6 +139,7 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
     const compSeriesRefs    = useRef({});
     const volumeSeriesRef   = useRef();
     const canvasRef         = useRef();
+    const historyLoadedRef  = useRef(false); // tracks whether we've seeded chart with REST history
 
     const [toastMsg, setToastMsg] = useState('');
     const showToast = useCallback((msg) => {
@@ -153,8 +154,11 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
         drawings, selectedId,
     } = useDrawingTools(canvasRef, chartRef, showToast);
 
-    const [activeTimeframe, setActiveTimeframe] = useState('1D');
-    const timeframes = ['1s', '15m', '1H', '4H', '1D', '1W'];
+    const [activeTimeframe, setActiveTimeframe] = useState('1m');
+    const timeframes = ['1s', '10s', '1m'];
+
+    // Map UI timeframe label → backend interval string (backend supports 1s, 10s, 1m only)
+    const tfToInterval = { '1s': '1s', '10s': '10s', '1m': '1m' };
 
     const [chartType, setChartType]   = useState('Candles');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -292,28 +296,62 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
             compSeriesRefs.current[sym] = ls;
         });
 
+        const loadSeriesData = (candles) => {
+            if (!candles || candles.length === 0) return;
+            try {
+                if (seriesRef.current) {
+                    if (chartType === 'Area' || chartType === 'Line') {
+                        seriesRef.current.setData(candles.map(c => ({ time: c.time, value: c.close })));
+                    } else {
+                        seriesRef.current.setData(candles);
+                    }
+                }
+                if (volumeSeriesRef.current) {
+                    volumeSeriesRef.current.setData(candles.map(c => ({
+                        time: c.time, value: c.volume || 0,
+                        color: c.close >= (c.open ?? c.close) ? '#0ECB81' : '#F6465D',
+                    })));
+                }
+            } catch (_) {}
+        };
+
         const unsubs = [];
         unsubs.push(dataManager.subscribe(symbol, (data) => {
-            if (seriesRef.current) {
-                if (chartType === 'Area' || chartType === 'Line') {
-                    seriesRef.current.update({ time: data.chartCandle.time, value: data.chartCandle.close });
-                } else {
-                    seriesRef.current.update(data.chartCandle);
-                }
+            // When backend history first arrives, seed the full series
+            if (data.historyLoaded && !historyLoadedRef.current) {
+                historyLoadedRef.current = true;
+                const candles = dataManager.getCandles(symbol);
+                loadSeriesData(candles);
+                setChartVersion(v => v + 1); // re-apply overlays
             }
-            if (volumeSeriesRef.current) {
-                const c = data.chartCandle;
-                volumeSeriesRef.current.update({
-                    time: c.time,
-                    value: c.volume || 0,
-                    color: c.close >= (c.open ?? c.close) ? '#0ECB81' : '#F6465D'
-                });
+
+            // Live candle tick update
+            const c = data.chartCandle;
+            if (c && c.time > 0) {
+                try {
+                    if (seriesRef.current) {
+                        if (chartType === 'Area' || chartType === 'Line') {
+                            seriesRef.current.update({ time: c.time, value: c.close });
+                        } else {
+                            seriesRef.current.update(c);
+                        }
+                    }
+                    if (volumeSeriesRef.current) {
+                        volumeSeriesRef.current.update({
+                            time:  c.time,
+                            value: c.volume || 0,
+                            color: c.close >= (c.open ?? c.close) ? '#0ECB81' : '#F6465D',
+                        });
+                    }
+                } catch (_) {}
             }
         }));
         comparisonSymbols.forEach(sym => {
             unsubs.push(dataManager.subscribe(sym, (data) => {
                 if (compSeriesRefs.current[sym]) {
-                    compSeriesRefs.current[sym].update({ time: data.chartCandle.time, value: data.chartCandle.close });
+                    try {
+                        compSeriesRefs.current[sym].update({ time: data.chartCandle.time, value: data.chartCandle.close });
+                    } catch (_) {}
                 }
             }));
         });
@@ -329,6 +367,7 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
             chart.remove();
             compSeriesRefs.current   = {};
             overlaySeriesRef.current = {};
+            historyLoadedRef.current = false; // reset so next symbol/interval load triggers reload
         };
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [symbol, comparisonSymbols, chartType]);
@@ -385,7 +424,13 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
                             <span
                                 key={tf}
                                 style={{ color: activeTimeframe === tf ? '#FCD535' : 'var(--color-text-muted)', cursor: 'pointer', fontWeight: '500' }}
-                                onClick={() => setActiveTimeframe(tf)}
+                                onClick={() => {
+                                    if (tf !== activeTimeframe) {
+                                        setActiveTimeframe(tf);
+                                        historyLoadedRef.current = false;
+                                        dataManager.changeInterval(symbol, tfToInterval[tf] || '1m');
+                                    }
+                                }}
                             >
                                 {tf}
                             </span>

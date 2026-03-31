@@ -50,10 +50,10 @@ export const cancelOrder = async (orderId) => {
 
 export const fetchOrders = async (params = {}) => {
     try {
-        const url = new URL(`${API_BASE_URL}/orders`);
-        Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+        const qs = new URLSearchParams(params).toString();
+        const urlStr = qs ? `${API_BASE_URL}/orders?${qs}` : `${API_BASE_URL}/orders`;
 
-        const response = await fetch(url.toString(), {
+        const response = await fetch(urlStr, {
             method: 'GET',
             headers: getAuthHeader()
         });
@@ -69,15 +69,21 @@ export const fetchOrders = async (params = {}) => {
     }
 };
 
-export const fetchTrades = async () => {
+export const fetchTrades = async ({ symbol, limit } = {}) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/orders?status=filled`, {
+        const params = new URLSearchParams();
+        if (symbol) params.set('symbol', symbol);
+        if (limit)  params.set('limit', limit);
+        const qs = params.toString();
+        const url = qs ? `${API_BASE_URL}/my/trades?${qs}` : `${API_BASE_URL}/my/trades`;
+
+        const response = await fetch(url, {
             method: 'GET',
             headers: getAuthHeader()
         });
         const data = await response.json();
         if (response.ok) {
-            return { success: true, trades: Array.isArray(data) ? data : (data.orders || data.trades || []) };
+            return { success: true, trades: Array.isArray(data) ? data : [] };
         } else {
             return { success: false, error: 'Failed to fetch trades' };
         }

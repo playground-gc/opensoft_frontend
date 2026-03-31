@@ -81,18 +81,6 @@ export default function AuthModal({ onClose, onSuccess }) {
                         />
                     </div>
 
-                    {isSignUp && (
-                        <div style={styles.inputGroup}>
-                            <label style={styles.label}>Email (Sign Up Only)</label>
-                            <input 
-                                type="email" 
-                                style={styles.input} 
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
-                        </div>
-                    )}
-
                     <div style={styles.inputGroup}>
                         <label style={styles.label}>Password</label>
                         <input 

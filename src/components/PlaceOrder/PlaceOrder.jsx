@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useOrderSubmit } from '../../hooks/useOrderSubmit';
+import { usePortfolio } from '../../hooks/usePortfolio';
 import { dataManager } from '../../services/dataManager';
 
 export default function PlaceOrder({ symbol, isAuthenticated }) {
     const { submit, isSubmitting, error: submitError } = useOrderSubmit();
+    const { cashBalance, holdings } = usePortfolio(isAuthenticated);
     const [marginMode, setMarginMode] = useState('Spot');
     const [orderType, setOrderType] = useState('Limit');
     const [price, setPrice] = useState('');
@@ -14,8 +16,9 @@ export default function PlaceOrder({ symbol, isAuthenticated }) {
     const [buyError, setBuyError] = useState('');
     const [sellError, setSellError] = useState('');
 
-    const availableBalanceUSD = 100000;
-    const availableBalanceCrypto = 50; 
+    const availableBalanceUSD = cashBalance;
+    const heldPosition = holdings.find(h => h.symbol === symbol);
+    const availableBalanceCrypto = heldPosition ? heldPosition.quantity : 0;
 
     useEffect(() => {
         const unsub = dataManager.subscribe(symbol, (data) => {
@@ -46,9 +49,10 @@ export default function PlaceOrder({ symbol, isAuthenticated }) {
         if (orderType !== 'Market' && (!parseFloat(price) || parseFloat(price) <= 0)) {
             setBuyError('Enter a valid price'); return;
         }
+        const typeMap = { 'Limit': 'limit', 'Market': 'market', 'Stop Limit': 'stop_limit' };
         const result = await submit({
             symbol,
-            type: orderType.toLowerCase(),
+            type: typeMap[orderType] || 'limit',
             side: 'buy',
             price: orderType === 'Market' ? null : price,
             quantity: qty
@@ -68,9 +72,10 @@ export default function PlaceOrder({ symbol, isAuthenticated }) {
         if (orderType !== 'Market' && (!parseFloat(price) || parseFloat(price) <= 0)) {
             setSellError('Enter a valid price'); return;
         }
+        const typeMap = { 'Limit': 'limit', 'Market': 'market', 'Stop Limit': 'stop_limit' };
         const result = await submit({
             symbol,
-            type: orderType.toLowerCase(),
+            type: typeMap[orderType] || 'limit',
             side: 'sell',
             price: orderType === 'Market' ? null : price,
             quantity: qty
