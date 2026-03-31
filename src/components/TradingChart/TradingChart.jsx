@@ -29,6 +29,19 @@ const DEFAULT_CONFIG = {
                 { enabled: false, period: 0,  source: 'close', lineWidth: 1, color: '#FF9800' },
             ]
         }
+    },
+    EMA: {
+        enabled: false,
+        params: {
+            lines: [
+                { enabled: true,  period: 7,  source: 'close', lineWidth: 1, color: '#FCD535' },
+                { enabled: true,  period: 25, source: 'close', lineWidth: 1, color: '#E040FB' },
+                { enabled: true,  period: 99, source: 'close', lineWidth: 1, color: '#AB47BC' },
+                { enabled: false, period: 0,  source: 'close', lineWidth: 1, color: '#F6465D' },
+                { enabled: false, period: 0,  source: 'close', lineWidth: 1, color: '#0ECB81' },
+                { enabled: false, period: 0,  source: 'close', lineWidth: 1, color: '#FF9800' },
+            ]
+        }
     }
 };
 
@@ -55,7 +68,7 @@ function computeSubData(key, candles, params) {
 }
 
 // ─── Apply main overlay series onto the chart ─────────────────────────────────
-function applyMainOverlays(chart, candles, indicatorConfig, overlaySeriesRef) {
+function applyMainOverlays(chart, candles, indicatorConfig, overlaySeriesRef, indicatorDataRef) {
     const addLine = (data, color, lineWidth = 1, opts = {}) => {
         if (!data || data.length === 0) return null;
         const s = chart.addSeries(LineSeries, {
@@ -65,20 +78,29 @@ function applyMainOverlays(chart, candles, indicatorConfig, overlaySeriesRef) {
         return s;
     };
 
+    indicatorDataRef.current = {};
+
     // Multi-line indicators: MA, EMA, WMA
     ['MA', 'EMA', 'WMA'].forEach(key => {
         if (!indicatorConfig[key]?.enabled) return;
         const p = indicatorConfig[key].params;
         const calcFn = key === 'MA' ? calcSMA : key === 'EMA' ? calcEMA : calcWMA;
         const seriesList = [];
+        const dataList = [];
         (p.lines || []).forEach(line => {
             if (line.enabled && line.period > 0) {
                 const data = calcFn(candles, line.period, line.source || 'close');
                 const s = addLine(data, line.color, line.lineWidth || 1);
-                if (s) seriesList.push(s);
+                if (s) {
+                    seriesList.push(s);
+                    dataList.push({ period: line.period, color: line.color, data });
+                }
             }
         });
-        if (seriesList.length > 0) overlaySeriesRef.current[key] = seriesList;
+        if (seriesList.length > 0) {
+            overlaySeriesRef.current[key] = seriesList;
+            indicatorDataRef.current[key] = dataList;
+        }
     });
 
     // Bollinger Bands
@@ -89,12 +111,17 @@ function applyMainOverlays(chart, candles, indicatorConfig, overlaySeriesRef) {
         const mS = addLine(middle, p.middleColor || '#FCD535', 1, { lineStyle: 1 });
         const lS = addLine(lower,  p.lowerColor  || '#2962FF', 1);
         overlaySeriesRef.current['BOLL'] = [uS, mS, lS].filter(Boolean);
+        indicatorDataRef.current['BOLL'] = { upper, middle, lower };
     }
 
     // VWAP
     if (indicatorConfig.VWAP?.enabled) {
-        const s = addLine(calcVWAP(candles), indicatorConfig.VWAP.params?.color || '#00BCD4', 1, { lineStyle: 2 });
-        if (s) overlaySeriesRef.current['VWAP'] = s;
+        const data = calcVWAP(candles);
+        const s = addLine(data, indicatorConfig.VWAP.params?.color || '#00BCD4', 1, { lineStyle: 2 });
+        if (s) {
+            overlaySeriesRef.current['VWAP'] = s;
+            indicatorDataRef.current['VWAP'] = data;
+        }
     }
 
     // Parabolic SAR
@@ -110,6 +137,7 @@ function applyMainOverlays(chart, candles, indicatorConfig, overlaySeriesRef) {
                 shape: 'circle', color: d.color, size: 0.5
             })));
             overlaySeriesRef.current['SAR'] = s;
+            indicatorDataRef.current['SAR'] = sarData;
         }
     }
 
@@ -119,15 +147,22 @@ function applyMainOverlays(chart, candles, indicatorConfig, overlaySeriesRef) {
         const stData = calcSupertrend(candles, p.period || 10, p.multiplier || 3);
         if (stData.length > 0) {
             const s = addLine(stData.map(d => ({ time: d.time, value: d.value })), '#0ECB81', 2);
-            if (s) overlaySeriesRef.current['SUPER'] = s;
+            if (s) {
+                overlaySeriesRef.current['SUPER'] = s;
+                indicatorDataRef.current['SUPER'] = stData;
+            }
         }
     }
 
     // TRIX
     if (indicatorConfig.TRIX?.enabled) {
         const p = indicatorConfig.TRIX.params;
-        const s = addLine(calcTRIX(candles, p.period || 14), p.color || '#00E5FF', 1);
-        if (s) overlaySeriesRef.current['TRIX'] = s;
+        const data = calcTRIX(candles, p.period || 14);
+        const s = addLine(data, p.color || '#00E5FF', 1);
+        if (s) {
+            overlaySeriesRef.current['TRIX'] = s;
+            indicatorDataRef.current['TRIX'] = data;
+        }
     }
 }
 
@@ -142,6 +177,9 @@ export default function TradingChart({ symbol, comparisonSymbols = [], toolbarRi
     const volumeSeriesRef   = useRef();
     const canvasRef         = useRef();
     const toolbarScrollRef  = useRef();
+    const indicatorDataRef  = useRef({}); // Stores processed indicator data for legend lookup
+
+    const [legendData, setLegendData] = useState(null); // { time, open, high, low, close, change, range, indicators: { MA: [], EMA: [], ... } }
 
     const [toastMsg, setToastMsg] = useState('');
     const showToast = useCallback((msg) => {
@@ -375,9 +413,69 @@ export default function TradingChart({ symbol, comparisonSymbols = [], toolbarRi
         });
         overlaySeriesRef.current = {};
 
-        applyMainOverlays(chart, candles, indicatorConfig, overlaySeriesRef);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        applyMainOverlays(chart, candles, indicatorConfig, overlaySeriesRef, indicatorDataRef);
     }, [indicatorConfig, chartVersion]);
+
+    // ─── Crosshair move handling ───
+    useEffect(() => {
+        const chart = chartRef.current;
+        if (!chart) return;
+
+        const updateLegend = (param) => {
+            const candles = dataManager.getCandles(symbol);
+            if (!candles || candles.length === 0) return;
+
+            let dataPoint = null;
+            if (param && param.time) {
+                dataPoint = candles.find(c => c.time === param.time);
+            }
+            // Fallback to last candle if no hover or no data point found
+            if (!dataPoint) {
+                dataPoint = candles[candles.length - 1];
+            }
+
+            if (dataPoint) {
+                const indicators = {};
+                const t = dataPoint.time;
+                
+                // Extract indicator values at time t
+                Object.entries(indicatorDataRef.current).forEach(([key, val]) => {
+                    if (Array.isArray(val)) {
+                        indicators[key] = val.map(line => {
+                            const found = line.data.find(d => d.time === t);
+                            return { period: line.period, color: line.color, value: found ? found.value : null };
+                        });
+                    } else if (val.upper !== undefined) {
+                        // Bollinger
+                        const u = val.upper.find(d => d.time === t);
+                        const m = val.middle.find(d => d.time === t);
+                        const l = val.lower.find(d => d.time === t);
+                        indicators[key] = { upper: u?.value, middle: m?.value, lower: l?.value };
+                    } else {
+                        // Others
+                        const found = val.find(d => d.time === t);
+                        indicators[key] = found?.value;
+                    }
+                });
+
+                const change = ((dataPoint.close - dataPoint.open) / dataPoint.open) * 100;
+                const range = ((dataPoint.high - dataPoint.low) / dataPoint.open) * 100;
+
+                setLegendData({
+                    ...dataPoint,
+                    change,
+                    range,
+                    indicators
+                });
+            }
+        };
+
+        chart.subscribeCrosshairMove(updateLegend);
+        // Initial set
+        updateLegend();
+
+        return () => chart.unsubscribeCrosshairMove(updateLegend);
+    }, [symbol, chartVersion, indicatorConfig]);
 
     const activeCount = Object.values(indicatorConfig).filter(v => v?.enabled).length;
     const compColors  = ['#FCD535', '#2962FF', '#E040FB'];
@@ -528,7 +626,72 @@ export default function TradingChart({ symbol, comparisonSymbols = [], toolbarRi
 
                         {/* Chart area with canvas overlay */}
                         <div style={s.chartArea}>
-                            <div ref={chartContainerRef} style={s.chartWrapper} />
+                            <div ref={chartContainerRef} style={s.chartWrapper}>
+                                {legendData && (
+                                    <div style={s.legendOverlay}>
+                                        <div style={s.legendRow}>
+                                            <span style={{ color: 'var(--color-text-muted)' }}>
+                                                {(() => {
+                                                    const d = new Date(legendData.time * 1000);
+                                                    return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+                                                })()}
+                                            </span>
+                                            <span style={s.legendLabel}>Open</span>
+                                            <span style={{ color: legendData.close >= legendData.open ? '#0ECB81' : '#F6465D' }}>{legendData.open.toFixed(2)}</span>
+                                            <span style={s.legendLabel}>High</span>
+                                            <span style={{ color: legendData.close >= legendData.open ? '#0ECB81' : '#F6465D' }}>{legendData.high.toFixed(2)}</span>
+                                            <span style={s.legendLabel}>Low</span>
+                                            <span style={{ color: legendData.close >= legendData.open ? '#0ECB81' : '#F6465D' }}>{legendData.low.toFixed(2)}</span>
+                                            <span style={s.legendLabel}>Close</span>
+                                            <span style={{ color: legendData.close >= legendData.open ? '#0ECB81' : '#F6465D' }}>{legendData.close.toFixed(2)}</span>
+                                        </div>
+                                        <div style={s.legendRow}>
+                                            <span style={s.legendLabel}>CHANGE</span>
+                                            <span style={{ color: legendData.change >= 0 ? '#0ECB81' : '#F6465D' }}>{legendData.change >= 0 ? '+' : ''}{legendData.change.toFixed(2)}%</span>
+                                            <span style={s.legendLabel}>Range</span>
+                                            <span style={{ color: 'var(--color-text-main)' }}>{legendData.range.toFixed(2)}%</span>
+                                        </div>
+
+                                        {/* Indicator Values */}
+                                        {Object.entries(legendData.indicators).map(([key, val]) => {
+                                            if (!val) return null;
+                                            if (Array.isArray(val)) {
+                                                return (
+                                                    <div key={key} style={s.legendRow}>
+                                                        {val.map((line, i) => (
+                                                            <span key={i} style={{ color: line.color, marginRight: 12 }}>
+                                                                {key}({line.period}) {line.value !== null ? line.value.toFixed(2) : '-'}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                );
+                                            }
+                                            if (key === 'BOLL') {
+                                                return (
+                                                    <div key={key} style={s.legendRow}>
+                                                        <span style={{ color: indicatorConfig.BOLL.params.upperColor || '#2962FF', marginRight: 12 }}>
+                                                            BOLL(UP) {val.upper?.toFixed(2) ?? '-'}
+                                                        </span>
+                                                        <span style={{ color: indicatorConfig.BOLL.params.middleColor || '#FCD535', marginRight: 12 }}>
+                                                            BOLL(MID) {val.middle?.toFixed(2) ?? '-'}
+                                                        </span>
+                                                        <span style={{ color: indicatorConfig.BOLL.params.lowerColor || '#2962FF', marginRight: 12 }}>
+                                                            BOLL(LOW) {val.lower?.toFixed(2) ?? '-'}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            }
+                                            return (
+                                                <div key={key} style={s.legendRow}>
+                                                    <span style={{ color: 'var(--color-text-main)' }}>
+                                                        {key} {typeof val === 'number' ? val.toFixed(2) : '-'}
+                                                    </span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
                             {/* Drawing canvas — pointer-events only when not in pointer/move mode */}
                             <canvas
                                 ref={canvasRef}
@@ -630,4 +793,15 @@ const s = {
         borderRadius: '6px', border: '1px solid #FCD535', zIndex: 100000,
         fontSize: '13px', pointerEvents: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
     },
+    legendOverlay: {
+        position: 'absolute', top: '8px', left: '12px',
+        zIndex: 10, pointerEvents: 'none',
+        display: 'flex', flexDirection: 'column', gap: '4px',
+        fontSize: '11px', fontFamily: 'Roboto Mono, monospace',
+    },
+    legendRow: {
+        display: 'flex', alignItems: 'center', gap: '8px',
+        whiteSpace: 'nowrap',
+    },
+    legendLabel: { color: 'var(--color-text-muted)', marginLeft: '4px' },
 };
