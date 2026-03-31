@@ -1,37 +1,37 @@
-import { defineConfig, loadEnv } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig, loadEnv } from "vite";
+import react from "@vitejs/plugin-react";
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
+  const env = loadEnv(mode, process.cwd(), "");
 
-  const apiTarget = env.VITE_API_BASE_URL || 'http://localhost:8000'
-  const wsTarget  = env.VITE_WS_BASE_URL  || 'ws://localhost:8001'
+  const apiTarget = env.VITE_API_BASE_URL || "http://localhost:8000";
+  const wsTarget = env.VITE_WS_BASE_URL || "ws://localhost:8001";
 
   return {
     plugins: [
       react(),
       {
-        name: 'html-rewrites',
+        name: "html-rewrites",
         configureServer(server) {
           server.middlewares.use((req, _res, next) => {
-            if (req.url === '/dashboard') req.url = '/dashboard.html';
+            if (req.url === "/terminal") req.url = "/terminal.html";
             next();
           });
         },
       },
     ],
     optimizeDeps: {
-      include: ['zustand'],
+      include: ["zustand"],
     },
     server: {
       proxy: {
-        '/api': {
+        "/api": {
           target: apiTarget,
           changeOrigin: true,
-          secure: apiTarget.startsWith('https'),
+          secure: apiTarget.startsWith("https"),
         },
-        '/ws': {
+        "/ws": {
           target: wsTarget,
           ws: true,
           changeOrigin: true,
@@ -41,10 +41,10 @@ export default defineConfig(({ mode }) => {
     build: {
       rollupOptions: {
         input: {
-          main: 'index.html',
-          dashboard: 'dashboard.html',
+          main: "index.html",
+          terminal: "terminal.html",
         },
       },
     },
-  }
-})
+  };
+});
