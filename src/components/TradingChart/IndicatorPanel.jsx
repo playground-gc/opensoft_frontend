@@ -149,9 +149,19 @@ export default function IndicatorPanel({ indicatorKey, data, params, height = 12
                 chartRef.current.applyOptions({ width: containerRef.current.clientWidth });
             }
         };
+
+        const panelResizeObserver = new ResizeObserver(() => {
+            handleResize();
+        });
+
+        if (containerRef.current) {
+            panelResizeObserver.observe(containerRef.current);
+        }
+
         window.addEventListener('resize', handleResize);
 
         return () => {
+            panelResizeObserver.disconnect();
             window.removeEventListener('resize', handleResize);
             chart.remove();
             chartRef.current = null;

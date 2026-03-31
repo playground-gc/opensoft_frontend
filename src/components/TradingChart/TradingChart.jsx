@@ -228,6 +228,14 @@ export default function TradingChart({ symbol, comparisonSymbols = [], toolbarRi
             resizeCanvas();
         };
 
+        const chartResizeObserver = new ResizeObserver(() => {
+            handleResize();
+        });
+
+        if (chartContainerRef.current) {
+            chartResizeObserver.observe(chartContainerRef.current);
+        }
+
         const isCrypto     = symbol.includes('USDT') && symbol !== 'BTC/USDT';
         const priceScale   = isCrypto ? 4 : 2;
         const isComparing  = comparisonSymbols.length > 0;
@@ -343,6 +351,7 @@ export default function TradingChart({ symbol, comparisonSymbols = [], toolbarRi
         setChartVersion(v => v + 1);
 
         return () => {
+            chartResizeObserver.disconnect();
             window.removeEventListener('resize', handleResize);
             unsubs.forEach(u => u());
             chart.remove();
