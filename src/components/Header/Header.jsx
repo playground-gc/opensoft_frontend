@@ -67,8 +67,8 @@ export default function Header({ symbol }) {
       </div>
 
       <div style={styles.rightGroup}>
-          {user ? (
-              <div style={{color: '#FCD535', fontWeight: 'bold'}}>{user}</div>
+          {userName ? (
+              <div style={{color: '#FCD535', fontWeight: 'bold'}}>{userName}</div>
           ) : (
              <div style={{color: 'var(--color-text-muted)', fontSize: '12px'}}>Guest Mode</div>
           )}

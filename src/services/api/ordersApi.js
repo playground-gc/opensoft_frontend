@@ -52,7 +52,7 @@ export const fetchOrders = async (params = {}) => {
     try {
         const url = new URL(`${API_BASE_URL}/orders`);
         Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
-        
+
         const response = await fetch(url.toString(), {
             method: 'GET',
             headers: getAuthHeader()
@@ -65,6 +65,24 @@ export const fetchOrders = async (params = {}) => {
         }
     } catch (err) {
         console.error('FetchOrders API Error:', err);
+        return { success: false, error: 'Network failure' };
+    }
+};
+
+export const fetchTrades = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/orders?status=filled`, {
+            method: 'GET',
+            headers: getAuthHeader()
+        });
+        const data = await response.json();
+        if (response.ok) {
+            return { success: true, trades: Array.isArray(data) ? data : (data.orders || data.trades || []) };
+        } else {
+            return { success: false, error: 'Failed to fetch trades' };
+        }
+    } catch (err) {
+        console.error('FetchTrades API Error:', err);
         return { success: false, error: 'Network failure' };
     }
 };

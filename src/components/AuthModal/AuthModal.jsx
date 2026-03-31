@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { register, login } from '../../services/api';
 import { useAuthStore } from '../../store';
 import { useGoogleLogin } from '@react-oauth/google';
 import { login, register } from '../../services/api/authApi';
@@ -9,7 +8,6 @@ export default function AuthModal({ onClose, onSuccess }) {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [username, setUsername] = useState('');
     const [error, setError] = useState('');
     const [isSignUp, setIsSignUp] = useState(false);
     const [loading, setLoading] = useState(false);
