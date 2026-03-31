@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { dataManager } from "../../services/dataManager";
 import { useAuthStore } from "../../store";
 import AuthModal from "../AuthModal/AuthModal";
@@ -81,6 +82,9 @@ export default function Header({ symbol }) {
             <div style={{ color: "#FCD535", fontWeight: "bold" }}>
               {userName}
             </div>
+            <Link to="/portfolio" style={styles.profileBtn}>
+              Profile
+            </Link>
             <button
               onClick={() => {
                 clearAuth();
@@ -154,6 +158,17 @@ const styles = {
     padding: "6px 16px",
     cursor: "pointer",
     fontSize: "14px",
+  },
+  profileBtn: {
+    backgroundColor: "#FCD535",
+    color: "#1E2329",
+    border: "none",
+    borderRadius: "4px",
+    fontWeight: "bold",
+    padding: "4px 12px",
+    cursor: "pointer",
+    fontSize: "12px",
+    textDecoration: "none",
   },
   logoutBtn: {
     backgroundColor: "transparent",
