@@ -9,25 +9,9 @@ import {
   fetchTrades,
 } from "../services/api";
 import { useAuthStore } from "../store";
+import styles from "./ProfilePage.module.css";
 
-const cardStyle = {
-  background: "var(--color-bg-panel)",
-  border: "1px solid var(--color-bg-border)",
-  borderRadius: "8px",
-  padding: "14px",
-};
-
-const tableStyle = {
-  width: "100%",
-  borderCollapse: "collapse",
-  fontSize: "12px",
-};
-
-const tdStyle = {
-  padding: "8px 10px",
-  borderBottom: "1px solid var(--color-bg-border)",
-  textAlign: "left",
-};
+const cx = (...classes) => classes.filter(Boolean).join(" ");
 
 const numberOrZero = (value) => {
   const n = Number(value);
@@ -89,7 +73,7 @@ const normalizeBalancePoints = (history = []) =>
 
 const BalanceChart = ({ points }) => {
   if (!points.length) {
-	return <div style={{ color: "var(--color-text-muted)" }}>No history data yet.</div>;
+	return <div className={styles.emptyHistory}>No history data yet.</div>;
   }
 
   const width = 860;
@@ -109,29 +93,29 @@ const BalanceChart = ({ points }) => {
 	.join(" ");
 
   return (
-	<svg
-	  width="100%"
-	  height={height}
-	  viewBox={`0 0 ${width} ${height}`}
-	  style={{ display: "block", background: "#11161c", borderRadius: "6px" }}
-	  role="img"
-	  aria-label="Balance history line chart"
-	>
-	  <line x1={pad} y1={pad} x2={pad} y2={height - pad} stroke="#2B3139" />
-	  <line x1={pad} y1={height - pad} x2={width - pad} y2={height - pad} stroke="#2B3139" />
-	  <path d={linePath} fill="none" stroke="#0ECB81" strokeWidth="2" />
-	  {points.map((p, i) => (
-		<circle key={`${p.x}-${p.y}-${i}`} cx={toX(i)} cy={toY(p.y)} r="2.5" fill="#0ECB81">
-		  <title>{`${fmtDateTime(p.date)} | ${p.symbol} | ${p.reason} | delta ${fmtCurrency(p.delta)} | balance ${fmtCurrency(p.y)}`}</title>
-		</circle>
-	  ))}
-	  <text x={pad + 4} y={pad + 10} fill="#848E9C" fontSize="10">
-		Max: {fmtCurrency(maxY)}
-	  </text>
-	  <text x={pad + 4} y={height - pad - 4} fill="#848E9C" fontSize="10">
-		Min: {fmtCurrency(minY)}
-	  </text>
-	</svg>
+			<svg
+			  width="100%"
+			  height={height}
+			  viewBox={`0 0 ${width} ${height}`}
+			  className={styles.chartSvg}
+			  role="img"
+			  aria-label="Balance history line chart"
+			>
+			  <line x1={pad} y1={pad} x2={pad} y2={height - pad} stroke="#2B3139" />
+			  <line x1={pad} y1={height - pad} x2={width - pad} y2={height - pad} stroke="#2B3139" />
+			  <path d={linePath} fill="none" stroke="#0ECB81" strokeWidth="2" />
+			  {points.map((p, i) => (
+				<circle key={`${p.x}-${p.y}-${i}`} cx={toX(i)} cy={toY(p.y)} r="2.5" fill="#0ECB81">
+				  <title>{`${fmtDateTime(p.date)} | ${p.symbol} | ${p.reason} | delta ${fmtCurrency(p.delta)} | balance ${fmtCurrency(p.y)}`}</title>
+				</circle>
+			  ))}
+			  <text x={pad + 4} y={pad + 10} fill="#848E9C" fontSize="10">
+				Max: {fmtCurrency(maxY)}
+			  </text>
+			  <text x={pad + 4} y={height - pad - 4} fill="#848E9C" fontSize="10">
+				Min: {fmtCurrency(minY)}
+			  </text>
+			</svg>
   );
 };
 
@@ -145,6 +129,7 @@ export default function ProfilePage() {
   const [trades, setTrades] = useState([]);
   const [balanceHistory, setBalanceHistory] = useState([]);
   const [cancellingId, setCancellingId] = useState("");
+  const [activeTab, setActiveTab] = useState("holdings");
 
   const loadProfileData = useCallback(async () => {
 	if (!token) {
@@ -218,260 +203,261 @@ export default function ProfilePage() {
   };
 
   if (!token) {
-	return (
-	  <main style={{ padding: "24px", color: "var(--color-text-main)" }}>
-		<h1 style={{ marginBottom: "8px" }}>Profile</h1>
-		<p style={{ color: "var(--color-text-muted)", marginBottom: "12px" }}>
-		  You need to log in to view your profile data.
-		</p>
-		<Link to="/trading-charts" style={{ color: "#0ECB81" }}>
-		  Go to trading terminal
-		</Link>
-	  </main>
-	);
+    return (
+      <main className={styles.loggedOut}>
+        <h1 className={styles.loggedOutTitle}>Profile</h1>
+        <p className={styles.loggedOutText}>You need to log in to view your profile data.</p>
+        <Link to="/trading-charts" className={styles.backLink}>
+          Go to trading terminal
+        </Link>
+      </main>
+    );
   }
 
   return (
-	<main
-	  style={{
-		height: "100vh",
-		overflowY: "auto",
-		background: "var(--color-bg-deep)",
-		color: "var(--color-text-main)",
-		padding: "18px",
-	  }}
-	>
-	  <div style={{ marginBottom: "14px", display: "flex", justifyContent: "space-between" }}>
-		<div>
-		  <h1 style={{ fontSize: "20px", marginBottom: "4px" }}>Profile Dashboard</h1>
-		  <p style={{ color: "var(--color-text-muted)" }}>
-			User account, holdings, orders, trades, and balance history.
-		  </p>
-		</div>
-		<button
-		  type="button"
-		  onClick={loadProfileData}
-		  style={{
-			alignSelf: "start",
-			padding: "8px 12px",
-			borderRadius: "6px",
-			border: "1px solid var(--color-bg-border)",
-			background: "#1d2a23",
-			color: "#0ECB81",
-			cursor: "pointer",
-		  }}
-		>
-		  Refresh
-		</button>
-	  </div>
+    <main className={styles.page}>
+      <div className={styles.headerRow}>
+        <div>
+          <h1 className={styles.headerTitle}>Profile Dashboard</h1>
+          <p className={styles.headerSubtitle}>
+            User account, holdings, orders, trades, and balance history.
+          </p>
+        </div>
+        <button type="button" onClick={loadProfileData} className={styles.refreshBtn}>
+          Refresh
+        </button>
+      </div>
 
-	  {loading && <div style={{ marginBottom: "12px" }}>Loading profile data...</div>}
-	  {!loading && error && (
-		<div style={{ marginBottom: "12px", color: "#F6465D" }}>{error}</div>
-	  )}
+      {loading && <div className={styles.loading}>Loading profile data...</div>}
+      {!loading && error && <div className={styles.error}>{error}</div>}
 
-	  <section
-		style={{
-		  display: "grid",
-		  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-		  gap: "10px",
-		  marginBottom: "12px",
-		}}
-	  >
-		<article style={cardStyle}>
-		  <div style={{ color: "var(--color-text-muted)", marginBottom: "6px" }}>Username</div>
-		  <strong>{me.username || "-"}</strong>
-		</article>
-		<article style={cardStyle}>
-		  <div style={{ color: "var(--color-text-muted)", marginBottom: "6px" }}>Email</div>
-		  <strong>{me.email || "-"}</strong>
-		</article>
-		<article style={cardStyle}>
-		  <div style={{ color: "var(--color-text-muted)", marginBottom: "6px" }}>Cash Balance</div>
-		  <strong>{fmtCurrency(me.cashBalance)}</strong>
-		</article>
-		<article style={cardStyle}>
-		  <div style={{ color: "var(--color-text-muted)", marginBottom: "6px" }}>
-			Portfolio Value
-		  </div>
-		  <strong>{fmtCurrency(me.portfolioValue)}</strong>
-		</article>
-		<article style={cardStyle}>
-		  <div style={{ color: "var(--color-text-muted)", marginBottom: "6px" }}>Unrealized PnL</div>
-		  <strong style={{ color: me.totalUnrealizedPnl >= 0 ? "#0ECB81" : "#F6465D" }}>
-			{fmtCurrency(me.totalUnrealizedPnl)}
-		  </strong>
-		</article>
-		<article style={cardStyle}>
-		  <div style={{ color: "var(--color-text-muted)", marginBottom: "6px" }}>
-			Total Account Value
-		  </div>
-		  <strong>{fmtCurrency(me.totalAccountValue)}</strong>
-		</article>
-	  </section>
+      <section className={styles.summarySection}>
+        <article className={styles.sectionCard}>
+          <div className={styles.metaLabel}>Username</div>
+          <div className={styles.usernameValue}>{me.username || "-"}</div>
 
-	  <section style={{ ...cardStyle, marginBottom: "12px" }}>
-		<h2 style={{ marginBottom: "10px", fontSize: "14px" }}>Balance History</h2>
-		<BalanceChart points={points} />
-	  </section>
+          <div className={styles.metricBlock}>
+            <div className={styles.metaLabel}>Total Account Value</div>
+            <div className={styles.accountValue}>{fmtCurrency(me.totalAccountValue)}</div>
+          </div>
 
-	  <section style={{ ...cardStyle, marginBottom: "12px" }}>
-		<h2 style={{ marginBottom: "10px", fontSize: "14px" }}>Portfolio Holdings</h2>
-		<div style={{ overflowX: "auto" }}>
-		  <table style={tableStyle}>
-			<thead>
-			  <tr>
-				<th style={tdStyle}>Symbol</th>
-				<th style={tdStyle}>Qty</th>
-				<th style={tdStyle}>Avg Price</th>
-				<th style={tdStyle}>Current Price</th>
-				<th style={tdStyle}>Market Value</th>
-				<th style={tdStyle}>Unrealized PnL</th>
-			  </tr>
-			</thead>
-			<tbody>
-			  {!holdings.length && (
-				<tr>
-				  <td style={tdStyle} colSpan={6}>
-					No holdings yet.
-				  </td>
-				</tr>
-			  )}
-			  {holdings.map((row, idx) => {
-				const pnl = numberOrZero(row.unrealized_pnl ?? row.pnl);
-				const symbol = row.symbol || row.asset || "-";
-				return (
-				  <tr key={`${symbol}-${idx}`}>
-					<td style={tdStyle}>{symbol}</td>
-					<td style={tdStyle}>{fmtNumber(row.quantity, 4)}</td>
-					<td style={tdStyle}>{fmtCurrency(row.avg_price ?? row.avg_cost)}</td>
-					<td style={tdStyle}>{fmtCurrency(row.current_price ?? row.price)}</td>
-					<td style={tdStyle}>{fmtCurrency(row.market_value)}</td>
-					<td style={{ ...tdStyle, color: pnl >= 0 ? "#0ECB81" : "#F6465D" }}>
-					  {fmtCurrency(pnl)}
-					</td>
-				  </tr>
-				);
-			  })}
-			</tbody>
-		  </table>
-		</div>
-	  </section>
+          <div className={styles.metricBlockLarge}>
+            <div className={styles.metaLabel}>Unrealized PnL</div>
+            <div
+              className={cx(
+                styles.pnlValue,
+                me.totalUnrealizedPnl >= 0 ? styles.positive : styles.negative,
+              )}
+            >
+              {fmtCurrency(me.totalUnrealizedPnl)}
+            </div>
+          </div>
 
-	  <section style={{ ...cardStyle, marginBottom: "12px" }}>
-		<h2 style={{ marginBottom: "10px", fontSize: "14px" }}>Orders</h2>
-		<div style={{ overflowX: "auto" }}>
-		  <table style={tableStyle}>
-			<thead>
-			  <tr>
-				<th style={tdStyle}>Created</th>
-				<th style={tdStyle}>Symbol</th>
-				<th style={tdStyle}>Type</th>
-				<th style={tdStyle}>Side</th>
-				<th style={tdStyle}>Qty</th>
-				<th style={tdStyle}>Filled</th>
-				<th style={tdStyle}>Price</th>
-				<th style={tdStyle}>Status</th>
-				<th style={tdStyle}>Action</th>
-			  </tr>
-			</thead>
-			<tbody>
-			  {!orders.length && (
-				<tr>
-				  <td style={tdStyle} colSpan={9}>
-					No orders found.
-				  </td>
-				</tr>
-			  )}
-			  {orders.map((order) => {
-				const orderId = order.id || "";
-				const canCancel = isOrderCancellable(order);
-				return (
-				  <tr key={orderId || `${order.symbol}-${order.created_at}`}>
-					<td style={tdStyle}>{fmtDateTime(order.created_at)}</td>
-					<td style={tdStyle}>{order.symbol || "-"}</td>
-					<td style={tdStyle}>{order.order_type || "-"}</td>
-					<td style={{ ...tdStyle, color: order.side === "buy" ? "#0ECB81" : "#F6465D" }}>
-					  {order.side || "-"}
-					</td>
-					<td style={tdStyle}>{fmtNumber(order.quantity, 4)}</td>
-					<td style={tdStyle}>{fmtNumber(order.filled_qty, 4)}</td>
-					<td style={tdStyle}>
-					  {fmtCurrency(order.price ?? order.limit_price ?? order.stop_price)}
-					</td>
-					<td style={tdStyle}>{order.status || "-"}</td>
-					<td style={tdStyle}>
-					  {canCancel ? (
-						<button
-						  type="button"
-						  disabled={cancellingId === orderId}
-						  onClick={() => onCancelOrder(orderId)}
-						  style={{
-							padding: "5px 10px",
-							borderRadius: "4px",
-							border: "1px solid #5f2b31",
-							background: "#31181c",
-							color: "#F6465D",
-							cursor: "pointer",
-						  }}
-						>
-						  {cancellingId === orderId ? "Cancelling..." : "Cancel"}
-						</button>
-					  ) : (
-						<span style={{ color: "var(--color-text-muted)" }}>-</span>
-					  )}
-					</td>
-				  </tr>
-				);
-			  })}
-			</tbody>
-		  </table>
-		</div>
-	  </section>
+          <div className={styles.smallCards}>
+            <div className={styles.smallCard}>
+              <div className={styles.smallCardLabel}>Email</div>
+              <div className={styles.smallCardValueSmall}>{me.email || "-"}</div>
+            </div>
+            <div className={styles.smallCard}>
+              <div className={styles.smallCardLabel}>Cash Balance</div>
+              <div className={styles.smallCardValue}>{fmtCurrency(me.cashBalance)}</div>
+            </div>
+            <div className={styles.smallCard}>
+              <div className={styles.smallCardLabel}>Portfolio Value</div>
+              <div className={styles.smallCardValue}>{fmtCurrency(me.portfolioValue)}</div>
+            </div>
+          </div>
+        </article>
 
-	  <section style={cardStyle}>
-		<h2 style={{ marginBottom: "10px", fontSize: "14px" }}>My Trades</h2>
-		<div style={{ overflowX: "auto" }}>
-		  <table style={tableStyle}>
-			<thead>
-			  <tr>
-				<th style={tdStyle}>Time</th>
-				<th style={tdStyle}>Symbol</th>
-				<th style={tdStyle}>Role</th>
-				<th style={tdStyle}>Price</th>
-				<th style={tdStyle}>Quantity</th>
-				<th style={tdStyle}>Total</th>
-			  </tr>
-			</thead>
-			<tbody>
-			  {!trades.length && (
-				<tr>
-				  <td style={tdStyle} colSpan={6}>
-					No trades found.
-				  </td>
-				</tr>
-			  )}
-			  {trades.map((trade, idx) => {
-				const role = trade.role || trade.side || "-";
-				const price = numberOrZero(trade.price);
-				const qty = numberOrZero(trade.quantity);
-				return (
-				  <tr key={`${trade.id || trade.trade_id || idx}`}>
-					<td style={tdStyle}>{fmtDateTime(trade.timestamp || trade.created_at)}</td>
-					<td style={tdStyle}>{trade.symbol || "-"}</td>
-					<td style={{ ...tdStyle, color: role === "buy" ? "#0ECB81" : "#F6465D" }}>
-					  {role}
-					</td>
-					<td style={tdStyle}>{fmtCurrency(price)}</td>
-					<td style={tdStyle}>{fmtNumber(qty, 4)}</td>
-					<td style={tdStyle}>{fmtCurrency(price * qty)}</td>
-				  </tr>
-				);
-			  })}
-			</tbody>
-		  </table>
-		</div>
-	  </section>
-	</main>
+        <article className={styles.sectionCard}>
+          <h2 className={styles.chartTitle}>Balance History</h2>
+          <BalanceChart points={points} />
+        </article>
+      </section>
+
+      <section className={cx(styles.sectionCard, styles.dataSection)}>
+        <div className={styles.tabs}>
+          <button
+            type="button"
+            onClick={() => setActiveTab("holdings")}
+            className={cx(styles.tabBtn, activeTab === "holdings" && styles.tabBtnActive)}
+          >
+            Portfolio Holdings
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("orders")}
+            className={cx(styles.tabBtn, activeTab === "orders" && styles.tabBtnActive)}
+          >
+            Orders
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("trades")}
+            className={cx(styles.tabBtn, activeTab === "trades" && styles.tabBtnActive)}
+          >
+            My Trades
+          </button>
+        </div>
+
+        {activeTab === "holdings" && (
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th className={styles.cell}>Symbol</th>
+                  <th className={styles.cell}>Qty</th>
+                  <th className={styles.cell}>Avg Price</th>
+                  <th className={styles.cell}>Current Price</th>
+                  <th className={styles.cell}>Market Value</th>
+                  <th className={styles.cell}>Unrealized PnL</th>
+                </tr>
+              </thead>
+              <tbody>
+                {!holdings.length && (
+                  <tr>
+                    <td className={styles.cell} colSpan={6}>
+                      No holdings yet.
+                    </td>
+                  </tr>
+                )}
+                {holdings.map((row, idx) => {
+                  const pnl = numberOrZero(row.unrealized_pnl ?? row.pnl);
+                  const symbol = row.symbol || row.asset || "-";
+                  return (
+                    <tr key={`${symbol}-${idx}`}>
+                      <td className={styles.cell}>{symbol}</td>
+                      <td className={styles.cell}>{fmtNumber(row.quantity, 4)}</td>
+                      <td className={styles.cell}>{fmtCurrency(row.avg_price ?? row.avg_cost)}</td>
+                      <td className={styles.cell}>{fmtCurrency(row.current_price ?? row.price)}</td>
+                      <td className={styles.cell}>{fmtCurrency(row.market_value)}</td>
+                      <td className={cx(styles.cell, pnl >= 0 ? styles.positive : styles.negative)}>
+                        {fmtCurrency(pnl)}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {activeTab === "orders" && (
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th className={styles.cell}>Created</th>
+                  <th className={styles.cell}>Symbol</th>
+                  <th className={styles.cell}>Type</th>
+                  <th className={styles.cell}>Side</th>
+                  <th className={styles.cell}>Qty</th>
+                  <th className={styles.cell}>Filled</th>
+                  <th className={styles.cell}>Price</th>
+                  <th className={styles.cell}>Status</th>
+                  <th className={styles.cell}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {!orders.length && (
+                  <tr>
+                    <td className={styles.cell} colSpan={9}>
+                      No orders found.
+                    </td>
+                  </tr>
+                )}
+                {orders.map((order) => {
+                  const orderId = order.id || "";
+                  const canCancel = isOrderCancellable(order);
+                  return (
+                    <tr key={orderId || `${order.symbol}-${order.created_at}`}>
+                      <td className={styles.cell}>{fmtDateTime(order.created_at)}</td>
+                      <td className={styles.cell}>{order.symbol || "-"}</td>
+                      <td className={styles.cell}>{order.order_type || "-"}</td>
+                      <td
+                        className={cx(
+                          styles.cell,
+                          order.side === "buy" ? styles.positive : styles.negative,
+                        )}
+                      >
+                        {order.side || "-"}
+                      </td>
+                      <td className={styles.cell}>{fmtNumber(order.quantity, 4)}</td>
+                      <td className={styles.cell}>{fmtNumber(order.filled_qty, 4)}</td>
+                      <td className={styles.cell}>
+                        {fmtCurrency(order.price ?? order.limit_price ?? order.stop_price)}
+                      </td>
+                      <td className={styles.cell}>{order.status || "-"}</td>
+                      <td className={styles.cell}>
+                        {canCancel ? (
+                          <button
+                            type="button"
+                            disabled={cancellingId === orderId}
+                            onClick={() => onCancelOrder(orderId)}
+                            className={styles.cancelBtn}
+                          >
+                            {cancellingId === orderId ? "Cancelling..." : "Cancel"}
+                          </button>
+                        ) : (
+                          <span className={styles.muted}>-</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {activeTab === "trades" && (
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th className={styles.cell}>Time</th>
+                  <th className={styles.cell}>Symbol</th>
+                  <th className={styles.cell}>Role</th>
+                  <th className={styles.cell}>Price</th>
+                  <th className={styles.cell}>Quantity</th>
+                  <th className={styles.cell}>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {!trades.length && (
+                  <tr>
+                    <td className={styles.cell} colSpan={6}>
+                      No trades found.
+                    </td>
+                  </tr>
+                )}
+                {trades.map((trade, idx) => {
+                  const role = trade.role || trade.side || "-";
+                  const price = numberOrZero(trade.price);
+                  const qty = numberOrZero(trade.quantity);
+                  return (
+                    <tr key={`${trade.id || trade.trade_id || idx}`}>
+                      <td className={styles.cell}>{fmtDateTime(trade.timestamp || trade.created_at)}</td>
+                      <td className={styles.cell}>{trade.symbol || "-"}</td>
+                      <td
+                        className={cx(
+                          styles.cell,
+                          role === "buy" ? styles.positive : styles.negative,
+                        )}
+                      >
+                        {role}
+                      </td>
+                      <td className={styles.cell}>{fmtCurrency(price)}</td>
+                      <td className={styles.cell}>{fmtNumber(qty, 4)}</td>
+                      <td className={styles.cell}>{fmtCurrency(price * qty)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+    </main>
   );
 }
