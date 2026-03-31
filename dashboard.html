@@ -309,10 +309,10 @@
 
     @media (max-width: 768px) {
       .panel {
-        padding-top: 84px;
-        padding-bottom: 38px;
+        padding-top: 60px;
+        padding-bottom: 60px;
         height: auto;
-        min-height: 100svh;
+        min-height: auto;
       }
     }
 
@@ -750,11 +750,13 @@
         grid-template-columns: 1fr;
         gap: var(--s5);
         text-align: center;
+        padding: 0 var(--s4);
       }
 
       .hero-sub {
         margin-left: auto;
         margin-right: auto;
+        text-align: center;
       }
 
       .hbtns {
@@ -787,7 +789,7 @@
 
     h1.hero-title {
       font-family: 'Barlow Semi Condensed', sans-serif !important;
-      font-size: clamp(55px, 8.5vw, 110px);
+      font-size: clamp(38px, 8.5vw, 110px);
       font-weight: 900;
       line-height: .9;
       letter-spacing: -.05em;
@@ -1130,13 +1132,44 @@
       line-height: .95;
       letter-spacing: -0.01em;
       color: var(--t1);
+      overflow-wrap: break-word; /* Ensure text wraps */
+      word-wrap: break-word;
+    }
+
+    @media (max-width: 768px) {
+      .section-title {
+        text-align: center;
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        font-size: clamp(28px, 6vw, 42px); /* Scale down text to prevent horizontal overflow */
+      }
+
+      .section-sub {
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .eyebrow {
+        justify-content: center !important;
+        width: 100%;
+      }
+
+      .op-reveal {
+        text-align: center !important;
+      }
+
+      .depth-legend {
+        justify-content: center !important;
+      }
     }
 
     .section-title em,
     .section-title span {
       font-style: normal;
       color: var(--brand);
-      display: inline-block;
+      display: inline;
     }
 
     .section-title strong {
@@ -1344,6 +1377,8 @@
       .depth-inner {
         grid-template-columns: 1fr;
         gap: var(--s5);
+        padding: 0 var(--s4);
+        text-align: center;
       }
 
       .metrics-grid {
@@ -1597,6 +1632,13 @@
       align-items: center
     }
 
+    .hero-inner > div,
+    .perf-inner > div,
+    .bots-inner > div,
+    .depth-inner > div {
+      min-width: 0;
+    }
+
     .depth-wrap {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -1797,6 +1839,8 @@
 
       .ft-logo {
         justify-content: center;
+        width: 100%;
+        text-align: center;
       }
 
       .ft-bottom {
@@ -2152,10 +2196,39 @@
       margin-top: auto;
     }
 
-    .desktop-only { display: block; }
-    @media (max-width: 768px) { .desktop-only { display: none !important; } }
-    .mobile-only { display: none !important; }
-    @media (max-width: 768px) { .mobile-only { display: block !important; } }
+    .desktop-only {
+      display: block;
+    }
+
+    .orders-inner {
+      width: 100%;
+      max-width: 1400px;
+      padding: var(--s7) var(--s6);
+      margin: 0 auto;
+      position: relative;
+    }
+
+    @media (max-width: 1024px) {
+      .orders-inner {
+        padding: var(--s4) var(--s4);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .desktop-only {
+        display: none !important;
+      }
+    }
+
+    .mobile-only {
+      display: none !important;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-only {
+        display: block !important;
+      }
+    }
 
     .bh-sticky {
       position: sticky;
@@ -2233,13 +2306,14 @@
 
     @media (max-width: 768px) {
       #p-blackhole {
-        height: 100vh !important;
-        min-height: 500px;
+        height: auto !important;
+        min-height: auto !important;
+        padding: var(--s6) 0;
       }
 
       .bh-sticky {
         position: relative !important;
-        height: 100vh !important;
+        height: auto !important;
       }
 
       #bh-canvas {
@@ -2267,13 +2341,17 @@
       }
 
       .bh-title {
-        font-size: 38px !important;
+        font-size: clamp(28px, 8vw, 42px) !important;
         line-height: .9 !important;
         margin-bottom: 24px !important;
         display: flex !important;
+        flex-wrap: wrap !important;
         align-items: center !important;
         gap: 12px !important;
         justify-content: center !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        white-space: normal !important;
       }
 
       .bh-desc-mobile {
@@ -2545,6 +2623,11 @@
       display: grid;
       gap: 1px;
       background: var(--border);
+    }
+
+    .terminal-grid-top > div,
+    .terminal-grid-bottom > div {
+      min-width: 0;
     }
 
     .terminal-grid-top {
@@ -3077,7 +3160,7 @@
               <h2 class="section-title">See the full<br /><span>book at a glance.</span></h2>
               <p class="section-sub">The cumulative bid/ask area chart shows exactly where buying and selling pressure
                 stacks up — visual, immediate, actionable.</p>
-              <div style="display:flex;gap:var(--s4);margin-top:var(--s4)">
+              <div class="depth-legend" style="display:flex;gap:var(--s4);margin-top:var(--s4)">
                 <div style="display:flex;align-items:center;gap:6px;font-size:9.5px;color:var(--t3)">
                   <div
                     style="width:10px;height:10px;border-radius:1px;background:rgba(24,201,106,.25);border:1px solid rgba(24,201,106,.4)">
@@ -3106,7 +3189,7 @@
       <!-- PANEL 6: ORDER TYPES -->
       <div class="panel" id="p-orders"
         style="min-height:90vh;display:flex;align-items:center;border-bottom:1px solid var(--border);">
-        <div style="width:100%;max-width:1400px;padding:var(--s7) var(--s6);margin:0 auto;position:relative;">
+        <div class="orders-inner">
           <div class="op-reveal fmt-hide" style="text-align:left;margin-bottom:var(--s6);">
             <div class="eyebrow" style="justify-content:flex-start">Execution Engine</div>
             <h2 class="section-title">Precision Routing.<br /><span>Four conditional triggers.</span></h2>
@@ -3204,7 +3287,8 @@
               </span>
             </h2>
             <div class="bh-desc-mobile">
-              Professional-grade trading terminal. Real-time feeds. Sub-millisecond data. Built for traders who demand clarity under pressure.
+              Professional-grade trading terminal. Real-time feeds. Sub-millisecond data. Built for traders who demand
+              clarity under pressure.
             </div>
             <a href="#" class="bh-cta">Analyze The Flow</a>
           </div>
@@ -3242,26 +3326,17 @@
                 <li><a href="#">FAQ</a></li>
               </ul>
             </div>
-            <div>
-              <div class="ft-col-title">Project</div>
-              <ul class="ft-links">
-                <li><a href="#">Frontend Repo</a></li>
-                <li><a href="#">Backend Repo</a></li>
-                <li><a href="#">Docker Compose</a></li>
-                <li><a href="#">Changelog</a></li>
-                <li><a href="#">MIT License</a></li>
-              </ul>
-            </div>
           </div>
-          <div class="ft-bottom">
-            <span>© 2025 Synthetic Bull — Professional Trading Terminal</span>
-            <div style="display:flex;gap:var(--s4)"><a href="#">ws://localhost:8000/ws</a><a
-                href="#">localhost:5173</a><a href="#">MIT License</a></div>
-          </div>
-        </footer>
       </div>
+      <div class="ft-bottom">
+        <span>© 2025 Synthetic Bull — Professional Trading Terminal</span>
+        <div style="display:flex;gap:var(--s4)"><a href="#">ws://localhost:8000/ws</a><a href="#">localhost:5173</a><a
+            href="#">MIT License</a></div>
+      </div>
+      </footer>
+    </div>
 
-    </div><!-- end scroll-container -->
+  </div><!-- end scroll-container -->
 
   </div><!-- end app-view -->
 
