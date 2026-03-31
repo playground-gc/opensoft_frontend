@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchPortfolio, fetchOrders } from '../services/api';
+import { fetchPortfolio, fetchOrders, fetchTrades } from '../services/api';
 import { dataManager } from '../services/dataManager';
 
 /**
@@ -10,19 +10,22 @@ import { dataManager } from '../services/dataManager';
 export const usePortfolio = (isAuthenticated) => {
     const [holdings, setHoldings] = useState([]);
     const [orders, setOrders] = useState([]);
+    const [trades, setTrades] = useState([]);
     const [livePrices, setLivePrices] = useState({});
     const [loading, setLoading] = useState(false);
 
     const refresh = useCallback(async () => {
         if (!isAuthenticated) return;
         setLoading(true);
-        const [portResult, orderResult] = await Promise.all([
+        const [portResult, orderResult, tradeResult] = await Promise.all([
             fetchPortfolio(),
-            fetchOrders({ status: 'open' })
+            fetchOrders({ status: 'open' }),
+            fetchTrades()
         ]);
 
         if (portResult.success) setHoldings(portResult.holdings);
         if (orderResult.success) setOrders(orderResult.orders);
+        if (tradeResult.success) setTrades(tradeResult.trades);
         setLoading(false);
     }, [isAuthenticated]);
 
@@ -61,5 +64,5 @@ export const usePortfolio = (isAuthenticated) => {
 
     totalEquity += unrealisedPnL;
 
-    return { holdings: positions, orders, unrealisedPnL, totalEquity, loading, refresh };
+    return { holdings: positions, orders, trades, unrealisedPnL, totalEquity, loading, refresh };
 };

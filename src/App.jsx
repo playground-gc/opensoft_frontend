@@ -6,13 +6,14 @@ import OrderBook from './components/OrderBook/OrderBook';
 import PlaceOrder from './components/PlaceOrder/PlaceOrder';
 import UserPanel from './components/UserPanel/UserPanel';
 import AuthModal from './components/AuthModal/AuthModal';
-import { isAuthenticated as checkAuth, getCurrentUser } from './services/api/authApi';
+import { useAuthStore } from './store';
 
 function App() {
+  const { token, username: storedUsername } = useAuthStore();
   const [activeSymbol, setActiveSymbol] = useState('AAPL_S');
-  const [user, setUser] = useState(getCurrentUser()?.username || null);
-  const [isAuthenticated, setIsAuthenticated] = useState(checkAuth());
-  const [showAuth, setShowAuth] = useState(!checkAuth());
+  const [user, setUser] = useState(storedUsername || null);
+  const [isAuthenticated, setIsAuthenticated] = useState(!!token);
+  const [showAuth, setShowAuth] = useState(!token);
   
   const [comparisonSymbols, setComparisonSymbols] = useState([]);
 
@@ -34,7 +35,7 @@ function App() {
   return (
     <div className="app-container">
       <div className="panel header-area">
-        <Header symbol={activeSymbol} user={user} />
+        <Header symbol={activeSymbol} />
       </div>
       
       {/* Left Column -> Order Book (Swapped based on prompt) */}

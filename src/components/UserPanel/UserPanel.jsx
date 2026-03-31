@@ -3,9 +3,9 @@ import { usePortfolio } from '../../hooks/usePortfolio';
 
 export default function UserPanel({ isAuthenticated }) {
     const [activeTab, setActiveTab] = useState('Holdings');
-    const { holdings, orders, unrealisedPnL, totalEquity, loading } = usePortfolio(isAuthenticated);
+    const { holdings, orders, trades, unrealisedPnL, totalEquity, loading } = usePortfolio(isAuthenticated);
     
-    const tabs = [`Open Orders(${orders.length})`, 'Holdings', 'Trade History', 'Bots'];
+    const tabs = [`Open Orders(${orders.length})`, 'Holdings', `Trade History(${trades.length})`, 'Bots'];
     
     return (
         <div style={styles.container}>
@@ -82,10 +82,40 @@ export default function UserPanel({ isAuthenticated }) {
                             </div>
                         )}
                         
-                        {(activeTab === 'Trade History' || activeTab === 'Bots') && (
-                            <div style={styles.empty}>
-                                Feature currently disabled in backend-only mode
+                        {activeTab === 'Trade History' && (
+                            <div style={styles.table}>
+                                <div style={styles.headerRow}>
+                                    <div style={{...styles.cell, flex: 2}}>Symbol</div>
+                                    <div style={{...styles.cell, flex: 1}}>Side</div>
+                                    <div style={{...styles.cell, flex: 1}}>Price</div>
+                                    <div style={{...styles.cell, flex: 1}}>Qty</div>
+                                    <div style={{...styles.cell, flex: 2, textAlign: 'right'}}>Time</div>
+                                </div>
+                                <div style={styles.list}>
+                                    {trades.map((t, i) => {
+                                        const ts = t.timestamp || t.created_at || t.time;
+                                        const timeStr = ts ? new Date(ts).toLocaleTimeString() : '—';
+                                        const price = t.price ?? t.fill_price ?? t.executed_price;
+                                        const qty = t.quantity ?? t.qty ?? t.amount;
+                                        return (
+                                            <div key={t.id || t.trade_id || i} style={styles.row}>
+                                                <div style={{...styles.cell, flex: 2, fontWeight: 'bold'}}>{t.symbol}</div>
+                                                <div style={{...styles.cell, flex: 1, color: t.side === 'buy' ? 'var(--color-neon-green)' : 'var(--color-coral-red)'}}>
+                                                    {t.side?.toUpperCase()}
+                                                </div>
+                                                <div style={{...styles.cell, flex: 1}}>{price != null ? parseFloat(price).toFixed(2) : '—'}</div>
+                                                <div style={{...styles.cell, flex: 1}}>{qty != null ? parseFloat(qty).toFixed(4) : '—'}</div>
+                                                <div style={{...styles.cell, flex: 2, textAlign: 'right', color: 'var(--color-text-muted)'}}>{timeStr}</div>
+                                            </div>
+                                        );
+                                    })}
+                                    {trades.length === 0 && <div style={styles.empty}>No trades yet</div>}
+                                </div>
                             </div>
+                        )}
+
+                        {activeTab === 'Bots' && (
+                            <div style={styles.empty}>Bots coming soon</div>
                         )}
 
                         <div style={styles.portfolioSummary}>
