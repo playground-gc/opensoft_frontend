@@ -15,7 +15,7 @@ const REST_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 // WebSocket goes through the Vite dev proxy (/ws → VITE_WS_BASE_URL)
 // so the browser only ever opens a same-origin WebSocket to localhost — no cross-origin issue.
 const WS_PROTO = () => (window.location.protocol === 'https:' ? 'wss:' : 'ws:');
-const WS_BASE  = () => `${WS_PROTO()}//${window.location.host}`;
+const WS_BASE  = () => import.meta.env.VITE_WS_BASE_URL || `${WS_PROTO()}//${window.location.host}`;
 
 class DataManager {
   get basePairs() {
