@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { createChart, CandlestickSeries, LineSeries, BarSeries, AreaSeries, HistogramSeries } from 'lightweight-charts';
 import { Maximize, ChevronDown, LineChart } from 'lucide-react';
 import { dataManager } from '../../services/dataManager';
@@ -12,6 +13,7 @@ import IndicatorModal from './IndicatorModal';
 import IndicatorPanel from './IndicatorPanel';
 import DrawingToolbar from './DrawingToolbar';
 import useDrawingTools from './useDrawingTools';
+import DepthChart from '../charts/DepthChart';
 
 // ─── Default indicator config (MA enabled at startup) ─────────────────────────
 const DEFAULT_CONFIG = {
@@ -130,7 +132,7 @@ function applyMainOverlays(chart, candles, indicatorConfig, overlaySeriesRef) {
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
-export default function TradingChart({ symbol, comparisonSymbols = [] }) {
+export default function TradingChart({ symbol, comparisonSymbols = [], toolbarRightExtra }) {
     const wrapperRef        = useRef();
     const chartContainerRef = useRef();
     const chartRef          = useRef();
@@ -139,6 +141,7 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
     const compSeriesRefs    = useRef({});
     const volumeSeriesRef   = useRef();
     const canvasRef         = useRef();
+    const toolbarScrollRef  = useRef();
 
     const [toastMsg, setToastMsg] = useState('');
     const showToast = useCallback((msg) => {
@@ -158,6 +161,23 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
 
     const [chartType, setChartType]   = useState('Candles');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [menuRect, setMenuRect]     = useState(null);
+    const [viewMode, setViewMode]     = useState('Trading View');
+
+    const menuToggleRef = useRef(null);
+    const menuDropdownRef = useRef(null);
+
+    useEffect(() => {
+        const handleOutsideClick = (e) => {
+            if (isMenuOpen && 
+                menuToggleRef.current && !menuToggleRef.current.contains(e.target) && 
+                (!menuDropdownRef.current || !menuDropdownRef.current.contains(e.target))) {
+                setIsMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleOutsideClick);
+        return () => document.removeEventListener('mousedown', handleOutsideClick);
+    }, [isMenuOpen]);
 
     const [showIndicatorModal, setShowIndicatorModal] = useState(false);
     const [indicatorConfig, setIndicatorConfig]       = useState(DEFAULT_CONFIG);
@@ -366,9 +386,34 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
 
     return (
         <div ref={wrapperRef} style={s.container}>
+            <style>{`
+                .scrollable-toolbar::-webkit-scrollbar {
+                    height: 4px;
+                }
+                .scrollable-toolbar::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                .scrollable-toolbar::-webkit-scrollbar-thumb {
+                    background: #474D57;
+                    border-radius: 4px;
+                }
+                .scrollable-toolbar::-webkit-scrollbar-thumb:hover {
+                    background: #848E9C;
+                }
+            `}</style>
+            
             {/* Toolbar */}
             <div style={s.toolbar}>
-                <div style={s.toolbarLeft}>
+                <div 
+                    className="scrollable-toolbar"
+                    style={s.toolbarLeft}
+                    ref={toolbarScrollRef}
+                    onWheel={(e) => {
+                        if (toolbarScrollRef.current) {
+                            toolbarScrollRef.current.scrollLeft += e.deltaY;
+                        }
+                    }}
+                >
                     <div style={{ fontWeight: 'bold', color: 'var(--color-text-main)', marginRight: 16 }}>
                         {symbol}
                     </div>
@@ -378,99 +423,140 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
                         </div>
                     ))}
 
-                    {/* Timeframes */}
-                    <div style={s.timeframes}>
-                        {timeframes.map(tf => (
+                    {/* View Mode Toggle */}
+                    <div style={{ display: 'flex', gap: '8px', paddingRight: '12px', borderRight: '1px solid #2B3139' }}>
+                        {['Trading View', 'Depth'].map(mode => (
                             <span
-                                key={tf}
-                                style={{ color: activeTimeframe === tf ? '#FCD535' : 'var(--color-text-muted)', cursor: 'pointer', fontWeight: '500' }}
-                                onClick={() => setActiveTimeframe(tf)}
+                                key={mode}
+                                style={{ color: viewMode === mode ? '#FCD535' : 'var(--color-text-muted)', cursor: 'pointer', fontWeight: '500' }}
+                                onClick={() => setViewMode(mode)}
                             >
-                                {tf}
+                                {mode}
                             </span>
                         ))}
                     </div>
 
-                    {/* Chart type */}
-                    <div style={s.menuWrapper}>
-                        <div style={s.menuLabel} onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                            {chartType}
-                            <ChevronDown size={14} style={{ marginLeft: 4, transform: isMenuOpen ? 'rotate(180deg)' : 'none', transition: '0.2s' }} />
-                        </div>
-                        {isMenuOpen && (
-                            <div style={s.menuDropdown}>
-                                {['Candles', 'Line', 'Bar', 'Area'].map(type => (
-                                    <div key={type} style={s.menuItem}
-                                        onClick={() => { setChartType(type); setIsMenuOpen(false); }}>
-                                        {type}
-                                    </div>
+                    {viewMode === 'Trading View' && (
+                        <>
+                            {/* Timeframes */}
+                            <div style={s.timeframes}>
+                                {timeframes.map(tf => (
+                                    <span
+                                        key={tf}
+                                        style={{ color: activeTimeframe === tf ? '#FCD535' : 'var(--color-text-muted)', cursor: 'pointer', fontWeight: '500' }}
+                                        onClick={() => setActiveTimeframe(tf)}
+                                    >
+                                        {tf}
+                                    </span>
                                 ))}
                             </div>
-                        )}
-                    </div>
 
-                    {/* Indicators — icon only, tooltip on hover */}
-                    <button
-                        style={s.indicatorBtn}
-                        onClick={() => setShowIndicatorModal(true)}
-                        title="Technical Indicators"
-                    >
-                        <LineChart size={14} />
-                        {activeCount > 0 && (
-                            <span style={s.badge}>{activeCount}</span>
-                        )}
-                    </button>
+                            {/* Chart type (Custom Dropdown using React Portal) */}
+                            <div style={s.menuWrapper}>
+                                <div ref={menuToggleRef} style={s.menuLabel} onClick={(e) => {
+                                    setMenuRect(e.currentTarget.getBoundingClientRect());
+                                    setIsMenuOpen(!isMenuOpen);
+                                }}>
+                                    {chartType}
+                                    <ChevronDown size={14} style={{ marginLeft: 4, transform: isMenuOpen ? 'rotate(180deg)' : 'none', transition: '0.2s' }} />
+                                </div>
+                                {isMenuOpen && menuRect && document.body && createPortal(
+                                    <div ref={menuDropdownRef} style={{ ...s.menuDropdown, top: menuRect.bottom + 8, left: menuRect.left }}>
+                                        {['Candles', 'Line', 'Bar', 'Area'].map(type => (
+                                            <div key={type} style={s.menuItem}
+                                                onClick={() => { setChartType(type); setIsMenuOpen(false); }}>
+                                                {type}
+                                            </div>
+                                        ))}
+                                    </div>,
+                                    document.body
+                                )}
+                            </div>
+
+                            {/* Indicators — icon only, tooltip on hover */}
+                            <button
+                                style={s.indicatorBtn}
+                                onClick={() => setShowIndicatorModal(true)}
+                                title="Technical Indicators"
+                            >
+                                <LineChart size={14} />
+                                {activeCount > 0 && (
+                                    <span style={s.badge}>{activeCount}</span>
+                                )}
+                            </button>
+                        </>
+                    )}
                 </div>
 
                 <div style={s.toolbarRight}>
+                    {toolbarRightExtra}
                     <div title="Full Screen" style={s.iconBtn} onClick={toggleFullScreen}>
                         <Maximize size={16} color="var(--color-text-muted)" />
                     </div>
                 </div>
             </div>
 
-            {/* Body: sidebar + chart */}
-            <div style={s.body}>
-                {/* Drawing tools sidebar */}
-                <DrawingToolbar
-                    activeTool={activeTool}
-                    onToolChange={setActiveTool}
-                    onAction={handleAction}
-                    drawings={drawings}
-                    selectedId={selectedId}
-                />
+            {/* Main content wrapper */}
+            <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                {/* Trading View Container - hidden via CSS to preserve chart state and DOM bounding boxes */}
+                <div style={{ 
+                    display: 'flex', flexDirection: 'column', 
+                    flex: 1, minHeight: 0, width: '100%', height: '100%',
+                    position: viewMode === 'Trading View' ? 'relative' : 'absolute',
+                    visibility: viewMode === 'Trading View' ? 'visible' : 'hidden',
+                    opacity: viewMode === 'Trading View' ? 1 : 0,
+                    zIndex: viewMode === 'Trading View' ? 1 : -1
+                }}>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'row', overflow: 'hidden', minHeight: 0 }}>
+                        {/* Drawing tools sidebar */}
+                        <DrawingToolbar
+                            activeTool={activeTool}
+                            onToolChange={setActiveTool}
+                            onAction={handleAction}
+                            drawings={drawings}
+                            selectedId={selectedId}
+                        />
 
-                {/* Chart area with canvas overlay */}
-                <div style={s.chartArea}>
-                    <div ref={chartContainerRef} style={s.chartWrapper} />
-                    {/* Drawing canvas — pointer-events only when not in pointer/move mode */}
-                    <canvas
-                        ref={canvasRef}
-                        style={{
-                            ...s.drawingCanvas,
-                            cursor: toolCursor,
-                            pointerEvents: activeTool === 'pointer' ? 'none' : 'auto',
-                        }}
-                    />
-                </div>
-            </div>
-
-            {/* Sub-indicator panels — outside the body flex row */}
-            {activeSubIndicators.length > 0 && (
-                <div style={s.subPanels}>
-                    {activeSubIndicators.map(key =>
-                        subData[key] ? (
-                            <IndicatorPanel
-                                key={key}
-                                indicatorKey={key}
-                                data={subData[key]}
-                                params={indicatorConfig[key]?.params}
-                                height={110}
+                        {/* Chart area with canvas overlay */}
+                        <div style={s.chartArea}>
+                            <div ref={chartContainerRef} style={s.chartWrapper} />
+                            {/* Drawing canvas — pointer-events only when not in pointer/move mode */}
+                            <canvas
+                                ref={canvasRef}
+                                style={{
+                                    ...s.drawingCanvas,
+                                    cursor: toolCursor,
+                                    pointerEvents: activeTool === 'pointer' ? 'none' : 'auto',
+                                }}
                             />
-                        ) : null
+                        </div>
+                    </div>
+
+                    {/* Sub-indicator panels — outside the body flex row */}
+                    {activeSubIndicators.length > 0 && (
+                        <div style={s.subPanels}>
+                            {activeSubIndicators.map(key =>
+                                subData[key] ? (
+                                    <IndicatorPanel
+                                        key={key}
+                                        indicatorKey={key}
+                                        data={subData[key]}
+                                        params={indicatorConfig[key]?.params}
+                                        height={110}
+                                    />
+                                ) : null
+                            )}
+                        </div>
                     )}
                 </div>
-            )}
+
+                {/* Depth Chart Container */}
+                {viewMode === 'Depth' && (
+                    <div style={{ display: 'flex', flexDirection: 'row', flex: 1, minHeight: 0, position: 'relative', zIndex: 2, overflow: 'hidden' }}>
+                        <DepthChart symbol={symbol} />
+                    </div>
+                )}
+            </div>
 
             {/* Indicator Modal */}
             {showIndicatorModal && (
@@ -495,13 +581,13 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const s = {
     container:    { width: '100%', height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: '#1E2329', overflow: 'hidden' },
-    toolbar:      { height: '36px', borderBottom: '1px solid #2B3139', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', fontSize: '12px', flexShrink: 0 },
-    toolbarLeft:  { display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--color-text-muted)' },
-    toolbarRight: { display: 'flex', alignItems: 'center' },
-    timeframes:   { display: 'flex', gap: '8px', marginLeft: '12px', paddingRight: '12px', borderRight: '1px solid #2B3139' },
-    menuWrapper:  { position: 'relative', marginLeft: '4px' },
+    toolbar:      { minHeight: '42px', borderBottom: '1px solid #2B3139', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', fontSize: '12px', flexWrap: 'nowrap', zIndex: 100 },
+    toolbarLeft:  { display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--color-text-muted)', flex: 1, overflowX: 'auto', scrollbarWidth: 'thin', scrollbarColor: '#474D57 transparent', paddingRight: '12px', whiteSpace: 'nowrap', paddingBottom: '2px' },
+    toolbarRight: { display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, paddingLeft: '12px' },
+    timeframes:   { display: 'flex', gap: '8px', marginLeft: '12px', paddingRight: '12px', borderRight: '1px solid #2B3139', flexShrink: 0 },
+    menuWrapper:  { position: 'relative', marginLeft: '4px', flexShrink: 0 },
     menuLabel:    { display: 'flex', alignItems: 'center', cursor: 'pointer', color: 'var(--color-text-main)' },
-    menuDropdown: { position: 'absolute', top: '24px', left: 0, backgroundColor: '#1E2329', border: '1px solid #2B3139', padding: '4px', borderRadius: '4px', zIndex: 10, display: 'flex', flexDirection: 'column' },
+    menuDropdown: { position: 'fixed', backgroundColor: '#1E2329', border: '1px solid #2B3139', padding: '4px', borderRadius: '4px', zIndex: 99999, display: 'flex', flexDirection: 'column', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' },
     menuItem:     { padding: '4px 8px', cursor: 'pointer', color: 'var(--color-text-main)', borderRadius: '4px' },
     iconBtn:      { marginLeft: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', borderRadius: '4px' },
     // ── New layout ──
@@ -520,7 +606,9 @@ const s = {
         color: 'var(--color-text-muted)', borderRadius: '4px', padding: '3px 7px',
         cursor: 'pointer', fontFamily: 'inherit', fontSize: '11px',
         transition: 'border-color 0.2s, color 0.2s',
-        position: 'relative'
+        position: 'relative',
+        whiteSpace: 'nowrap',
+        flexShrink: 0
     },
     badge: {
         background: '#FCD535', color: '#1E2329', borderRadius: '8px',
