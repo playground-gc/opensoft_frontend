@@ -4,6 +4,10 @@
  */
 
 class DataManager {
+  get basePairs() {
+    return Object.keys(this.buffers);
+  }
+
   constructor() {
     this.subscribers = new Map(); // Map<Symbol, Set<Callback>>
     this.buffers = {};

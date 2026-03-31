@@ -11,7 +11,7 @@ import { useAuthStore } from './store';
 
 function TradingTerminal() {
   const { token, username: storedUsername } = useAuthStore();
-  const [activeSymbol, setActiveSymbol] = useState('AAPL_S');
+  const [activeSymbol, setActiveSymbol] = useState('BTC/USDT');
   const [user, setUser] = useState(storedUsername || null);
   const [isAuthenticated, setIsAuthenticated] = useState(!!token);
   const [showAuth, setShowAuth] = useState(!token);
