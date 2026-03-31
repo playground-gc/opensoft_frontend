@@ -1748,7 +1748,7 @@
 
     .ft-grid {
       display: grid;
-      grid-template-columns: 1.618fr 1fr 1fr 1fr;
+      grid-template-columns: 1.618fr 1fr 1fr;
       gap: var(--s6);
       padding-bottom: var(--s5);
       border-bottom: 1px solid var(--border)
@@ -1841,6 +1841,10 @@
         justify-content: center;
         width: 100%;
         text-align: center;
+      }
+
+      .ft-about {
+        margin: 0 auto;
       }
 
       .ft-bottom {
@@ -2306,9 +2310,7 @@
 
     @media (max-width: 768px) {
       #p-blackhole {
-        height: auto !important;
-        min-height: auto !important;
-        padding: var(--s6) 0;
+        display: none !important;
       }
 
       .bh-sticky {
