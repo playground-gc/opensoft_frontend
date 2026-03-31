@@ -34,6 +34,14 @@ const fmtDateTime = (value) => {
   return Number.isNaN(dt.getTime()) ? String(value) : dt.toLocaleString();
 };
 
+const numberToneClass = (value) => {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n === 0) return "";
+  return n > 0 ? styles.detailValuePositive : styles.detailValueNegative;
+};
+
+const hasNumericValue = (value) => Number.isFinite(Number(value));
+
 const normalizeOrderType = (type) => String(type || "").toLowerCase();
 
 const isOrderCancellable = (order) => {
@@ -474,74 +482,183 @@ export default function ProfilePage() {
                             )}
 
                             {orderDetailLoadingId !== orderId && !orderDetailErrors[orderId] && orderDetailsById[orderId] && (
-                              <div className={styles.detailsGrid}>
-                                <div className={styles.detailItem}>
-                                  <span className={styles.detailLabel}>Order ID</span>
-                                  <span className={styles.detailValue}>{orderDetailsById[orderId].id || "-"}</span>
+                              <div className={styles.detailsLayout}>
+                                <div className={styles.detailGroup}>
+                                  <h4 className={styles.detailGroupTitle}>Order Info</h4>
+                                  <div className={styles.detailsGrid}>
+                                    <div className={styles.detailItem}>
+                                      <span className={styles.detailLabel}>Order ID</span>
+                                      <span className={styles.detailValue}>{orderDetailsById[orderId].id || "-"}</span>
+                                    </div>
+                                    <div className={styles.detailItem}>
+                                      <span className={styles.detailLabel}>Status</span>
+                                      <span className={styles.detailValue}>{orderDetailsById[orderId].status || "-"}</span>
+                                    </div>
+                                    <div className={styles.detailItem}>
+                                      <span className={styles.detailLabel}>Type</span>
+                                      <span className={styles.detailValue}>{orderDetailsById[orderId].order_type || "-"}</span>
+                                    </div>
+                                    <div className={styles.detailItem}>
+                                      <span className={styles.detailLabel}>Side</span>
+                                      <span className={styles.detailValue}>{orderDetailsById[orderId].side || "-"}</span>
+                                    </div>
+                                  </div>
                                 </div>
-                                <div className={styles.detailItem}>
-                                  <span className={styles.detailLabel}>Status</span>
-                                  <span className={styles.detailValue}>{orderDetailsById[orderId].status || "-"}</span>
+
+                                <div className={styles.detailGroup}>
+                                  <h4 className={styles.detailGroupTitle}>Pricing</h4>
+                                  <div className={styles.detailsGrid}>
+                                    <div className={styles.detailItem}>
+                                      <span className={styles.detailLabel}>Price</span>
+                                      <span
+                                        className={cx(
+                                          styles.detailValue,
+                                          hasNumericValue(
+                                            orderDetailsById[orderId].price ??
+                                              orderDetailsById[orderId].limit_price ??
+                                              orderDetailsById[orderId].stop_price,
+                                          ) &&
+                                            numberToneClass(
+                                              orderDetailsById[orderId].price ??
+                                                orderDetailsById[orderId].limit_price ??
+                                                orderDetailsById[orderId].stop_price,
+                                            ),
+                                        )}
+                                      >
+                                        {hasNumericValue(
+                                          orderDetailsById[orderId].price ??
+                                            orderDetailsById[orderId].limit_price ??
+                                            orderDetailsById[orderId].stop_price,
+                                        )
+                                          ? fmtCurrency(
+                                              orderDetailsById[orderId].price ??
+                                                orderDetailsById[orderId].limit_price ??
+                                                orderDetailsById[orderId].stop_price,
+                                            )
+                                          : "-"}
+                                      </span>
+                                    </div>
+                                    <div className={styles.detailItem}>
+                                      <span className={styles.detailLabel}>Stop Price</span>
+                                      <span
+                                        className={cx(
+                                          styles.detailValue,
+                                          hasNumericValue(orderDetailsById[orderId].stop_price) &&
+                                            numberToneClass(orderDetailsById[orderId].stop_price),
+                                        )}
+                                      >
+                                        {hasNumericValue(orderDetailsById[orderId].stop_price)
+                                          ? fmtCurrency(orderDetailsById[orderId].stop_price)
+                                          : "-"}
+                                      </span>
+                                    </div>
+                                    <div className={styles.detailItem}>
+                                      <span className={styles.detailLabel}>Limit Price</span>
+                                      <span
+                                        className={cx(
+                                          styles.detailValue,
+                                          hasNumericValue(orderDetailsById[orderId].limit_price) &&
+                                            numberToneClass(orderDetailsById[orderId].limit_price),
+                                        )}
+                                      >
+                                        {hasNumericValue(orderDetailsById[orderId].limit_price)
+                                          ? fmtCurrency(orderDetailsById[orderId].limit_price)
+                                          : "-"}
+                                      </span>
+                                    </div>
+                                  </div>
                                 </div>
-                                <div className={styles.detailItem}>
-                                  <span className={styles.detailLabel}>Type</span>
-                                  <span className={styles.detailValue}>{orderDetailsById[orderId].order_type || "-"}</span>
+
+                                <div className={styles.detailGroup}>
+                                  <h4 className={styles.detailGroupTitle}>Execution</h4>
+                                  <div className={styles.detailsGrid}>
+                                    <div className={styles.detailItem}>
+                                      <span className={styles.detailLabel}>Quantity</span>
+                                      <span
+                                        className={cx(
+                                          styles.detailValue,
+                                          numberToneClass(orderDetailsById[orderId].quantity),
+                                        )}
+                                      >
+                                        {fmtNumber(orderDetailsById[orderId].quantity, 4)}
+                                      </span>
+                                    </div>
+                                    <div className={styles.detailItem}>
+                                      <span className={styles.detailLabel}>Filled Qty</span>
+                                      <span
+                                        className={cx(
+                                          styles.detailValue,
+                                          numberToneClass(orderDetailsById[orderId].filled_qty),
+                                        )}
+                                      >
+                                        {fmtNumber(orderDetailsById[orderId].filled_qty, 4)}
+                                      </span>
+                                    </div>
+                                    <div className={styles.detailItem}>
+                                      <span className={styles.detailLabel}>Fill %</span>
+                                      {(() => {
+                                        const qty = numberOrZero(orderDetailsById[orderId].quantity);
+                                        const filled = numberOrZero(orderDetailsById[orderId].filled_qty);
+                                        const fillPercent = qty > 0 ? (filled / qty) * 100 : null;
+                                        const fillTone =
+                                          fillPercent === null
+                                            ? ""
+                                            : fillPercent >= 100
+                                              ? styles.detailValuePositive
+                                              : styles.detailValueNegative;
+                                        return (
+                                      <span
+                                        className={cx(styles.detailValue, fillTone)}
+                                      >
+                                        {fillPercent === null ? "-" : `${fillPercent.toFixed(2)}%`}
+                                      </span>
+                                        );
+                                      })()}
+                                    </div>
+                                    <div className={styles.detailItem}>
+                                      <span className={styles.detailLabel}>Remaining Qty</span>
+                                      <span
+                                        className={cx(
+                                          styles.detailValue,
+                                          numberOrZero(orderDetailsById[orderId].quantity) -
+                                            numberOrZero(orderDetailsById[orderId].filled_qty) >
+                                          0
+                                            ? styles.detailValueNegative
+                                            : styles.detailValuePositive,
+                                        )}
+                                      >
+                                        {fmtNumber(
+                                          numberOrZero(orderDetailsById[orderId].quantity) -
+                                            numberOrZero(orderDetailsById[orderId].filled_qty),
+                                          4,
+                                        )}
+                                      </span>
+                                    </div>
+                                  </div>
                                 </div>
-                                <div className={styles.detailItem}>
-                                  <span className={styles.detailLabel}>Side</span>
-                                  <span className={styles.detailValue}>{orderDetailsById[orderId].side || "-"}</span>
-                                </div>
-                                <div className={styles.detailItem}>
-                                  <span className={styles.detailLabel}>Price</span>
-                                  <span className={styles.detailValue}>
-                                    {fmtCurrency(
-                                      orderDetailsById[orderId].price ??
-                                        orderDetailsById[orderId].limit_price ??
-                                        orderDetailsById[orderId].stop_price,
-                                    )}
-                                  </span>
-                                </div>
-                                <div className={styles.detailItem}>
-                                  <span className={styles.detailLabel}>Stop Price</span>
-                                  <span className={styles.detailValue}>
-                                    {fmtCurrency(orderDetailsById[orderId].stop_price)}
-                                  </span>
-                                </div>
-                                <div className={styles.detailItem}>
-                                  <span className={styles.detailLabel}>Limit Price</span>
-                                  <span className={styles.detailValue}>
-                                    {fmtCurrency(orderDetailsById[orderId].limit_price)}
-                                  </span>
-                                </div>
-                                <div className={styles.detailItem}>
-                                  <span className={styles.detailLabel}>Quantity</span>
-                                  <span className={styles.detailValue}>
-                                    {fmtNumber(orderDetailsById[orderId].quantity, 4)}
-                                  </span>
-                                </div>
-                                <div className={styles.detailItem}>
-                                  <span className={styles.detailLabel}>Filled Qty</span>
-                                  <span className={styles.detailValue}>
-                                    {fmtNumber(orderDetailsById[orderId].filled_qty, 4)}
-                                  </span>
-                                </div>
-                                <div className={styles.detailItem}>
-                                  <span className={styles.detailLabel}>Created</span>
-                                  <span className={styles.detailValue}>
-                                    {fmtDateTime(orderDetailsById[orderId].created_at)}
-                                  </span>
-                                </div>
-                                <div className={styles.detailItem}>
-                                  <span className={styles.detailLabel}>Updated</span>
-                                  <span className={styles.detailValue}>
-                                    {fmtDateTime(orderDetailsById[orderId].updated_at)}
-                                  </span>
-                                </div>
-                                <div className={styles.detailItem}>
-                                  <span className={styles.detailLabel}>Expires</span>
-                                  <span className={styles.detailValue}>
-                                    {fmtDateTime(orderDetailsById[orderId].expires_at)}
-                                  </span>
+
+                                <div className={styles.detailGroup}>
+                                  <h4 className={styles.detailGroupTitle}>Timeline</h4>
+                                  <div className={styles.detailsGrid}>
+                                    <div className={styles.detailItem}>
+                                      <span className={styles.detailLabel}>Created</span>
+                                      <span className={styles.detailValue}>
+                                        {fmtDateTime(orderDetailsById[orderId].created_at)}
+                                      </span>
+                                    </div>
+                                    <div className={styles.detailItem}>
+                                      <span className={styles.detailLabel}>Updated</span>
+                                      <span className={styles.detailValue}>
+                                        {fmtDateTime(orderDetailsById[orderId].updated_at)}
+                                      </span>
+                                    </div>
+                                    <div className={styles.detailItem}>
+                                      <span className={styles.detailLabel}>Expires</span>
+                                      <span className={styles.detailValue}>
+                                        {fmtDateTime(orderDetailsById[orderId].expires_at)}
+                                      </span>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             )}

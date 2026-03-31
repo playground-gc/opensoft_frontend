@@ -220,6 +220,26 @@
   background: #11161c;
 }
 
+.detailsLayout {
+  display: grid;
+  gap: 10px;
+}
+
+.detailGroup {
+  border: 1px solid var(--color-bg-border);
+  border-radius: 8px;
+  padding: 10px;
+  background: #0d1319;
+}
+
+.detailGroupTitle {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
 .detailsGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -246,6 +266,14 @@
   color: var(--color-text-main);
   font-size: 11px;
   word-break: break-word;
+}
+
+.detailValuePositive {
+  color: #0ecb81;
+}
+
+.detailValueNegative {
+  color: #f6465d;
 }
 
 .errorText {
