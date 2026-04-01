@@ -8,6 +8,7 @@ import {
   fetchPortfolio,
   fetchTrades} from "../services/api";
 import { useAuthStore } from "../store";
+import { dataManager } from "../services/dataManager";
 
 const glassCardStyle = {
   background: "rgba(0, 0, 0, 0.4)",
@@ -82,6 +83,34 @@ const normalizeMe = (data) => {
       data.total_account_value ?? data.account_value,
     ),
     holdings: Array.isArray(data.holdings) ? data.holdings : []};
+};
+
+const buildPointsFromTrades = (trades, initialBalance = 100000) => {
+  if (!trades || trades.length === 0) return [];
+
+  const sorted = [...trades].sort((a, b) => {
+    const ta = new Date(a.timestamp || a.created_at || 0).getTime();
+    const tb = new Date(b.timestamp || b.created_at || 0).getTime();
+    return ta - tb;
+  });
+
+  let balance = initialBalance;
+  return sorted.map((trade, index) => {
+    const price = numberOrZero(trade.price);
+    const qty = numberOrZero(trade.quantity);
+    const side = (trade.role || trade.side || "").toLowerCase();
+    const value = price * qty;
+    const delta = side === "buy" ? -value : side === "sell" ? value : 0;
+    balance += delta;
+    return {
+      x: index + 1,
+      y: balance,
+      reason: side === "buy" ? "Buy" : side === "sell" ? "Sell" : "Trade",
+      symbol: trade.symbol || "-",
+      delta,
+      date: trade.timestamp || trade.created_at || "",
+    };
+  });
 };
 
 const normalizeBalancePoints = (history = [], currentBalance = 0) => {
@@ -212,95 +241,267 @@ const IconRefresh = () => (
 );
 
 const BalanceChart = ({ points }) => {
+  const [hoveredPoint, setHoveredPoint] = useState(null);
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+  
   const width = 860;
-  const height = 260;
-  const pad = 12;
+  const height = 300;
+  const padLeft = 60;
+  const padRight = 20;
+  const padTop = 20;
+  const padBottom = 40;
 
-  const ys = points.map((p) => p.y);
-  const minY = Math.min(...ys);
-  const maxY = Math.max(...ys);
-  const ySpan = Math.max(maxY - minY, 1) * 1.05; // Add less headroom to use vertical space
-  const xSpan = Math.max(points.length - 1, 1);
+  // Calculate initial balance (100000 as per PnL calculation)
+  const initialBalance = 100000;
+  
+  // Transform points to show net profit instead of balance (reversed so oldest is left, newest is right)
+  const profitPoints = [...points].reverse().map(p => ({
+    ...p,
+    profit: p.y - initialBalance,
+    balance: p.y
+  }));
 
-  const toX = (i) => pad + (i / xSpan) * (width - pad * 2);
-  const toY = (value) =>
-    height -
-    pad -
-    ((value - minY + ySpan * 0.025) / ySpan) * (height - pad * 2);
+  const profits = profitPoints.map((p) => p.profit);
+  const minProfit = Math.min(...profits, 0);
+  const maxProfit = Math.max(...profits, 0);
+  const profitSpan = Math.max(maxProfit - minProfit, 1000);
+  
+  // Add 10% padding to y-axis
+  const yMin = minProfit - profitSpan * 0.1;
+  const yMax = maxProfit + profitSpan * 0.1;
+  const yRange = yMax - yMin;
 
-  const linePath = points
-    .map((p, i) => `${i === 0 ? "M" : "L"}${toX(i)} ${toY(p.y)}`)
+  const xSpan = Math.max(profitPoints.length - 1, 1);
+
+  const toX = (i) => padLeft + (i / xSpan) * (width - padLeft - padRight);
+  const toY = (profit) =>
+    padTop + ((yMax - profit) / yRange) * (height - padTop - padBottom);
+
+  // Zero line position
+  const zeroY = toY(0);
+
+  const linePath = profitPoints
+    .map((p, i) => `${i === 0 ? "M" : "L"}${toX(i)} ${toY(p.profit)}`)
     .join(" ");
 
-  const fillPath = `${linePath} L${toX(points.length - 1)} ${height} L${toX(0)} ${height} Z`;
+  // Create horizontal grid lines
+  const gridLines = [];
+  const numGridLines = 5;
+  for (let i = 0; i <= numGridLines; i++) {
+    const profit = yMin + (yRange * i) / numGridLines;
+    const y = toY(profit);
+    gridLines.push({ y, label: fmtCurrency(profit) });
+  }
+
+  // Format date for x-axis
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "";
+    const d = new Date(dateStr);
+    return `${d.getMonth() + 1}/${d.getDate()}`;
+  };
+
+  const handleMouseMove = (e, point, index) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setHoveredPoint({ ...point, index });
+    setTooltipPos({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    });
+  };
 
   return (
-    <svg
-      width="100%"
-      height="100%"
-      viewBox={`0 0 ${width} ${height}`}
-      preserveAspectRatio="none"
-      style={{ display: "block" }}
-    >
-      <defs>
-        <linearGradient id="neonGradient" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="rgba(255, 69, 0, 0.4)" />
-          <stop offset="100%" stopColor="rgba(255, 69, 0, 0)" />
-        </linearGradient>
-        <filter id="glow">
-          <feGaussianBlur stdDeviation="3.5" result="coloredBlur" />
-          <feMerge>
-            <feMergeNode in="coloredBlur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-      </defs>
+    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+      <svg
+        width="100%"
+        height="100%"
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="xMidYMid meet"
+        style={{ display: "block" }}
+        onMouseLeave={() => setHoveredPoint(null)}
+      >
+        <defs>
+          <linearGradient id="profitGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgba(14, 203, 129, 0.15)" />
+            <stop offset="100%" stopColor="rgba(14, 203, 129, 0)" />
+          </linearGradient>
+          <linearGradient id="lossGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgba(246, 70, 93, 0)" />
+            <stop offset="100%" stopColor="rgba(246, 70, 93, 0.15)" />
+          </linearGradient>
+        </defs>
 
-      <path d={fillPath} fill="url(#neonGradient)" />
+        {/* Background grid lines */}
+        {gridLines.map((line, i) => (
+          <g key={i}>
+            <line
+              x1={padLeft}
+              y1={line.y}
+              x2={width - padRight}
+              y2={line.y}
+              stroke={i === Math.floor(numGridLines / 2) && Math.abs(line.y - zeroY) < 2 ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.05)"}
+              strokeWidth={i === Math.floor(numGridLines / 2) && Math.abs(line.y - zeroY) < 2 ? "1.5" : "1"}
+              strokeDasharray={i === Math.floor(numGridLines / 2) && Math.abs(line.y - zeroY) < 2 ? "none" : "2 2"}
+            />
+            <text
+              x={padLeft - 8}
+              y={line.y + 4}
+              textAnchor="end"
+              fill="rgba(255,255,255,0.4)"
+              fontSize="11"
+              fontFamily="monospace"
+            >
+              {line.label}
+            </text>
+          </g>
+        ))}
 
-      {/* Grid lines */}
-      <line
-        x1={pad}
-        y1={height / 2}
-        x2={width - pad}
-        y2={height / 2}
-        stroke="rgba(255,255,255,0.05)"
-        strokeDasharray="4 4"
-      />
-      <line
-        x1={pad}
-        y1={height - pad}
-        x2={width - pad}
-        y2={height - pad}
-        stroke="rgba(255,255,255,0.1)"
-      />
-
-      {/* Main neon line */}
-      <path
-        d={linePath}
-        fill="none"
-        stroke="#ff4500"
-        strokeWidth="3"
-        filter="url(#glow)"
-        strokeLinejoin="round"
-      />
-
-      {/* Data points */}
-      {points.map((p, i) => (
-        <circle
-          key={`${p.x}-${p.y}-${i}`}
-          cx={toX(i)}
-          cy={toY(p.y)}
-          r="4"
-          fill="#000"
-          stroke="#ff4500"
+        {/* Zero line (thicker) */}
+        <line
+          x1={padLeft}
+          y1={zeroY}
+          x2={width - padRight}
+          y2={zeroY}
+          stroke="rgba(255,255,255,0.3)"
           strokeWidth="2"
-          style={{ transition: "all 0.2s ease" }}
+        />
+
+        {/* Fill area - split into profit and loss zones */}
+        {profitPoints.length > 0 && (
+          <>
+            {/* Profit area (above zero) */}
+            <path
+              d={`M ${toX(0)} ${zeroY} ${profitPoints.map((p, i) => {
+                const y = Math.min(toY(p.profit), zeroY);
+                return `L ${toX(i)} ${y}`;
+              }).join(" ")} L ${toX(profitPoints.length - 1)} ${zeroY} Z`}
+              fill="url(#profitGradient)"
+            />
+            
+            {/* Loss area (below zero) */}
+            <path
+              d={`M ${toX(0)} ${zeroY} ${profitPoints.map((p, i) => {
+                const y = Math.max(toY(p.profit), zeroY);
+                return `L ${toX(i)} ${y}`;
+              }).join(" ")} L ${toX(profitPoints.length - 1)} ${zeroY} Z`}
+              fill="url(#lossGradient)"
+            />
+          </>
+        )}
+
+        {/* Main line - colored based on profit/loss */}
+        <path
+          d={linePath}
+          fill="none"
+          stroke="#ff4500"
+          strokeWidth="2.5"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+
+        {/* Data points */}
+        {profitPoints.map((p, i) => {
+          const isProfit = p.delta >= 0;
+          const isHovered = hoveredPoint?.index === i;
+          return (
+            <g key={`point-${i}`}>
+              <circle
+                cx={toX(i)}
+                cy={toY(p.profit)}
+                r={isHovered ? "7" : "5"}
+                fill={isProfit ? "#0ECB81" : "#F6465D"}
+                stroke="#000"
+                strokeWidth="2"
+                style={{ 
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                  filter: isHovered ? "drop-shadow(0 0 6px rgba(255,69,0,0.8))" : "none"
+                }}
+                onMouseEnter={(e) => handleMouseMove(e, p, i)}
+                onMouseMove={(e) => handleMouseMove(e, p, i)}
+              />
+            </g>
+          );
+        })}
+
+        {/* X-axis labels */}
+        {profitPoints.length <= 20 && profitPoints.map((p, i) => (
+          <text
+            key={`xlabel-${i}`}
+            x={toX(i)}
+            y={height - 10}
+            textAnchor="middle"
+            fill="rgba(255,255,255,0.3)"
+            fontSize="10"
+            fontFamily="sans-serif"
+          >
+            {formatDate(p.date)}
+          </text>
+        ))}
+
+        {/* Axis labels */}
+        <text
+          x={padLeft}
+          y={height - 5}
+          fill="rgba(255,255,255,0.5)"
+          fontSize="12"
+          fontWeight="600"
         >
-          <title>{`${fmtDateTime(p.date)} | ${p.symbol} | ${p.reason} | delta ${fmtCurrency(p.delta)} | balance ${fmtCurrency(p.y)}`}</title>
-        </circle>
-      ))}
-    </svg>
+          Time →
+        </text>
+        <text
+          x={padLeft - 45}
+          y={padTop + 10}
+          fill="rgba(255,255,255,0.5)"
+          fontSize="12"
+          fontWeight="600"
+          transform={`rotate(-90, ${padLeft - 45}, ${padTop + 10})`}
+        >
+          ← Net Profit
+        </text>
+      </svg>
+
+      {/* Hover tooltip */}
+      {hoveredPoint && (
+        <div
+          style={{
+            position: "absolute",
+            left: tooltipPos.x + 15,
+            top: tooltipPos.y - 60,
+            background: "rgba(0, 0, 0, 0.95)",
+            border: `2px solid ${hoveredPoint.delta >= 0 ? "#0ECB81" : "#F6465D"}`,
+            borderRadius: "8px",
+            padding: "12px 16px",
+            pointerEvents: "none",
+            zIndex: 1000,
+            minWidth: "220px",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
+            fontSize: "13px",
+            lineHeight: "1.6"
+          }}
+        >
+          <div style={{ color: "#fff", fontWeight: "600", marginBottom: "8px", fontSize: "14px" }}>
+            {hoveredPoint.symbol} - {hoveredPoint.reason}
+          </div>
+          <div style={{ color: "rgba(255,255,255,0.6)", fontSize: "11px", marginBottom: "8px" }}>
+            {fmtDateTime(hoveredPoint.date)}
+          </div>
+          <div style={{ 
+            color: hoveredPoint.delta >= 0 ? "#0ECB81" : "#F6465D",
+            fontWeight: "700",
+            fontSize: "16px",
+            marginBottom: "4px"
+          }}>
+            {hoveredPoint.delta >= 0 ? "+" : ""}{fmtCurrency(hoveredPoint.delta)}
+          </div>
+          <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "11px", marginTop: "6px" }}>
+            Balance: {fmtCurrency(hoveredPoint.balance)}
+          </div>
+          <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "11px" }}>
+            Net Profit: {fmtCurrency(hoveredPoint.profit)}
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -315,6 +516,7 @@ export default function ProfilePage() {
   const [trades, setTrades] = useState([]);
   const [balanceHistory, setBalanceHistory] = useState([]);
   const [cancellingId, setCancellingId] = useState("");
+  const [realtimePrices, setRealtimePrices] = useState({});
 
   const loadProfileData = useCallback(async () => {
     if (!token) {
@@ -373,10 +575,39 @@ export default function ProfilePage() {
     return () => clearTimeout(timer);
   }, [loadProfileData]);
 
-  const points = useMemo(
-    () => normalizeBalancePoints(balanceHistory, me.cashBalance || 0),
-    [balanceHistory, me.cashBalance],
-  );
+  const points = useMemo(() => {
+    if (balanceHistory.length > 0) {
+      return normalizeBalancePoints(balanceHistory, me.cashBalance || 0);
+    }
+    if (trades.length > 0) {
+      return buildPointsFromTrades(trades, 100000);
+    }
+    return normalizeBalancePoints([], me.cashBalance || 0);
+  }, [balanceHistory, trades, me.cashBalance]);
+
+  // Subscribe to real-time prices for all holdings
+  useEffect(() => {
+    if (!holdings.length) return;
+
+    const unsubs = [];
+    const pricesMap = {};
+
+    holdings.forEach((holding) => {
+      const symbol = holding.symbol || holding.asset;
+      if (!symbol) return;
+
+      const unsub = dataManager.subscribe(symbol, (data) => {
+        pricesMap[symbol] = data.ticker.price;
+        setRealtimePrices({ ...pricesMap });
+      });
+
+      unsubs.push(unsub);
+    });
+
+    return () => {
+      unsubs.forEach((unsub) => unsub());
+    };
+  }, [holdings]);
 
   const onCancelOrder = async (orderId) => {
     if (!orderId) return;
@@ -520,22 +751,22 @@ export default function ProfilePage() {
                 </div>
                 <div
                   style={{
-                    color: me.totalUnrealizedPnl >= 0 ? "#0ECB81" : "#F6465D",
+                    color: (me.totalAccountValue - 100000) >= 0 ? "#0ECB81" : "#F6465D",
                     fontWeight: "600",
                     background:
-                      me.totalUnrealizedPnl >= 0
+                      (me.totalAccountValue - 100000) >= 0
                         ? "rgba(14, 203, 129, 0.1)"
                         : "rgba(246, 70, 93, 0.1)",
                     padding: "4px 12px",
                     borderRadius: "0px",
-                    border: `1px solid ${me.totalUnrealizedPnl >= 0 ? "rgba(14, 203, 129, 0.2)" : "rgba(246, 70, 93, 0.2)"}`}}
+                    border: `1px solid ${(me.totalAccountValue - 100000) >= 0 ? "rgba(14, 203, 129, 0.2)" : "rgba(246, 70, 93, 0.2)"}`}}
                 >
-                  {me.totalUnrealizedPnl >= 0 ? <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{ display: "inline-block", verticalAlign: "middle", marginRight: "2px" }}><path d="M12 4l8 16H4z"/></svg> : <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{ display: "inline-block", verticalAlign: "middle", marginRight: "2px" }}><path d="M12 20L4 4h16z"/></svg>}
-                  {fmtCurrency(me.totalUnrealizedPnl)} PnL
+                  {(me.totalAccountValue - 100000) >= 0 ? <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{ display: "inline-block", verticalAlign: "middle", marginRight: "2px" }}><path d="M12 4l8 16H4z"/></svg> : <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{ display: "inline-block", verticalAlign: "middle", marginRight: "2px" }}><path d="M12 20L4 4h16z"/></svg>}
+                  {fmtCurrency(me.totalAccountValue - 100000)} PnL
                 </div>
               </div>
               <div
-                style={{ height: "260px", width: "100%", marginTop: "16px" }}
+                style={{ height: "320px", width: "100%", marginTop: "16px" }}
               >
                 <BalanceChart points={points} />
               </div>
@@ -598,10 +829,10 @@ export default function ProfilePage() {
               <thead>
                 <tr>
                   <th style={thStyle}>Asset</th>
-                  <th style={thStyle}>Amount</th>
+                  <th style={thStyle}>Volume</th>
                   <th style={thStyle}>Avg Price</th>
                   <th style={thStyle}>Current Price</th>
-                  <th style={thStyle}>Market Value</th>
+                  <th style={thStyle}>Total Value</th>
                   <th style={thStyle}>PnL</th>
                 </tr>
               </thead>
@@ -621,8 +852,12 @@ export default function ProfilePage() {
                   </tr>
                 )}
                 {holdings.map((row, idx) => {
-                  const pnl = numberOrZero(row.unrealized_pnl ?? row.pnl);
                   const symbol = row.symbol || row.asset || "-";
+                  const quantity = numberOrZero(row.quantity);
+                  const avgPrice = numberOrZero(row.avg_price ?? row.avg_cost);
+                  const currentPrice = realtimePrices[symbol] ?? numberOrZero(row.current_price ?? row.price);
+                  const marketValue = quantity * currentPrice;
+                  const pnl = (currentPrice - avgPrice) * quantity;
                   const isUp = pnl >= 0;
                   return (
                     <tr
@@ -662,17 +897,17 @@ export default function ProfilePage() {
                           {symbol}
                         </div>
                       </td>
-                      <td style={tdStyle}>{fmtNumber(row.quantity, 4)}</td>
+                      <td style={tdStyle}>{fmtNumber(quantity, 4)}</td>
                       <td
                         style={{ ...tdStyle, color: "rgba(255,255,255,0.7)" }}
                       >
-                        {fmtCurrency(row.avg_price ?? row.avg_cost)}
+                        {fmtCurrency(avgPrice)}
                       </td>
                       <td style={tdStyle}>
-                        {fmtCurrency(row.current_price ?? row.price)}
+                        {fmtCurrency(currentPrice)}
                       </td>
                       <td style={{ ...tdStyle, fontWeight: "500" }}>
-                        {fmtCurrency(row.market_value)}
+                        {fmtCurrency(marketValue)}
                       </td>
                       <td
                         style={{
@@ -714,7 +949,7 @@ export default function ProfilePage() {
                   <th style={thStyle}>Type</th>
                   <th style={thStyle}>Side</th>
                   <th style={thStyle}>Price</th>
-                  <th style={thStyle}>Amount</th>
+                  <th style={thStyle}>Volume</th>
                   <th style={thStyle}>Filled</th>
                   <th style={thStyle}>Status</th>
                   <th style={thStyle}>Action</th>
@@ -878,7 +1113,7 @@ export default function ProfilePage() {
                   <th style={thStyle}>Symbol</th>
                   <th style={thStyle}>Side</th>
                   <th style={thStyle}>Price</th>
-                  <th style={thStyle}>Amount</th>
+                  <th style={thStyle}>Volume</th>
                   <th style={thStyle}>Total Value</th>
                 </tr>
               </thead>

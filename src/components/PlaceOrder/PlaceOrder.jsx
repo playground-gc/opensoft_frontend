@@ -239,7 +239,7 @@ export default function PlaceOrder({ symbol, isAuthenticated }) {
           )}
 
           <InputRow
-            label="Amount"
+            label="Volume"
             value={amountBuy}
             onChange={setAmountBuy}
             suffix={baseAsset}
@@ -335,7 +335,7 @@ export default function PlaceOrder({ symbol, isAuthenticated }) {
           )}
 
           <InputRow
-            label="Amount"
+            label="Volume"
             value={amountSell}
             onChange={setAmountSell}
             suffix={baseAsset}
