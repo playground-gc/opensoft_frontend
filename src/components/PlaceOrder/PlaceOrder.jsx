@@ -54,12 +54,10 @@ export default function PlaceOrder({ symbol, isAuthenticated }) {
   useEffect(() => {
     const unsub = dataManager.subscribe(symbol, (data) => {
       setCurrentPrice(data.ticker.price);
-      if (isLimit && price === "") {
-        setPrice(data.ticker.price.toFixed(2));
-      }
+      // Removed autofill to prevent overwriting user input
     });
     return unsub;
-  }, [symbol, orderType]);
+  }, [symbol]);
 
   const handleBuyPct = (pct) => {
     const activePrice = isMarket

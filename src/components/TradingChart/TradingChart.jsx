@@ -10,6 +10,9 @@ import {
 } from "lightweight-charts";
 import { Maximize, ChevronDown, LineChart } from "lucide-react";
 import { dataManager } from "../../services/dataManager";
+import { fetchOrders } from "../../services/api/ordersApi";
+import { fetchPortfolio } from "../../services/api/portfolioApi";
+
 import {
   calcSMA,
   calcEMA,
@@ -322,6 +325,117 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
 
   const handleSaveConfig = useCallback((cfg) => setIndicatorConfig(cfg), []);
   const handleLiveChange = useCallback((cfg) => setIndicatorConfig(cfg), []);
+
+  // ── User Orders & Holdings Lines ──────────────────────────────────────────
+  const orderLinesRef = useRef([]);
+
+  useEffect(() => {
+    let active = true;
+    let timer;
+
+    const fetchAndDrawLines = async () => {
+      const series = seriesRef.current;
+      if (!series) return;
+
+      try {
+        const [openRes, partialRes, pendingRes, portRes] = await Promise.all([
+          fetchOrders({ symbol, status: "open", limit: 50 }),
+          fetchOrders({ symbol, status: "partial", limit: 50 }),
+          fetchOrders({ symbol, status: "pending_trigger", limit: 50 }),
+          fetchPortfolio(),
+        ]);
+
+        if (!active) return;
+
+        // Clean up previous lines
+        orderLinesRef.current.forEach((line) => {
+          try {
+            series.removePriceLine(line);
+          } catch (e) {}
+        });
+        orderLinesRef.current = [];
+
+        const newLines = [];
+
+        const drawOrderLine = (o, color, labelPrefix, useStopPrice = false) => {
+          // For pending_trigger, we highlight the trigger (stop_price)
+          // For open/partial, we highlight the execution price (price or limit_price)
+          let p = useStopPrice 
+            ? (o.stop_price || o.price || o.limit_price) 
+            : (o.price || o.limit_price || o.stop_price);
+            
+          if (!p) return;
+          
+          const remQty = (o.quantity || 0) - (o.filled_qty || 0);
+          const displayQty = remQty > 0 ? remQty : o.quantity;
+          
+          const line = series.createPriceLine({
+            price: Number(p),
+            color,
+            lineWidth: 2,
+            lineStyle: 2, // Dashed
+            axisLabelVisible: true,
+            title: `${labelPrefix} ${displayQty} ${o.side.toUpperCase()} @ ${p}`,
+          });
+          newLines.push(line);
+        };
+
+        if (openRes.success && openRes.orders) {
+          openRes.orders.forEach((o) =>
+            drawOrderLine(o, "rgba(255, 234, 0, 0.9)", "OPEN"), // neon yellow
+          );
+        }
+        if (partialRes.success && partialRes.orders) {
+          partialRes.orders.forEach((o) =>
+            drawOrderLine(o, "rgba(255, 152, 0, 0.9)", "PARTIAL"), // neon orange
+          );
+        }
+        if (pendingRes.success && pendingRes.orders) {
+          pendingRes.orders.forEach((o) =>
+            drawOrderLine(o, "rgba(255, 0, 255, 0.9)", "TRIGGER", true), // neon pink
+          );
+        }
+
+        if (portRes.success && portRes.holdings) {
+          const h = portRes.holdings.find((x) => x.symbol === symbol);
+          if (h && h.quantity > 0 && h.avg_cost) {
+            const line = series.createPriceLine({
+              price: h.avg_cost,
+              color: "rgba(0, 229, 255, 0.9)", // neon cyan
+              lineWidth: 2,
+              lineStyle: 0, // Solid
+              axisLabelVisible: true,
+              title: `Holding ${h.quantity} [buy @ ${h.avg_cost}]`,
+            });
+            newLines.push(line);
+          }
+        }
+
+        orderLinesRef.current = newLines;
+      } catch (err) {
+        console.error("Failed to draw user lines", err, openRes, partialRes, pendingRes, portRes);
+      }
+    };
+
+    fetchAndDrawLines();
+    timer = setInterval(fetchAndDrawLines, 5000); // refresh every 5s
+
+    return () => {
+      active = false;
+      clearInterval(timer);
+      const series = seriesRef.current;
+      if (series) {
+        orderLinesRef.current.forEach((line) => {
+          try {
+            series.removePriceLine(line);
+          } catch (e) {}
+        });
+      }
+      orderLinesRef.current = [];
+    };
+  }, [symbol, chartVersion]); // runs when symbol changes or chart is re-created
+
+
 
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {
