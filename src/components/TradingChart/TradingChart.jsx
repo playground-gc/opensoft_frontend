@@ -555,26 +555,12 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
     });
     volumeSeriesRef.current = volSeries;
 
-    // Seed with history
-    const candles = dataManager.getCandles(symbol);
-    if (candles && candles.length > 0) {
-      if (chartType === "Area" || chartType === "Line") {
-        mainSeries.setData(
-          candles.map((c) => ({ time: c.time, value: c.close })),
-        );
-      } else {
-        mainSeries.setData(candles);
-      }
+    // Always force a fresh candle history load from REST when this symbol's chart
+    // mounts. This prevents stale / accumulated live-tick data from the cache
+    // being painted as "history" when the user navigates back to this symbol.
+    // The subscription callback below will re-seed the series once REST responds.
+    dataManager.refreshCandleHistory(symbol);
 
-      volSeries.setData(
-        candles.map((c) => ({
-          time: c.time,
-          value: c.volume || 0,
-          color: c.close >= (c.open ?? c.close) ? "#0ECB81" : "#F6465D",
-        })),
-      );
-      // ⚠ Do NOT apply overlays here — let the [indicatorConfig, chartReady] effect own that.
-    }
 
     // Comparison symbols
     const compColors = ["#ff4500", "#ff4500", "#E040FB"];
