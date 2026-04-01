@@ -473,6 +473,16 @@ class DataManager {
     await this._loadCandleHistory(symbol, interval);
   }
 
+  // ── Public: force a fresh candle history load (e.g. when switching back to a symbol) ──
+  async refreshCandleHistory(symbol) {
+    if (!this.buffers[symbol]) return;
+    const interval = this.intervals[symbol] || "1m";
+    // Clear stale cached candles so getCandles() returns nothing until REST responds
+    this.candleHistory[symbol] = [];
+    this.buffers[symbol].historyLoaded = false;
+    await this._loadCandleHistory(symbol, interval);
+  }
+
   // ── Flush loop: notify subscribers at 50 ms cadence ─────────────────────────
 
   _startFlushLoop() {
