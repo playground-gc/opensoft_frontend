@@ -3,6 +3,13 @@ import { Link } from "react-router-dom";
 import { dataManager } from "../../services/dataManager";
 import { useAuthStore } from "../../store";
 import AuthModal from "../AuthModal/AuthModal";
+import { useTutorialStore } from "../../store";
+import { Info } from "lucide-react";
+
+const TwitterIcon = ({ size }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>);
+const FacebookIcon = ({ size }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>);
+const InstagramIcon = ({ size }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>);
+const GithubIcon = ({ size }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>);
 
 export default function Header({ symbol, onLoginClick }) {
   const { token, username, clearAuth } = useAuthStore();
@@ -28,14 +35,35 @@ export default function Header({ symbol, onLoginClick }) {
   const isUp = ticker.change >= 0;
 
   return (
-    <div style={styles.header}>
+    <div id="tour-stats-bar" style={styles.header}>
       {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} onSuccess={(user) => { setUserName(user); setIsLoggedIn(true); setShowAuthModal(false); }} />}
       <div style={styles.leftGroup}>
+        <a href="/" style={{
+          fontFamily: "'Barlow Semi Condensed', sans-serif",
+          fontWeight: 900,
+          fontSize: "16px",
+          letterSpacing: "0.18em",
+          textTransform: "uppercase",
+          color: "#f0f2fc",
+          textDecoration: "none",
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          marginRight: "24px",
+          borderRight: "1px solid rgba(255,255,255,0.1)",
+          paddingRight: "24px"
+        }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#ff4500">
+            <polygon points="12,2 22,22 2,22" />
+          </svg>
+          <div>Synthetic <b style={{ color: "#ff4500", fontWeight: 900 }}>Bull</b></div>
+        </a>
+
         <div style={styles.symbolGroup}>
           <h1 style={styles.symbol}>{ticker.symbol}</h1>
-          <a href="#" style={styles.link}>
+          <span style={styles.link}>
             Synthetic Asset
-          </a>
+          </span>
         </div>
 
         <div style={styles.statGroup}>
@@ -78,6 +106,27 @@ export default function Header({ symbol, onLoginClick }) {
       </div>
 
       <div style={styles.rightGroup}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', borderRight: '1px solid rgba(255,255,255,0.1)', paddingRight: '16px', marginRight: '8px' }}>
+          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.5)', display: 'flex', transition: 'color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.color = '#fff'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'} title="Twitter">
+            <TwitterIcon size={18} />
+          </a>
+          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.5)', display: 'flex', transition: 'color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.color = '#fff'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'} title="Facebook">
+            <FacebookIcon size={18} />
+          </a>
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.5)', display: 'flex', transition: 'color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.color = '#fff'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'} title="Instagram">
+            <InstagramIcon size={18} />
+          </a>
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.5)', display: 'flex', transition: 'color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.color = '#fff'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'} title="GitHub">
+            <GithubIcon size={18} />
+          </a>
+        </div>
+        <button 
+          onClick={() => useTutorialStore.getState().startTutorial()} 
+          style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', display: 'flex', alignItems: 'center', marginRight: '16px' }}
+          title="Restart Tutorial Tour"
+        >
+          <Info size={18} />
+        </button>
         {userName ? (
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             <div

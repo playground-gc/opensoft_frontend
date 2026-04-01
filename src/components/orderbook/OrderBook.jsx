@@ -51,7 +51,7 @@ export default function OrderBook({ symbol }) {
     1.2;
 
   return (
-    <div style={styles.container}>
+    <div id="tour-order-book" style={styles.container}>
       {/* Header */}
       <div style={styles.header}>
         <div style={{ flex: 1, color: "rgba(255, 255, 255, 0.5)" }}>

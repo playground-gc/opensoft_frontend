@@ -255,6 +255,7 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
   const compSeriesRefs = useRef({});
   const volumeSeriesRef = useRef();
   const canvasRef = useRef();
+  const chartWrapperRef = useRef();
   const historyLoadedRef = useRef(false); // tracks whether we've seeded chart with REST history
 
   const [toastMsg, setToastMsg] = useState("");
@@ -484,11 +485,11 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
       },
       crosshair: { mode: 0 },
       handleScroll: {
-        mouseWheel: false,
+        mouseWheel: true,
         pressedMouseMove: true,
       },
       handleScale: {
-        mouseWheel: false,
+        mouseWheel: true,
         pinch: true,
         axisPressedMouseMove: true,
       },
@@ -775,9 +776,30 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [indicatorConfig, chartVersion]);
 
+  // Handle intelligent scrolling (allow page scroll normally, but allow Native Pinch/Ctrl+Scroll to zoom chart)
+  useEffect(() => {
+    const el = chartWrapperRef.current;
+    if (!el) return;
+    const handler = (e) => {
+      // Always allow pinch gestures (detected via ctrlKey or metaKey)
+      if (e.ctrlKey || e.metaKey) return;
+
+      // If the scroll is more vertical than horizontal, block the chart from capturing it so the page scrolls down
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.stopPropagation();
+      }
+      // Otherwise (horizontal scroll > vertical scroll), let the event pass to lightweight-charts to pan horizontally!
+    };
+    // Capture phase intercepts the event before lightweight-charts receives it
+    el.addEventListener('wheel', handler, { capture: true, passive: true });
+    return () => el.removeEventListener('wheel', handler, { capture: true });
+  }, []);
+
+
 
 
   const activeCount = Object.values(indicatorConfig).filter(
+
     (v) => v?.enabled,
   ).length;
   const compColors = ["#ff4500", "#ff4500", "#E040FB"];
@@ -798,6 +820,8 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
     <div ref={wrapperRef} style={s.container}>
       {/* Toolbar */}
       <div style={s.toolbar}>
+        {/* Invisible anchor for tour tooltip */}
+        <div id="tour-chart-anchor" style={{ position: 'absolute', top: 0, left: '50%' }} />
         <div style={s.toolbarLeft}>
           <div
             style={{
@@ -912,7 +936,7 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
         />
 
         {/* Chart area with canvas overlay */}
-        <div style={s.chartArea}>
+        <div id="tour-trading-chart" ref={chartWrapperRef} style={s.chartArea}>
           {/* Legend / Info Overlay */}
           <div
             style={{

@@ -163,7 +163,7 @@ export default function PlaceOrder({ symbol, isAuthenticated }) {
   const quoteAsset = "USD";
 
   return (
-    <div style={styles.container}>
+    <div id="tour-place-order" style={styles.container}>
       {/* Order-type tabs */}
       <div style={styles.tabsStrip}>
         {["Limit", "Market", "Stop Limit", "Stop Market"].map((t) => (
