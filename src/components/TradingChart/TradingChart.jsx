@@ -483,6 +483,15 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
         mode: isComparing ? 2 : 0,
       },
       crosshair: { mode: 0 },
+      handleScroll: {
+        mouseWheel: false,
+        pressedMouseMove: true,
+      },
+      handleScale: {
+        mouseWheel: false,
+        pinch: true,
+        axisPressedMouseMove: true,
+      },
     });
 
     const fmt = {
@@ -576,6 +585,13 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
         crosshairMarkerVisible: true,
       });
       compSeriesRefs.current[sym] = ls;
+
+      const compCandles = dataManager.getCandles(sym);
+      if (compCandles && compCandles.length > 0) {
+        ls.setData(
+          compCandles.map((c) => ({ time: c.time, value: c.close }))
+        );
+      }
     });
 
     const loadSeriesData = (candles) => {
@@ -636,14 +652,26 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
       }),
     );
     comparisonSymbols.forEach((sym) => {
+      let symHistoryLoaded = !!dataManager.buffers[sym]?.historyLoaded;
       unsubs.push(
         dataManager.subscribe(sym, (data) => {
           if (compSeriesRefs.current[sym]) {
             try {
-              compSeriesRefs.current[sym].update({
-                time: data.chartCandle.time,
-                value: data.chartCandle.close,
-              });
+              if (data.historyLoaded && !symHistoryLoaded) {
+                symHistoryLoaded = true;
+                const compCandles = dataManager.getCandles(sym);
+                if (compCandles && compCandles.length > 0) {
+                  compSeriesRefs.current[sym].setData(
+                    compCandles.map((c) => ({ time: c.time, value: c.close }))
+                  );
+                }
+              }
+              if (data.chartCandle && data.chartCandle.time > 0) {
+                compSeriesRefs.current[sym].update({
+                  time: data.chartCandle.time,
+                  value: data.chartCandle.close,
+                });
+              }
             } catch (_) {}
           }
         }),
@@ -747,6 +775,8 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [indicatorConfig, chartVersion]);
 
+
+
   const activeCount = Object.values(indicatorConfig).filter(
     (v) => v?.enabled,
   ).length;
@@ -785,9 +815,10 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
                 color: compColors[idx % compColors.length],
                 fontWeight: "bold",
                 fontSize: "10px",
+                marginLeft: 8,
               }}
             >
-              + {sym}
+              vs {sym}
             </div>
           ))}
 

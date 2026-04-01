@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, Pin } from "lucide-react";
 import { dataManager } from "../../services/dataManager";
 
 export default function MarketWatch({
@@ -9,10 +9,24 @@ export default function MarketWatch({
   onToggleComparison,
 }) {
   const [search, setSearch] = useState("");
-  const tabs = ["Favorites", "All"];
-  const [activeTab, setActiveTab] = useState("All");
-
   const [assets, setAssets] = useState([]);
+  const [pinned, setPinned] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('opensoft_pinned_stocks') || '[]');
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('opensoft_pinned_stocks', JSON.stringify(pinned));
+  }, [pinned]);
+
+  const togglePin = (pair) => {
+    setPinned((prev) => 
+      prev.includes(pair) ? prev.filter((p) => p !== pair) : [...prev, pair]
+    );
+  };
 
   useEffect(() => {
     const unsubs = [];
@@ -40,7 +54,13 @@ export default function MarketWatch({
 
   const displayedAssets = assets.filter((a) =>
     a.pair.toLowerCase().includes(search.toLowerCase()),
-  );
+  ).sort((a, b) => {
+    const aPinned = pinned.includes(a.pair);
+    const bPinned = pinned.includes(b.pair);
+    if (aPinned && !bPinned) return -1;
+    if (!aPinned && bPinned) return 1;
+    return a.pair.localeCompare(b.pair);
+  });
 
   return (
     <div style={styles.container}>
@@ -58,27 +78,8 @@ export default function MarketWatch({
         />
       </div>
 
-      <div style={styles.tabsStrip}>
-        {tabs.map((tab) => (
-          <div
-            key={tab}
-            style={{
-              ...styles.tab,
-              color: activeTab === tab ? "white" : "var(--color-text-muted)",
-              borderBottom:
-                activeTab === tab
-                  ? "2px solid #ff4500"
-                  : "2px solid transparent",
-            }}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab}
-          </div>
-        ))}
-      </div>
-
-      <div style={styles.listHeader}>
-        <div style={{ ...styles.headerCell, flex: 2 }}>Pair / Compare</div>
+            <div style={styles.listHeader}>
+        <div style={{ ...styles.headerCell, flex: 2 }}>Symbol</div>
         <div style={{ ...styles.headerCell, flex: 2 }}>Price</div>
         <div style={{ ...styles.headerCell, flex: 1, textAlign: "right" }}>
           Change
@@ -89,6 +90,7 @@ export default function MarketWatch({
         {displayedAssets.map((asset) => {
           const isComparing = comparisonSymbols.includes(asset.pair);
           const isMain = activeSymbol === asset.pair;
+          const isPinned = pinned.includes(asset.pair);
 
           return (
             <div
@@ -109,6 +111,18 @@ export default function MarketWatch({
                   gap: "8px",
                 }}
               >
+                <div 
+                  onClick={(e) => { e.stopPropagation(); togglePin(asset.pair); }} 
+                  style={{cursor: 'pointer', display: 'flex'}}
+                  title={isPinned ? "Unpin stock" : "Pin stock"}
+                >
+                  <Pin 
+                    size={13} 
+                    fill={isPinned ? "rgba(255, 255, 255, 0.9)" : "none"} 
+                    color={isPinned ? "rgba(255, 255, 255, 0.9)" : "var(--color-text-muted)"} 
+                    style={{ transform: isPinned ? "rotate(45deg)" : "none", transition: "0.2s" }} 
+                  />
+                </div>
                 <div
                   style={{ fontWeight: "bold", cursor: "pointer", flex: 1 }}
                   onClick={() => onSelectSymbol(asset.pair)}

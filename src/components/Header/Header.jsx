@@ -13,7 +13,7 @@ export default function Header({ symbol, onLoginClick }) {
 
   useEffect(() => {
     const unsub = dataManager.subscribe(symbol, (data) => {
-      setTicker(data.ticker);
+      setTicker({ ...data.ticker });
     });
     return unsub;
   }, [symbol]);

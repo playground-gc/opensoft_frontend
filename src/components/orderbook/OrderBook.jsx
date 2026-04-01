@@ -217,6 +217,7 @@ const styles = {
     flex: 1,
     display: "flex",
     flexDirection: "column",
+    overflowY: "auto",
   },
   row: {
     display: "flex",
