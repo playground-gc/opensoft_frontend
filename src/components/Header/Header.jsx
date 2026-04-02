@@ -36,7 +36,12 @@ export default function Header({ symbol, onLoginClick }) {
 
   return (
     <div id="tour-stats-bar" style={styles.header}>
-      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} onSuccess={(user) => { setUserName(user); setIsLoggedIn(true); setShowAuthModal(false); }} />}
+      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} onSuccess={(authPayload) => {
+        const user = typeof authPayload === "string" ? authPayload : authPayload?.username;
+        setUserName(user || "");
+        setIsLoggedIn(true);
+        setShowAuthModal(false);
+      }} />}
       <div style={styles.leftGroup}>
         <a href="/" style={{
           fontFamily: "'Barlow Semi Condensed', sans-serif",

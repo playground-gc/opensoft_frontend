@@ -33,7 +33,7 @@ export default function AuthModal({ onClose, onSuccess, initialSignUp = false })
           username: res.username,
           userId: res.user_id,
         });
-        onSuccess(res.username);
+        onSuccess({ username: res.username, authType: "signup" });
       } else {
         const res = await login({ username: username || email, password });
         setAuth({
@@ -41,7 +41,7 @@ export default function AuthModal({ onClose, onSuccess, initialSignUp = false })
           username: res.username,
           userId: res.user_id,
         });
-        onSuccess(res.username);
+        onSuccess({ username: res.username, authType: "login" });
       }
       onClose();
     } catch (err) {
@@ -51,7 +51,7 @@ export default function AuthModal({ onClose, onSuccess, initialSignUp = false })
     }
   };
 
-  const content = (
+
     <div style={styles.overlay}>
       <div style={styles.modal}>
         <style>{`
