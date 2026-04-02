@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, RotateCcw, Check, Hash, Settings2 } from 'lucide-react';
 
 // ─── Indicator full names ────────────────────────────────────────────────────
@@ -22,7 +23,7 @@ const INDICATOR_NAMES = {
     WR:       'Williams Percent Range',
 };
 
-const LINE_COLORS = ['#ff4500', '#E040FB', '#AB47BC', '#F6465D', '#0ECB81', '#FF9800'];
+const LINE_COLORS = ['#5AF2B5', '#E040FB', '#AB47BC', '#F6465D', '#0ECB81', '#FF9800'];
 
 function makeMultiLine() {
     return {
@@ -41,7 +42,7 @@ const MAIN_INDICATORS = [
     { key: 'MA',    label: 'MA',    defaultParams: makeMultiLine() },
     { key: 'EMA',   label: 'EMA',   defaultParams: makeMultiLine() },
     { key: 'WMA',   label: 'WMA',   defaultParams: makeMultiLine() },
-    { key: 'BOLL',  label: 'BOLL',  defaultParams: { period: 20, stdDev: 2, upperColor: '#ff4500', middleColor: '#ff4500', lowerColor: '#ff4500' } },
+    { key: 'BOLL',  label: 'BOLL',  defaultParams: { period: 20, stdDev: 2, upperColor: '#5AF2B5', middleColor: '#5AF2B5', lowerColor: '#5AF2B5' } },
     { key: 'VWAP',  label: 'VWAP',  defaultParams: { color: '#00BCD4' } },
     { key: 'SAR',   label: 'SAR',   defaultParams: { step: 0.02, max: 0.2 } },
     { key: 'SUPER', label: 'SUPER', defaultParams: { period: 10, multiplier: 3 } },
@@ -65,11 +66,11 @@ const SUB_INDICATORS = [
     },
     { key: 'RSI',      label: 'RSI',      defaultParams: { period: 14, color: '#E040FB' } },
     { key: 'MFI',      label: 'MFI',      defaultParams: { period: 14, color: '#00BCD4' } },
-    { key: 'KDJ',      label: 'KDJ',      defaultParams: { period: 9,  kColor: '#ff4500', dColor: '#E040FB', jColor: '#0ECB81' } },
-    { key: 'OBV',      label: 'OBV',      defaultParams: { color: '#ff4500' } },
+    { key: 'KDJ',      label: 'KDJ',      defaultParams: { period: 9,  kColor: '#5AF2B5', dColor: '#E040FB', jColor: '#0ECB81' } },
+    { key: 'OBV',      label: 'OBV',      defaultParams: { color: '#5AF2B5' } },
     { key: 'CCI',      label: 'CCI',      defaultParams: { period: 20, color: '#FF9800' } },
-    { key: 'StochRSI', label: 'StochRSI', defaultParams: { rsiPeriod: 14, stochPeriod: 14, kColor: '#ff4500', dColor: '#E040FB' } },
-    { key: 'WR',       label: 'WR',       defaultParams: { period: 14, color: '#ff4500' } },
+    { key: 'StochRSI', label: 'StochRSI', defaultParams: { rsiPeriod: 14, stochPeriod: 14, kColor: '#5AF2B5', dColor: '#E040FB' } },
+    { key: 'WR',       label: 'WR',       defaultParams: { period: 14, color: '#5AF2B5' } },
 ];
 
 // ─── Shared sub-components ───────────────────────────────────────────────────
@@ -162,16 +163,16 @@ function CustomCheckbox({ checked, onChange }) {
             onClick={(e) => { e.stopPropagation(); onChange({ target: { checked: !checked } }); }}
             style={{
                 width: 18, height: 18, borderRadius: '50%',
-                border: `2px solid ${checked ? '#ff4500' : 'rgba(255,255,255,0.3)'}`,
+                border: `2px solid ${checked ? '#5AF2B5' : 'rgba(255,255,255,0.3)'}`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer', transition: 'all 0.2s',
-                backgroundColor: checked ? 'rgba(255,69,0,0.15)' : 'rgba(0,0,0,0.2)',
+                backgroundColor: checked ? 'rgba(90, 242, 181, 0.15)' : 'rgba(0,0,0,0.2)',
                 flexShrink: 0
             }}
         >
             <div style={{
                 width: 8, height: 8, borderRadius: '50%', 
-                backgroundColor: '#ff4500',
+                backgroundColor: '#5AF2B5',
                 transform: checked ? 'scale(1)' : 'scale(0)',
                 transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)'
             }} />
@@ -427,7 +428,7 @@ export default function IndicatorModal({ initialConfig = {}, onSave, onClose, on
 
     const activeSelected = selected && list.find(i => i.key === selected) ? selected : list[0]?.key;
 
-    return (
+    const modalContent = (
         <div style={m.overlay} onClick={onClose}>
             <div style={m.modal} onClick={e => e.stopPropagation()}>
 
@@ -497,6 +498,8 @@ export default function IndicatorModal({ initialConfig = {}, onSave, onClose, on
             </div>
         </div>
     );
+
+    return createPortal(modalContent, document.body);
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
@@ -507,10 +510,10 @@ const m = {
         display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
     },
     modal: {
-        background: 'rgba(10, 10, 10, 0.6)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255, 69, 0, 0.4)', borderRadius: "0px",
+        background: 'rgba(10, 10, 10, 0.6)', backdropFilter: 'blur(12px)', border: '1px solid rgba(90, 242, 181, 0.4)', borderRadius: "0px",
         width: '640px', maxWidth: '96vw', maxHeight: '82vh',
         display: 'flex', flexDirection: 'column', overflow: 'hidden',
-        boxShadow: '0 0 40px rgba(255, 69, 0, 0.15), inset 0 0 20px rgba(255, 69, 0, 0.05)'
+        boxShadow: '0 0 40px rgba(90, 242, 181, 0.15), inset 0 0 20px rgba(90, 242, 181, 0.05)'
     },
     header: {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -524,7 +527,7 @@ const m = {
         padding: '0 2px', borderBottom: '2px solid transparent', transition: 'color 0.2s',
         letterSpacing: '-0.01em'
     },
-    tabActive: { color: '#FFFFFF', borderBottomColor: '#ff4500', fontWeight: '700' },
+    tabActive: { color: '#FFFFFF', borderBottomColor: '#5AF2B5', fontWeight: '700' },
     closeBtn: {
         background: 'none', border: 'none', cursor: 'pointer',
         color: 'var(--color-text-muted)', padding: '4px', borderRadius: "0px",
@@ -545,7 +548,7 @@ const m = {
     },
     sideItemActive: { background: 'rgba(255, 255, 255, 0.05)' },
     checkLabel: { display: 'flex', alignItems: 'center', cursor: 'pointer' },
-    checkbox: { accentColor: '#ff4500', cursor: 'pointer', width: 14, height: 14 },
+    checkbox: { accentColor: '#5AF2B5', cursor: 'pointer', width: 14, height: 14 },
     sideLabel: { flex: 1, color: 'var(--color-text-main)', fontSize: '13px' },
     chevron: { color: 'var(--color-text-muted)', fontSize: '15px' },
     rightPane: { flex: 1, overflowY: 'auto', padding: '18px 20px' },
@@ -563,7 +566,7 @@ const m = {
         padding: '8px 22px', borderRadius: "0px", cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px'
     },
     btnSave: {
-        background: '#ff4500', border: 'none', color: '#050505', fontWeight: '700',
+        background: '#5AF2B5', border: 'none', color: '#050505', fontWeight: '700',
         padding: '8px 26px', borderRadius: "0px", cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px'
     },
 };
@@ -581,7 +584,7 @@ const p = {
     },
     checkLabel: { display: 'flex', alignItems: 'center', gap: '8px', flex: 1, cursor: 'pointer' },
     checkText: { color: 'var(--color-text-main)', fontSize: '13px' },
-    checkbox: { accentColor: '#ff4500', cursor: 'pointer', width: 14, height: 14 },
+    checkbox: { accentColor: '#5AF2B5', cursor: 'pointer', width: 14, height: 14 },
     numInput: {
         width: '100%', background: 'rgba(0, 0, 0, 0.4)', border: '1px solid rgba(255, 255, 255, 0.1)',
         transition: 'border 0.2s, box-shadow 0.2s',
