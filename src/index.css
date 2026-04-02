@@ -8,11 +8,13 @@
     --color-text-muted: rgba(255, 255, 255, 0.5);
     --color-neon-green: #0ecb81;
     --color-coral-red: #f6465d;
+    --color-brand-mint: #5AF2B5;
+    --color-brand-mint-glow: rgba(90, 242, 181, 0.3);
 
     font-family: "Inter", "Segoe UI", sans-serif;
     font-size: 12px;
     color: var(--color-text-main);
-    background: radial-gradient(circle at 50% -20%, #0a0a0a, #050505 80%);
+    background: radial-gradient(circle at 50% -20%, #050a08, #020504 80%);
 }
 
 * {
@@ -55,8 +57,8 @@ body {
 }
 
 .panel {
-    box-shadow: 0 0 25px rgba(255, 69, 0, 0.03), inset 0 0 15px rgba(255, 69, 0, 0.01);
-    border: 1px solid rgba(255, 69, 0, 0.1);
+    box-shadow: 0 0 25px rgba(90, 242, 181, 0.04), inset 0 0 15px rgba(90, 242, 181, 0.02);
+    border: 1px solid rgba(90, 242, 181, 0.1);
     background-color: var(--color-bg-panel);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);

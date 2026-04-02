@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Header from "./components/Header/Header";
 import MarketWatch from "./components/MarketWatch/MarketWatch";
 import { TradeFeed } from "./components/panels/TradeFeed";
@@ -12,19 +12,32 @@ import { useAuthStore } from "./store";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import TutorialTour from "./components/TutorialTour/TutorialTour";
 import ToastContainer from "./components/Notification/Toast.jsx";
+import { useTutorialStore } from "./store/index.js";
 
 function TradingTerminal() {
   const { token } = useAuthStore();
+
   const [activeSymbol, setActiveSymbol] = useState("AAPL_S");
   const [isAuthenticated, setIsAuthenticated] = useState(!!token);
   const [showAuth, setShowAuth] = useState(!token);
+  const [authInitialSignUp, setAuthInitialSignUp] = useState(false);
+  const { startTutorial } = useTutorialStore();
 
   const [comparisonSymbols, setComparisonSymbols] = useState([]);
 
-  const handleLoginSuccess = (username) => {
+  const handleLoginSuccess = (authPayload) => {
+    const username = typeof authPayload === "string" ? authPayload : authPayload?.username;
     void username;
     setIsAuthenticated(true);
     setShowAuth(false);
+
+    const hasCompleted = localStorage.getItem("hasCompletedTutorial");
+    if (!hasCompleted) {
+      // Delay launch so target panels are mounted when Joyride resolves selectors.
+      setTimeout(() => {
+        startTutorial();
+      }, 500);
+    }
   };
 
   const toggleComparison = (symbol) => {
@@ -84,6 +97,7 @@ function TradingTerminal() {
 
       {showAuth && (
         <AuthModal
+          initialSignUp={authInitialSignUp}
           onClose={() => setShowAuth(false)}
           onSuccess={handleLoginSuccess}
         />
@@ -94,10 +108,10 @@ function TradingTerminal() {
 
 function App() {
   return (
-    // <ProfilePage/>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/trading-charts" replace />} />
+        <Route path="/terminal" element={<TradingTerminal />} />
         <Route path="/trading-charts" element={<TradingTerminal />} />
         <Route path="/portfolio" element={<ProfilePage />} />
         <Route path="/portfolio/*" element={<ProfilePage />} />

@@ -14,15 +14,15 @@ const glassCardStyle = {
   background: "rgba(0, 0, 0, 0.4)",
   backdropFilter: "blur(12px)",
   WebkitBackdropFilter: "blur(12px)",
-  border: "1px solid rgba(255, 69, 0, 0.1)",
+  border: "1px solid rgba(90, 242, 181, 0.1)",
   borderRadius: "0px",
-  boxShadow: "0 0 25px rgba(255, 69, 0, 0.03), inset 0 0 15px rgba(255, 69, 0, 0.01)",
+  boxShadow: "0 0 25px rgba(90, 242, 181, 0.04), inset 0 0 15px rgba(90, 242, 181, 0.02)",
   overflow: "hidden"
 };
 
 const neonTextStyle = {
-  color: "#ff4500",
-  textShadow: "0 0 8px rgba(255, 69, 0, 0.4)"};
+  color: "#5AF2B5",
+  textShadow: "0 0 8px rgba(90, 242, 181, 0.4)"};
 
 const tableStyle = {
   width: "100%",
@@ -394,7 +394,7 @@ const BalanceChart = ({ points }) => {
         <path
           d={linePath}
           fill="none"
-          stroke="#ff4500"
+          stroke="#5AF2B5"
           strokeWidth="2.5"
           strokeLinejoin="round"
           strokeLinecap="round"
@@ -416,7 +416,7 @@ const BalanceChart = ({ points }) => {
                 style={{ 
                   cursor: "pointer",
                   transition: "all 0.2s ease",
-                  filter: isHovered ? "drop-shadow(0 0 6px rgba(255,69,0,0.8))" : "none"
+                  filter: isHovered ? "drop-shadow(0 0 6px rgba(90,242,181,0.8))" : "none"
                 }}
                 onMouseEnter={(e) => handleMouseMove(e, p, i)}
                 onMouseMove={(e) => handleMouseMove(e, p, i)}
@@ -652,15 +652,15 @@ export default function ProfilePage() {
             to="/trading-charts"
             style={{
               display: "inline-block",
-              background: "rgba(255, 69, 0, 0.1)",
-              border: "1px solid #ff4500",
-              color: "#ff4500",
+              background: "#5AF2B5",
+              border: "none",
+              color: "#0D0D0D",
               padding: "12px 24px",
               borderRadius: "0px",
               textDecoration: "none",
-              fontWeight: "600",
+              fontWeight: "700",
               transition: "all 0.3s",
-              boxShadow: "0 0 15px rgba(255, 69, 0, 0.2)"}}
+              boxShadow: "0 0 15px rgba(90, 242, 181, 0.3)"}}
           >
             Return to Terminal
           </Link>
@@ -696,9 +696,9 @@ export default function ProfilePage() {
                 right: "-50px",
                 width: "150px",
                 height: "150px",
-                background: "#ff4500",
+                background: "#5AF2B5",
                 filter: "blur(100px)",
-                opacity: 0.15,
+                opacity: 0.1,
                 pointerEvents: "none"}}
             />
 
@@ -886,9 +886,9 @@ export default function ProfilePage() {
                               width: "32px",
                               height: "32px",
                               borderRadius: "0px",
-                              background: "rgba(255, 69, 0, 0.1)",
-                              border: "1px solid rgba(255, 69, 0, 0.2)",
-                              color: "#ff4500",
+                              background: "rgba(90, 242, 181, 0.1)",
+                              border: "1px solid rgba(90, 242, 181, 0.2)",
+                              color: "#5AF2B5",
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
@@ -1037,13 +1037,13 @@ export default function ProfilePage() {
                               order.status === "filled"
                                 ? "rgba(14, 203, 129, 0.1)"
                                 : order.status === "open"
-                                  ? "rgba(255, 69, 0, 0.1)"
+                                  ? "rgba(90, 242, 181, 0.1)"
                                   : "rgba(255,255,255,0.05)",
                             color:
                               order.status === "filled"
                                 ? "#0ECB81"
                                 : order.status === "open"
-                                  ? "#ff4500"
+                                  ? "#5AF2B5"
                                   : "rgba(255,255,255,0.6)",
                             padding: "4px 8px",
                             borderRadius: "0px",
@@ -1232,39 +1232,26 @@ export default function ProfilePage() {
           zIndex: 10}}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <div
-            style={{
-              width: "32px",
-              height: "32px",
-              background: "linear-gradient(135deg, #ff4500, #f5d061)",
-              borderRadius: "0px",
-              boxShadow: "0 0 15px rgba(255, 69, 0, 0.4)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center"}}
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="#5AF2B5"
+            style={{ filter: "drop-shadow(0 0 6px rgba(90,242,181,0.5))" }}
           >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#000"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 2L2 22h20L12 2z" />
-            </svg>
-          </div>
-          <div
+            <polygon points="12,2 22,22 2,22" />
+          </svg>
+          <a
+            href="/"
             style={{
-              fontSize: "18px",
+              fontSize: "22px",
               fontWeight: "800",
-              letterSpacing: "2px",
-              ...neonTextStyle}}
+              letterSpacing: "3px",
+              textDecoration: "none",
+              color: "rgba(255,255,255,0.95)"}}
           >
-            SYNTHETIC
-          </div>
+            SYNTHETIC <span style={{ color: "#5AF2B5", textShadow: "0 0 8px rgba(90,242,181,0.5)" }}>BULL</span>
+          </a>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
@@ -1282,9 +1269,9 @@ export default function ProfilePage() {
               style={{
                 width: "28px",
                 height: "28px",
-                background: "rgba(255, 69, 0, 0.2)",
+                background: "rgba(90, 242, 181, 0.15)",
                 borderRadius: "50%",
-                color: "#ff4500",
+                color: "#5AF2B5",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -1302,33 +1289,33 @@ export default function ProfilePage() {
               {me.username || "Trader"}
             </span>
           </div>
-          <Link
-            to="/trading-charts"
+          <a
+            href="/terminal"
             style={{
               textDecoration: "none",
-              color: "#000",
-              background: "linear-gradient(90deg, #ff4500, #f0b942)",
+              color: "#0D0D0D",
+              background: "#5AF2B5",
               padding: "10px 24px",
               borderRadius: "0px",
               fontSize: "13px",
               fontWeight: "700",
               textTransform: "uppercase",
               letterSpacing: "1px",
-              boxShadow: "0 4px 15px rgba(255, 69, 0, 0.3)",
+              boxShadow: "0 4px 15px rgba(90, 242, 181, 0.3)",
               transition: "transform 0.2s, box-shadow 0.2s"}}
             onMouseOver={(e) => {
               e.currentTarget.style.transform = "translateY(-1px)";
               e.currentTarget.style.boxShadow =
-                "0 6px 20px rgba(255, 69, 0, 0.4)";
+                "0 6px 20px rgba(90, 242, 181, 0.4)";
             }}
             onMouseOut={(e) => {
               e.currentTarget.style.transform = "none";
               e.currentTarget.style.boxShadow =
-                "0 4px 15px rgba(255, 69, 0, 0.3)";
+                "0 4px 15px rgba(90, 242, 181, 0.3)";
             }}
           >
             Terminal
-          </Link>
+          </a>
         </div>
       </div>
 
@@ -1371,14 +1358,14 @@ export default function ProfilePage() {
                   alignItems: "center",
                   gap: "16px",
                   background: isActive
-                    ? "rgba(255, 69, 0, 0.1)"
+                    ? "rgba(90, 242, 181, 0.08)"
                     : "transparent",
-                  border: `1px solid ${isActive ? "rgba(255, 69, 0, 0.2)" : "transparent"}`,
-                  color: isActive ? "#ff4500" : "rgba(255,255,255,0.6)",
+                  border: `1px solid ${isActive ? "rgba(90, 242, 181, 0.2)" : "transparent"}`,
+                  color: isActive ? "#5AF2B5" : "rgba(255,255,255,0.6)",
                   fontWeight: isActive ? "600" : "400",
                   transition: "all 0.2s ease",
                   boxShadow: isActive
-                    ? "inset 0 0 20px rgba(255, 69, 0, 0.05)"
+                    ? "inset 0 0 20px rgba(90, 242, 181, 0.04)"
                     : "none"}}
                 onMouseOver={(e) => {
                   if (!isActive) e.currentTarget.style.color = "#fff";
@@ -1424,7 +1411,7 @@ export default function ProfilePage() {
               >
                 <span>Portfolio</span>
                 <span>/</span>
-                <span style={{ color: "#ff4500" }}>
+                <span style={{ color: "#5AF2B5" }}>
                   {navItems.find((i) => i.id === activeTab)?.label}
                 </span>
               </div>
@@ -1465,14 +1452,14 @@ export default function ProfilePage() {
               style={{
                 padding: "80px 0",
                 textAlign: "center",
-                color: "rgba(255, 69, 0, 0.8)"}}
+                color: "rgba(90, 242, 181, 0.8)"}}
             >
               <div
                 style={{
                   width: "40px",
                   height: "40px",
-                  border: "3px solid rgba(255, 69, 0, 0.2)",
-                  borderTopColor: "#ff4500",
+                  border: "3px solid rgba(90, 242, 181, 0.2)",
+                  borderTopColor: "#5AF2B5",
                   borderRadius: "50%",
                   animation: "spin 1s linear infinite",
                   margin: "0 auto 20px"}}

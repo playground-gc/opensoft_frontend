@@ -54,6 +54,7 @@ const TutorialTour = () => {
   const { userId } = useAuthStore();
   const { runTutorial, tourKey, stopTutorial } = useTutorialStore();
 
+
   useEffect(() => {
     // Slight delay to ensure DOM id nodes are fully painted before Joyride parses them.
     // Use a per-user key so every new user sees the tutorial on first login,

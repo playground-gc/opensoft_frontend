@@ -19,10 +19,10 @@
       --raised: #0f0f0f;
       --glass: rgba(0, 0, 0, 0.72);
       --border: rgba(255, 255, 255, 0.055);
-      --border-gold: rgba(255, 69, 0, 0.18);
-      --brand: #ff4500;
-      --brand-dim: rgba(255, 69, 0, 0.08);
-      --brand-glow: rgba(255, 69, 0, 0.18);
+      --border-gold: rgba(90, 242, 181, 0.18);
+      --brand: #5AF2B5;
+      --brand-dim: rgba(90, 242, 181, 0.08);
+      --brand-glow: rgba(90, 242, 181, 0.18);
       --bull: #0ecb81;
       --bear: #f6465d;
       --t1: #f0f2fc;
@@ -172,8 +172,8 @@
       position: fixed;
       inset: 0;
       z-index: -1;
-      background-image: linear-gradient(rgba(255, 69, 0, 0.07) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 69, 0, 0.07) 1px, transparent 1px);
+      background-image: linear-gradient(rgba(90, 242, 181, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(90, 242, 181, 0.05) 1px, transparent 1px);
       background-size: 50px 50px;
       transform: perspective(600px) rotateX(60deg) translateY(-100px) scale(3);
       transform-origin: center top;
@@ -220,15 +220,15 @@
       inset: 0;
       border: 1px solid var(--brand-glow);
       border-radius: inherit;
-      box-shadow: inset 0 0 15px rgba(255, 69, 0, 0.05);
+      box-shadow: inset 0 0 15px rgba(90, 242, 181, 0.04);
       pointer-events: none;
       transition: box-shadow 0.3s, border-color 0.3s;
     }
 
     .facc:hover::after,
     .bot-card:hover::after {
-      box-shadow: inset 0 0 30px rgba(255, 69, 0, 0.15), 0 0 20px rgba(255, 69, 0, 0.2);
-      border-color: rgba(255, 69, 0, 0.4);
+      box-shadow: inset 0 0 30px rgba(90, 242, 181, 0.12), 0 0 20px rgba(90, 242, 181, 0.18);
+      border-color: rgba(90, 242, 181, 0.35);
     }
 
     ::-webkit-scrollbar {
@@ -252,7 +252,7 @@
       position: fixed;
       width: 28px;
       height: 28px;
-      border: 1px solid rgba(255, 69, 0, .5);
+      border: 1px solid rgba(90, 242, 181, .5);
       border-radius: 50%;
       pointer-events: none;
       z-index: 10999;
@@ -335,8 +335,8 @@
     .logo {
       font-family: 'Barlow Semi Condensed', sans-serif !important;
       font-weight: 900 !important;
-      font-size: var(--fs-sm);
-      letter-spacing: .18em;
+      font-size: 24px;
+      letter-spacing: .20em;
       text-transform: uppercase;
       color: var(--t1);
       text-decoration: none;
@@ -485,14 +485,14 @@
 
     .nbtn-brand {
       background: var(--brand);
-      color: #000;
+      color: #0D0D0D;
       font-weight: 700
     }
 
     .nbtn-brand:hover {
-      background: #ff6a33;
+      background: #7af7c8;
       transform: translateY(-1px);
-      box-shadow: 0 8px 30px rgba(255, 69, 0, .3)
+      box-shadow: 0 8px 30px rgba(90, 242, 181, .35)
     }
 
     .btn-flip-inner {
@@ -509,7 +509,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 69, 0, 0.35) 50%, rgba(255, 255, 255, 0.18) 100%);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(90, 242, 181, 0.3) 50%, rgba(255, 255, 255, 0.18) 100%);
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.12s;
@@ -712,7 +712,7 @@
     .hero-grid {
       position: absolute;
       inset: 0;
-      background-image: linear-gradient(rgba(255, 69, 0, .018) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 69, 0, .018) 1px, transparent 1px);
+      background-image: linear-gradient(rgba(90, 242, 181, .012) 1px, transparent 1px), linear-gradient(90deg, rgba(90, 242, 181, .012) 1px, transparent 1px);
       background-size: 55px 55px;
       mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black, transparent 78%);
     }
@@ -720,7 +720,7 @@
     .hero-vignette {
       position: absolute;
       inset: 0;
-      background: radial-gradient(ellipse 60% 55% at 50% 35%, rgba(255, 69, 0, .04), transparent 70%);
+      background: radial-gradient(ellipse 60% 55% at 50% 35%, rgba(90, 242, 181, .03), transparent 70%);
     }
 
     .hero-line {
@@ -729,7 +729,7 @@
       top: 0;
       bottom: 0;
       width: 1px;
-      background: linear-gradient(to bottom, transparent, rgba(255, 69, 0, .06) 30%, rgba(255, 69, 0, .06) 70%, transparent);
+      background: linear-gradient(to bottom, transparent, rgba(90, 242, 181, .05) 30%, rgba(90, 242, 181, .05) 70%, transparent);
       transform: translateX(-50%);
     }
 
@@ -889,13 +889,13 @@
 
     .hbtn.pri {
       background: var(--brand);
-      color: #000
+      color: #0D0D0D
     }
 
     .hbtn.pri:hover {
-      background: #ff6a33;
+      background: #7af7c8;
       transform: translateY(-2px);
-      box-shadow: 0 16px 48px rgba(255, 69, 0, .3)
+      box-shadow: 0 16px 48px rgba(90, 242, 181, .35)
     }
 
     .hbtn.sec {
@@ -917,7 +917,7 @@
 
     .hbtn.out:hover {
       background: var(--brand-dim);
-      border-color: rgba(255, 69, 0, .45)
+      border-color: rgba(90, 242, 181, .45)
     }
 
     .hero-stats {
@@ -1229,7 +1229,7 @@
     }
 
     .facc:nth-child(2) {
-      background: linear-gradient(135deg, rgba(255, 69, 0, 0.08) 0%, var(--surface) 100%);
+      background: linear-gradient(135deg, rgba(14, 203, 129, 0.06) 0%, var(--surface) 100%);
     }
 
     .facc:nth-child(3) {
@@ -2400,7 +2400,7 @@
       position: fixed;
       inset: 0;
       z-index: 10000;
-      background: radial-gradient(ellipse at center, rgba(255, 69, 0, 0.95), rgba(255, 255, 255, 0.85));
+      background: radial-gradient(ellipse at center, rgba(90, 242, 181, 0.95), rgba(255, 255, 255, 0.85));
       opacity: 0;
       pointer-events: none;
       will-change: opacity;
@@ -2708,8 +2708,8 @@
   <div id="app-view">
 
     <nav>
-      <a href="/terminal" class="logo">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="#ff4500">
+      <a href="/" class="logo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#5AF2B5">
           <polygon points="12,2 22,22 2,22" />
         </svg>
         Synthetic<b>Bull</b>
@@ -2754,9 +2754,6 @@
 
     <div id="scroll-dots"></div>
 
-    <div class="ticker-bar">
-      <div class="ticker-inner" id="ticker"></div>
-    </div>
 
     <div id="scroll-container">
 
@@ -3095,11 +3092,11 @@
                   </div>
                 </div>
                 <div
-                  style="display:flex;align-items:center;gap:var(--s3);padding:var(--s3) var(--s4);background:rgba(232,160,32,.04);border:1px solid rgba(232,160,32,.1);border-radius:6px">
+                  style="display:flex;align-items:center;gap:var(--s3);padding:var(--s3) var(--s4);background:rgba(24,201,106,.04);border:1px solid rgba(24,201,106,.1);border-radius:6px">
                   <span class="ldot amb"></span>
                   <div>
                     <div style="font-size:13px;letter-spacing:.1em;color:var(--t2);font-weight:700">ALPHA BOT</div>
-                    <div style="font-size:14px;color:var(--brand);font-weight:600">68.4% win rate</div>
+                    <div style="font-size:14px;color:var(--bull);font-weight:600">68.4% win rate</div>
                   </div>
                 </div>
               </div>
@@ -3135,7 +3132,7 @@
                 <div id="mm-feed"></div>
               </div>
             </div>
-            <div class="bot-card fmt-hide-fast">
+            <div class="bot-card fmt-hide-fast" style="background:rgba(24,201,106,.03);border-color:rgba(24,201,106,.15)">
               <div class="bot-hdr">
                 <div class="ldot amb"></div>
                 <div class="bot-name">ALPHA BOT</div>
@@ -3292,15 +3289,15 @@
         </div>
       </div>
 
-      <section id="p-blackhole" style="position:relative;height:250vh;background:#000;overflow:clip">
+      <section id="p-blackhole" class="panel" data-index="6" style="position:relative;height:120vh;background:#000;overflow:clip">
         <div class="bh-sticky">
           <canvas id="bh-canvas" style="position:absolute;inset:0;z-index:5;width:100%;height:100%"></canvas>
           <div id="bh-content" class="bh-content">
-            <div class="bh-sub"><span class="desktop-only-bh">Market Pulse</span></div>
+            <div class="bh-sub"><span class="desktop-only-bh" style="color:var(--brand)">Market Pulse</span></div>
             <h2 class="bh-title">
               <span class="desktop-only-bh">Global&nbsp;Liquidity<br>Network</span>
               <span class="mobile-only" style="display:flex;align-items:center;gap:12px">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="#ff4500">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="#5AF2B5">
                   <polygon points="12,2 22,22 2,22" />
                 </svg>
                 Synthetic <b>Bull</b>
@@ -3310,51 +3307,43 @@
               Professional-grade trading terminal. Real-time feeds. Sub-millisecond data. Built for traders who demand
               clarity under pressure.
             </div>
-            <a href="/terminal" class="bh-cta">Analyze The Flow</a>
+            <a href="/terminal" class="bh-cta" style="background:var(--brand); color:#000;">Analyze The Flow</a>
           </div>
         </div>
       </section>
 
-      <!-- PANEL 8: FOOTER -->
-      <div class="panel" id="p-footer" data-index="6" style="height:auto;min-height:100vh">
-        <footer>
-          <div class="ft-grid">
-            <div>
-              <div class="ft-logo"><svg width="14" height="14" viewBox="0 0 24 24" fill="#ff4500">
-                  <polygon points="12,2 22,22 2,22" />
-                </svg>Synthetic<b>Bull</b></div>
-              <div class="ft-about">Professional-grade trading terminal. Real-time feeds. Sub-millisecond data. Built
-                for traders who demand clarity under pressure.</div>
+      <div id="p-stats" class="panel" data-index="7" style="position:relative;min-height:60vh;background:#03090d;display:flex;align-items:center;justify-content:center;overflow:hidden;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+        <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(90,242,181,0.07) 0%,transparent 60%);pointer-events:none"></div>
+        <div style="text-align:center;padding:var(--s8) var(--s6);max-width:1100px;width:100%;position:relative;z-index:2">
+          <div style="font-size:10px;letter-spacing:.3em;color:var(--brand);text-transform:uppercase;margin-bottom:var(--s3)">Trading Summary</div>
+          <h2 style="font-family:'Barlow Semi Condensed',sans-serif;font-size:clamp(32px,4vw,60px);font-weight:800;color:var(--t1);line-height:.95;margin-bottom:var(--s5)">Built for speed.<br><span style="color:var(--brand)">Priced at zero.</span></h2>
+          <p style="color:var(--t3);font-size:clamp(13px,1.1vw,16px);max-width:560px;margin:0 auto var(--s7)">Professional-grade tools &mdash; live order book, candlestick charts, algorithmic bots, and instant order execution &mdash; all in one terminal with no cost to start.</p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--s4);margin-bottom:var(--s7)">
+            <div style="background:rgba(90,242,181,0.04);border:1px solid rgba(90,242,181,0.12);border-radius:8px;padding:var(--s5)">
+              <div style="font-size:36px;font-weight:800;font-family:'Barlow Semi Condensed',sans-serif;color:var(--brand)" id="stat-latency">&lt;1ms</div>
+              <div style="font-size:10px;letter-spacing:.18em;color:var(--t3);text-transform:uppercase;margin-top:6px">Data Latency</div>
+              <div style="font-size:12px;color:var(--t4);margin-top:4px">Sub-millisecond routing</div>
             </div>
-            <div>
-              <div class="ft-col-title">Platform</div>
-              <ul class="ft-links">
-                <li><a href="/terminal">Trading Terminal</a></li>
-                <li><a href="/terminal">Live Order Book</a></li>
-                <li><a href="/terminal">Bot Monitor</a></li>
-                <li><a href="/terminal">Portfolio Tracker</a></li>
-                <li><a href="/terminal">Market Depth</a></li>
-              </ul>
+            <div style="background:rgba(24,201,106,0.04);border:1px solid rgba(24,201,106,0.12);border-radius:8px;padding:var(--s5)">
+              <div style="font-size:36px;font-weight:800;font-family:'Barlow Semi Condensed',sans-serif;color:var(--bull)" id="stat-msg">100</div>
+              <div style="font-size:10px;letter-spacing:.18em;color:var(--t3);text-transform:uppercase;margin-top:6px">Msg/s Throughput</div>
+              <div style="font-size:12px;color:var(--t4);margin-top:4px">All feeds in parallel</div>
             </div>
-            <div>
-              <div class="ft-col-title">Resources</div>
-              <ul class="ft-links">
-                <li><a href="/terminal">Getting Started</a></li>
-                <li><a href="/terminal">Order Types Guide</a></li>
-                <li><a href="/terminal">Reading the Book</a></li>
-                <li><a href="/terminal">Bot Strategies</a></li>
-                <li><a href="/terminal">FAQ</a></li>
-              </ul>
+            <div style="background:rgba(90,242,181,0.04);border:1px solid rgba(90,242,181,0.12);border-radius:8px;padding:var(--s5)">
+              <div style="font-size:36px;font-weight:800;font-family:'Barlow Semi Condensed',sans-serif;color:var(--brand)">$100K</div>
+              <div style="font-size:10px;letter-spacing:.18em;color:var(--t3);text-transform:uppercase;margin-top:6px">Starting Capital</div>
+              <div style="font-size:12px;color:var(--t4);margin-top:4px">Paper trading &mdash; zero risk</div>
+            </div>
+            <div style="background:rgba(24,201,106,0.04);border:1px solid rgba(24,201,106,0.12);border-radius:8px;padding:var(--s5)">
+              <div style="font-size:36px;font-weight:800;font-family:'Barlow Semi Condensed',sans-serif;color:var(--bull)">5</div>
+              <div style="font-size:10px;letter-spacing:.18em;color:var(--t3);text-transform:uppercase;margin-top:6px">Live Instruments</div>
+              <div style="font-size:12px;color:var(--t4);margin-top:4px">AAPL · AMZN · GOOGL · MSFT · TSLA</div>
             </div>
           </div>
+          <a href="/terminal" class="bh-cta" style="display:inline-block;padding:14px 40px;background:var(--brand);color:#000;font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;border-radius:3px">Start Trading Now</a>
+        </div>
       </div>
-      <div class="ft-bottom">
-        <span>© 2025 Synthetic Bull — Professional Trading Terminal</span>
-        <div style="display:flex;gap:var(--s4)"><a href="/terminal">ws://localhost:8000/ws</a><a href="/terminal">localhost:5173</a><a
-            href="/terminal">MIT License</a></div>
-      </div>
-      </footer>
-    </div>
+
 
   </div><!-- end scroll-container -->
 
@@ -3412,10 +3401,16 @@
       }
       window.goPanel = goPanel;
 
-      // Wire nav links
+      // Wire nav links — skip the marquee panel (data-index="1" on p-marquee) by mapping nav indices to actual panels by ID
+      const panelById = (id) => document.getElementById(id);
+      const navPanelMap = ['p-hero', 'p-features', 'p-performance', 'p-bots', 'p-depth'];
       for (let i = 0; i < 5; i++) {
         const el = document.getElementById('nav-' + i);
-        if (el) el.addEventListener('click', (e) => { e.preventDefault(); goPanel(i); });
+        if (el) el.addEventListener('click', (e) => {
+          e.preventDefault();
+          const target = panelById(navPanelMap[i]);
+          if (target) window.lenis.scrollTo(target, { offset: 0, duration: 1.5, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+        });
       }
       document.querySelectorAll('.m-link[data-panel]').forEach(el => {
         el.addEventListener('click', (e) => {
@@ -3448,8 +3443,8 @@
       (function animRing() { rx += (mx - rx) * .1; ry += (my - ry) * .1; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(animRing); })();
 
       document.querySelectorAll('button, a, .facc, .metric-card, .bot-card, .sdot, .op-card, .scard').forEach(el => {
-        el.addEventListener('mouseenter', () => { cur.style.width = '14px'; cur.style.height = '14px'; ring.style.width = '44px'; ring.style.height = '44px'; ring.style.borderColor = 'rgba(232,160,32,.85)'; });
-        el.addEventListener('mouseleave', () => { cur.style.width = '6px'; cur.style.height = '6px'; ring.style.width = '28px'; ring.style.height = '28px'; ring.style.borderColor = 'rgba(232,160,32,.5)'; });
+        el.addEventListener('mouseenter', () => { cur.style.width = '14px'; cur.style.height = '14px'; ring.style.width = '44px'; ring.style.height = '44px'; ring.style.borderColor = 'rgba(90, 242, 181, .85)'; });
+        el.addEventListener('mouseleave', () => { cur.style.width = '6px'; cur.style.height = '6px'; ring.style.width = '28px'; ring.style.height = '28px'; ring.style.borderColor = 'rgba(90, 242, 181, .5)'; });
       });
 
       // ─── BUTTON TILT ───
@@ -3522,7 +3517,8 @@
         { s: 'SBNB', p: 598.20, d: +3.11 }, { s: 'SCRUDE', p: 84.37, d: -1.02 },
         { s: 'SSOL', p: 168.45, d: +5.22 }, { s: 'SINR/USD', p: 83.42, d: -.18 },
       ];
-      document.getElementById('ticker').innerHTML = [...TICKS, ...TICKS].map(t =>
+      const tickerEl = document.getElementById('ticker');
+      if (tickerEl) tickerEl.innerHTML = [...TICKS, ...TICKS].map(t =>
         `<div class="tick-item"><span class="tick-sym">${t.s}</span><span class="tick-px">${fmt(t.p)}</span><span class="${t.d >= 0 ? 'tick-up' : 'tick-dn'}">${t.d >= 0 ? '+' : ''}${t.d.toFixed(2)}%</span></div>`
       ).join('');
 
@@ -3540,7 +3536,7 @@
           <div class="scard" data-idx="${i}">
             <div class="sc-edge-t"></div><div class="sc-edge-b"></div><div class="sc-edge-l"></div><div class="sc-edge-r"></div>
             <div class="sc-hdr" style="position:relative;z-index:2">
-              <div><div class="sc-sym">${t.s}</div><div style="font-size:10px;color:var(--t3);margin-top:2px">${t.n}</div></div>
+              <div><div class="sc-sym">${t.s}</div></div>
               <div class="sc-logo">${t.s[0]}</div>
             </div>
             <div class="sc-price-row" style="position:relative;z-index:2">
@@ -3773,7 +3769,7 @@
         const group = new THREE.Group(); scene.add(group);
         // Core sphere
         const coreG = new THREE.IcosahedronGeometry(1.5, 4);
-        const coreM = new THREE.MeshBasicMaterial({ color: 0xe8a020, wireframe: true, transparent: true, opacity: 0.15 });
+        const coreM = new THREE.MeshBasicMaterial({ color: 0x5AF2B5, wireframe: true, transparent: true, opacity: 0.15 });
         group.add(new THREE.Mesh(coreG, coreM));
         // Network lines
         const lMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.08 });
@@ -3790,7 +3786,7 @@
           const angle = (i / 180) * Math.PI * 2;
           const h = 0.5 + Math.random() * 3.5, up = Math.random() > .5;
           const geo = new THREE.BoxGeometry(0.12, h, 0.12);
-          const mat = new THREE.MeshBasicMaterial({ color: up ? 0x18c96a : 0xe83535, transparent: true, opacity: 0.8 });
+          const mat = new THREE.MeshBasicMaterial({ color: up ? 0x18c96a : 0xeb4034, transparent: true, opacity: 0.8 });
           const m = new THREE.Mesh(geo, mat);
           m.position.set(Math.cos(angle) * radius, up ? h / 2 : -h / 2, Math.sin(angle) * radius);
           discGroup.add(m);
@@ -3875,8 +3871,21 @@
         });
       }
 
-      // Make all sign up, login, and CTA buttons navigate to terminal
-      document.querySelectorAll('.btn-signup, .btn-login, .bh-cta').forEach(btn => {
+      // SIGN UP buttons navigate to terminal with signup mode
+      document.querySelectorAll('.btn-signup').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          // If already logged in the text says "Go to Terminal" — just go to terminal
+          const btnText = btn.querySelector('.btn-text');
+          if (btnText && btnText.textContent.trim() === 'Go to Terminal') {
+            window.location.href = '/terminal';
+          } else {
+            window.location.href = '/terminal?signup=true';
+          }
+        });
+      });
+      // LOGIN buttons navigate to terminal (login modal shown by default)
+      document.querySelectorAll('.btn-login, .bh-cta').forEach(btn => {
         btn.addEventListener('click', (e) => {
           e.preventDefault();
           window.location.href = '/terminal';
