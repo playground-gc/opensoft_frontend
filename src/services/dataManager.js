@@ -447,11 +447,43 @@ class DataManager {
 
     all.sort((a, b) => a.time - b.time);
     const seen = new Set();
-    return all.filter((c) => {
+    all = all.filter((c) => {
       if (seen.has(c.time)) return false;
       seen.add(c.time);
       return true;
     });
+
+    // Fill gaps with flat candles so lightweight-charts doesn't show empty space
+    const intervalSec =
+      this.intervals[symbol] === "1s"
+        ? 1
+        : this.intervals[symbol] === "10s"
+          ? 10
+          : 60;
+    const filled = [];
+    for (let i = 0; i < all.length; i++) {
+      if (i > 0) {
+        const prev = all[i - 1];
+        const curr = all[i];
+        const gap = (curr.time - prev.time) / intervalSec;
+        // Only fill if gap is reasonable (avoid filling huge gaps)
+        if (gap > 1 && gap <= 200) {
+          for (let t = prev.time + intervalSec; t < curr.time; t += intervalSec) {
+            filled.push({
+              time: t,
+              open: prev.close,
+              high: prev.close,
+              low: prev.close,
+              close: prev.close,
+              volume: 0,
+            });
+          }
+        }
+      }
+      filled.push(all[i]);
+    }
+
+    return filled;
   }
 
   // ── Public: change candle interval ───────────────────────────────────────────
