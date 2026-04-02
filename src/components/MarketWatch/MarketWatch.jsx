@@ -199,9 +199,11 @@ const styles = {
   container: {
     display: "flex",
     flexDirection: "column",
-    height: "100%",
+    flex: 1,
+    minHeight: 0,
     padding: "12px 16px",
     userSelect: "none",
+    overflow: "hidden",
   },
   searchBox: {
     display: "flex",

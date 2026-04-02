@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Header from "./components/Header/Header";
 import MarketWatch from "./components/MarketWatch/MarketWatch";
+import { TradeFeed } from "./components/panels/TradeFeed";
 import ChartGrid from "./components/ChartGrid/ChartGrid";
 import OrderBook from "./components/orderbook/OrderBook";
 import PlaceOrder from "./components/PlaceOrder/PlaceOrder";
@@ -10,6 +11,7 @@ import AuthModal from "./components/AuthModal/AuthModal";
 import { useAuthStore } from "./store";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import TutorialTour from "./components/TutorialTour/TutorialTour";
+import ToastContainer from "./components/Notification/Toast.jsx";
 import { useTutorialStore } from "./store/index.js";
 
 function TradingTerminal() {
@@ -18,7 +20,8 @@ function TradingTerminal() {
   const [activeSymbol, setActiveSymbol] = useState("AAPL_S");
   const [isAuthenticated, setIsAuthenticated] = useState(!!token);
   const [showAuth, setShowAuth] = useState(!token);
-  const [authInitialSignUp, setAuthInitialSignUp] = useState(startSignUp);
+  const [authInitialSignUp, setAuthInitialSignUp] = useState(false);
+  const { startTutorial } = useTutorialStore();
 
   const [comparisonSymbols, setComparisonSymbols] = useState([]);
 
@@ -48,6 +51,7 @@ function TradingTerminal() {
 
   return (
     <div className="app-container">
+      <ToastContainer />
       <TutorialTour />
       <div className="panel header-area">
         <Header symbol={activeSymbol} onLoginClick={() => setShowAuth(true)} />
@@ -62,7 +66,7 @@ function TradingTerminal() {
       <div className="center-stack">
         <div
           className="panel"
-          style={{ flex: "0 0 auto", height: "600px", minHeight: "600px" }}
+          style={{ flex: "1 1 500px", minHeight: "400px" }}
         >
           <ChartGrid
             mainSymbol={activeSymbol}
@@ -71,23 +75,24 @@ function TradingTerminal() {
         </div>
         <div
           className="panel"
-          style={{ flexShrink: 0, minHeight: "380px", flex: "1 0 auto" }}
+          style={{ flexShrink: 0, minHeight: "360px" }}
         >
           <PlaceOrder symbol={activeSymbol} isAuthenticated={isAuthenticated} />
         </div>
-        <div className="panel" style={{ flexShrink: 0, height: "240px" }}>
+        <div className="panel" style={{ flexShrink: 0, minHeight: "200px" }}>
           <UserPanel isAuthenticated={isAuthenticated} />
         </div>
       </div>
 
-      {/* Right Column -> Market Watch (Stocks) */}
-      <div className="panel right-area">
+      {/* Right Column → Market Watch + Market Radar Panel */}
+      <div className="panel right-area" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <MarketWatch
           activeSymbol={activeSymbol}
           comparisonSymbols={comparisonSymbols}
           onSelectSymbol={(sym) => setActiveSymbol(sym)}
           onToggleComparison={toggleComparison}
         />
+        <TradeFeed symbol={activeSymbol} />
       </div>
 
       {showAuth && (

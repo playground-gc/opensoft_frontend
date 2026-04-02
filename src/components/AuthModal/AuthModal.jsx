@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { Mail, Lock, User, LogIn, UserPlus, Eye, EyeOff } from "lucide-react";
 import { useAuthStore } from "../../store";
@@ -13,14 +13,21 @@ export default function AuthModal({ onClose, onSuccess, initialSignUp = false })
   const [error, setError] = useState("");
   const [isSignUp, setIsSignUp] = useState(initialSignUp);
   const [loading, setLoading] = useState(false);
+  const [shake, setShake] = useState(false);
 
-  const handleNormalLogin = async (e) => {
+  // Reset error on mode switch
+  useEffect(() => { setError(""); }, [isSignUp]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!password || !username || (isSignUp && !email)) {
       setError("Please fill in all required fields.");
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
       return;
     }
     setLoading(true);
+    setError("");
     try {
       if (isSignUp) {
         const res = await register({
@@ -45,13 +52,15 @@ export default function AuthModal({ onClose, onSuccess, initialSignUp = false })
       }
       onClose();
     } catch (err) {
-      setError(err.message || "Authentication failed");
+      setError(err.message || "Authentication failed. Check your credentials.");
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
     } finally {
       setLoading(false);
     }
   };
 
-
+  const content = (
     <div style={styles.overlay}>
       <div style={styles.modal}>
         <style>{`
@@ -107,7 +116,7 @@ export default function AuthModal({ onClose, onSuccess, initialSignUp = false })
 
         {error && <div style={styles.error}>{error}</div>}
 
-        <form onSubmit={handleNormalLogin} style={styles.formMode}>
+        <form onSubmit={handleSubmit} style={styles.formMode}>
           <div style={styles.inputGroup}>
             <label style={styles.label}>Username</label>
             <div style={styles.inputWrapper}>
@@ -118,10 +127,13 @@ export default function AuthModal({ onClose, onSuccess, initialSignUp = false })
                 style={{ ...styles.input, paddingLeft: "40px" }}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter username"
+                placeholder="Enter your username"
+                autoComplete="username"
               />
             </div>
           </div>
+
+          {/* Email — sign up only */}
           {isSignUp && (
             <div style={styles.inputGroup}>
               <label style={styles.label}>Email</label>
@@ -133,7 +145,8 @@ export default function AuthModal({ onClose, onSuccess, initialSignUp = false })
                   style={{ ...styles.input, paddingLeft: "40px" }}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter email"
+                  placeholder="Enter your email"
+                  autoComplete="email"
                 />
               </div>
             </div>
@@ -150,6 +163,7 @@ export default function AuthModal({ onClose, onSuccess, initialSignUp = false })
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
+                autoComplete={isSignUp ? "new-password" : "current-password"}
               />
               <button
                 type="button"

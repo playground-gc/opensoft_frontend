@@ -8,7 +8,7 @@ import {
   HistogramSeries,
   createSeriesMarkers,
 } from "lightweight-charts";
-import { Maximize, ChevronDown, LineChart } from "lucide-react";
+import { ChevronDown, LineChart } from "lucide-react";
 import { dataManager } from "../../services/dataManager";
 import { fetchOrders } from "../../services/api/ordersApi";
 import { fetchPortfolio } from "../../services/api/portfolioApi";
@@ -440,16 +440,6 @@ export default function TradingChart({ symbol, comparisonSymbols = EMPTY_ARRAY }
   }, [symbol, chartVersion]); // runs when symbol changes or chart is re-created
 
 
-
-  const toggleFullScreen = () => {
-    if (!document.fullscreenElement) {
-      wrapperRef.current
-        .requestFullscreen()
-        .catch((err) => console.error(`Fullscreen error: ${err.message}`));
-    } else {
-      document.exitFullscreen();
-    }
-  };
 
   // ── Main chart creation ──────────────────────────────────────────────────
   useEffect(() => {
@@ -922,12 +912,6 @@ export default function TradingChart({ symbol, comparisonSymbols = EMPTY_ARRAY }
             {activeCount > 0 && <span style={s.badge}>{activeCount}</span>}
           </button>
         </div>
-
-        <div style={s.toolbarRight}>
-          <div title="Full Screen" style={s.iconBtn} onClick={toggleFullScreen}>
-            <Maximize size={16} color="var(--color-text-muted)" />
-          </div>
-        </div>
       </div>
 
       {/* Body: sidebar + chart */}
@@ -1133,25 +1117,31 @@ const s = {
     display: "flex",
     alignItems: "center",
     gap: "4px",
-    background: "none",
-    border: "1px solid rgba(255, 255, 255, 0.05)",
-    color: "var(--color-text-muted)",
+    background: "rgba(255, 255, 255, 0.03)",
+    border: "1px solid rgba(255, 255, 255, 0.08)",
+    color: "var(--color-text-main)",
     borderRadius: "0px",
-    padding: "3px 7px",
+    padding: "4px 8px",
     cursor: "pointer",
     fontFamily: "inherit",
     fontSize: "11px",
-    transition: "border-color 0.2s, color 0.2s",
+    transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
     position: "relative",
+    outline: "none",
   },
   badge: {
     background: "#5AF2B5",
-    color: "#0D0D0D",
+    color: "#050505",
     borderRadius: "0px",
-    padding: "0 5px",
+    padding: "0 6px",
     fontSize: "10px",
-    fontWeight: "700",
+    fontWeight: "800",
     marginLeft: "2px",
+    height: "14px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    boxShadow: "0 0 8px rgba(90, 242, 181, 0.4)",
   },
   toast: {
     position: "absolute",

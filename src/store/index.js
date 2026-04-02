@@ -12,3 +12,4 @@ export * from './orderStore.js';
 export * from './botStore.js';
 export * from './authStore.js';
 export * from './tutorialStore.js';
+export * from './notificationStore.js';

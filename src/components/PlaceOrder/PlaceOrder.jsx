@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useOrderSubmit } from "../../hooks/useOrderSubmit";
 import { usePortfolio } from "../../hooks/usePortfolio";
 import { dataManager } from "../../services/dataManager";
+import { useNotificationStore } from "../../store";
 import AuthModal from "../AuthModal/AuthModal";
 
 // Must be defined OUTSIDE the parent component so React doesn't
@@ -24,6 +25,7 @@ function InputRow({ label, value, onChange, disabled, placeholder, suffix }) {
 }
 
 export default function PlaceOrder({ symbol, isAuthenticated }) {
+  const addNotification = useNotificationStore((s) => s.addNotification);
   const { submit } = useOrderSubmit();
   const { cashBalance, holdings, refresh } = usePortfolio(isAuthenticated);
   const [orderType, setOrderType] = useState("Limit");
@@ -122,7 +124,7 @@ export default function PlaceOrder({ symbol, isAuthenticated }) {
     });
     setIsBuying(false);
     if (result.success) {
-      alert("Buy Order Placed Successfully!");
+      addNotification(`Buy order for ${qty} ${baseAsset} placed at ${isLimit ? price : "Market"}`, "buy");
       setAmountBuy("");
       setTimeout(refresh, 1000);
     } else {
@@ -155,7 +157,7 @@ export default function PlaceOrder({ symbol, isAuthenticated }) {
     });
     setIsSelling(false);
     if (result.success) {
-      alert("Sell Order Placed Successfully!");
+      addNotification(`Sell order for ${qty} ${baseAsset} placed at ${isLimit ? price : "Market"}`, "sell");
       setAmountSell("");
       setTimeout(refresh, 1000);
     } else {
@@ -415,8 +417,8 @@ const styles = {
     letterSpacing: "1px",
   },
   tab: { cursor: "pointer", paddingBottom: "6px", transition: "all 0.2s" },
-  formsContainer: { display: "flex", gap: "20px", flex: 1 },
-  formCol: { flex: 1, display: "flex", flexDirection: "column", gap: "10px" },
+  formsContainer: { display: "flex", gap: "20px", flex: 1, flexWrap: "wrap" },
+  formCol: { flex: 1, minWidth: "260px", display: "flex", flexDirection: "column", gap: "10px" },
   balanceRow: {
     display: "flex",
     justifyContent: "space-between",
