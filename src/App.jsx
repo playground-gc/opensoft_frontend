@@ -9,6 +9,7 @@ import UserPanel from "./components/UserPanel/UserPanel";
 import AuthModal from "./components/AuthModal/AuthModal";
 import { useAuthStore } from "./store";
 import ProfilePage from "./pages/ProfilePage.jsx";
+import TutorialTour from "./components/TutorialTour/TutorialTour";
 
 function TradingTerminal() {
   const { token } = useAuthStore();
@@ -35,6 +36,7 @@ function TradingTerminal() {
 
   return (
     <div className="app-container">
+      <TutorialTour />
       <div className="panel header-area">
         <Header symbol={activeSymbol} onLoginClick={() => setShowAuth(true)} />
       </div>

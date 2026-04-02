@@ -63,7 +63,7 @@ export default function MarketWatch({
   });
 
   return (
-    <div style={styles.container}>
+    <div id="tour-market-watch" style={styles.container}>
       <div style={styles.searchBox}>
         <Search
           size={14}
