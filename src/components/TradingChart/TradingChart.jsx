@@ -8,7 +8,7 @@ import {
   HistogramSeries,
   createSeriesMarkers,
 } from "lightweight-charts";
-import { Maximize, ChevronDown, LineChart } from "lucide-react";
+import { ChevronDown, LineChart } from "lucide-react";
 import { dataManager } from "../../services/dataManager";
 import { fetchOrders } from "../../services/api/ordersApi";
 import { fetchPortfolio } from "../../services/api/portfolioApi";
@@ -440,16 +440,6 @@ export default function TradingChart({ symbol, comparisonSymbols = EMPTY_ARRAY }
   }, [symbol, chartVersion]); // runs when symbol changes or chart is re-created
 
 
-
-  const toggleFullScreen = () => {
-    if (!document.fullscreenElement) {
-      wrapperRef.current
-        .requestFullscreen()
-        .catch((err) => console.error(`Fullscreen error: ${err.message}`));
-    } else {
-      document.exitFullscreen();
-    }
-  };
 
   // ── Main chart creation ──────────────────────────────────────────────────
   useEffect(() => {
@@ -921,12 +911,6 @@ export default function TradingChart({ symbol, comparisonSymbols = EMPTY_ARRAY }
             <LineChart size={14} />
             {activeCount > 0 && <span style={s.badge}>{activeCount}</span>}
           </button>
-        </div>
-
-        <div style={s.toolbarRight}>
-          <div title="Full Screen" style={s.iconBtn} onClick={toggleFullScreen}>
-            <Maximize size={16} color="var(--color-text-muted)" />
-          </div>
         </div>
       </div>
 

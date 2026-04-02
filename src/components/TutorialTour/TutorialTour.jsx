@@ -1,17 +1,18 @@
 import React, { useEffect } from 'react';
-import { Joyride, STATUS } from 'react-joyride';
+import { Joyride, STATUS, ACTIONS } from 'react-joyride';
 import { useTutorialStore } from '../../store';
+import { useAuthStore } from '../../store';
 
 // Keep tour styling aligned with the app's dark terminal palette.
 const TOUR_COLORS = {
   surface: 'rgba(8, 8, 8, 0.94)',
-  surfaceRaised: 'rgba(14, 14, 14, 0.50)',
+  surfaceRaised: 'rgba(14, 14, 14, 0.80)',
   backdropFilter: 'blur(12px)',
-  border: 'rgba(255, 69, 0, 0.2)',
+  border: 'rgba(90, 242, 181, 0.25)',
   text: '#f0f2fc',
   muted: '#9aa3bf',
-  accent: '#ff4500',
-  accentText: '#140b08',
+  accent: '#5AF2B5',
+  accentText: '#061510',
   overlay: 'rgba(0, 0, 0, 0.72)',
 };
 
@@ -50,26 +51,41 @@ const TOUR_STEPS = [
 ];
 
 const TutorialTour = () => {
+  const { userId } = useAuthStore();
   const { runTutorial, tourKey, stopTutorial } = useTutorialStore();
 
   useEffect(() => {
-    // Slight delay to ensure DOM id nodes are fully painted before Joyride parses them
+    // Slight delay to ensure DOM id nodes are fully painted before Joyride parses them.
+    // Use a per-user key so every new user sees the tutorial on first login,
+    // but returning users are never shown it again.
+    // Write the flag BEFORE starting so a mid-tour browser-close doesn't reset it.
     const timer = setTimeout(() => {
-      const hasCompleted = localStorage.getItem('hasCompletedTutorial');
-      if (!hasCompleted) {
+      if (!userId) return; // not logged in yet — wait
+      const userKey = `tutorial_seen_${userId}`;
+      const hasSeenTutorial = localStorage.getItem(userKey);
+      if (!hasSeenTutorial) {
+        localStorage.setItem(userKey, 'true');
         useTutorialStore.getState().startTutorial();
       }
     }, 500);
-    return () => clearTimeout(timer);
-  }, []);
+    return () => {
+      clearTimeout(timer);
+      // Reset the store when navigating away so the tour doesn't auto-resume on remount
+      useTutorialStore.getState().stopTutorial();
+    };
+  }, [userId]); // re-run if userId changes (e.g. after login)
 
   const handleJoyrideCallback = (data) => {
-    const { status } = data;
-    const finishedStatuses = [STATUS.FINISHED, STATUS.SKIPPED];
+    const { status, action } = data;
 
-    if (finishedStatuses.includes(status)) {
+    // Stop the tour UI on any terminal action (finish, skip, or X button).
+    const isDone =
+      status === STATUS.FINISHED ||
+      status === STATUS.SKIPPED ||
+      action === ACTIONS.CLOSE;
+
+    if (isDone) {
       stopTutorial();
-      localStorage.setItem('hasCompletedTutorial', 'true');
     }
   };
 
@@ -80,8 +96,6 @@ const TutorialTour = () => {
           key={tourKey}
           callback={handleJoyrideCallback}
           continuous
-          hideCloseButton
-          disableOverlayClose
           run={runTutorial}
           scrollToFirstStep={false}
           disableScrolling={true}
@@ -90,7 +104,8 @@ const TutorialTour = () => {
           steps={TOUR_STEPS}
           locale={{
             last: 'Got it!',
-            skip: 'Skip Tour'
+            skip: 'Skip Tour',
+            close: 'Close',
           }}
           styles={{
             options: {
@@ -108,7 +123,7 @@ const TutorialTour = () => {
               backgroundColor: TOUR_COLORS.surfaceRaised,
               backdropFilter: 'blur(10px)',
               WebkitBackdropFilter: 'blur(10px)',
-              boxShadow: '0 12px 36px rgba(0, 0, 0, 0.45), inset 0 0 20px rgba(255, 69, 0, 0.06)',
+              boxShadow: '0 12px 36px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(90, 242, 181, 0.04)',
               padding: '20px',
               maxWidth: `${window.innerWidth - 32}px`,
               boxSizing: 'border-box',
@@ -124,9 +139,19 @@ const TutorialTour = () => {
               letterSpacing: '0.02em',
               marginBottom: '8px',
             },
+            // X close button — make it clearly visible
+            buttonClose: {
+              color: TOUR_COLORS.muted,
+              width: 24,
+              height: 24,
+              padding: 0,
+              top: 12,
+              right: 12,
+              opacity: 1,
+            },
             buttonNext: {
-              background: 'linear-gradient(90deg, #ff4500, #f0b942)',
-              border: `1px solid ${TOUR_COLORS.border}`,
+              background: `linear-gradient(90deg, #5AF2B5, #38d49a)`,
+              border: 'none',
               borderRadius: '6px',
               color: TOUR_COLORS.accentText,
               fontWeight: 700,
