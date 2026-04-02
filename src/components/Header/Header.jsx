@@ -46,7 +46,7 @@ export default function Header({ symbol, onLoginClick }) {
         <a href="/" style={{
           fontFamily: "'Barlow Semi Condensed', sans-serif",
           fontWeight: 900,
-          fontSize: "16px",
+          fontSize: "20px",
           letterSpacing: "0.18em",
           textTransform: "uppercase",
           color: "#f0f2fc",
@@ -58,10 +58,10 @@ export default function Header({ symbol, onLoginClick }) {
           borderRight: "1px solid rgba(255,255,255,0.1)",
           paddingRight: "24px"
         }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="#ff4500">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#5AF2B5">
             <polygon points="12,2 22,22 2,22" />
           </svg>
-          <div>Synthetic <b style={{ color: "#ff4500", fontWeight: 900 }}>Bull</b></div>
+          <div>Synthetic <b style={{ color: "#5AF2B5", fontWeight: 900 }}>Bull</b></div>
         </a>
 
         <div style={styles.symbolGroup}>
@@ -136,9 +136,9 @@ export default function Header({ symbol, onLoginClick }) {
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             <div
               style={{
-                color: "#ff4500",
+                color: "#5AF2B5",
                 fontWeight: "600",
-                textShadow: "0 0 8px rgba(255, 69, 0, 0.4)",
+                textShadow: "0 0 8px rgba(90, 242, 181, 0.4)",
                 letterSpacing: "1px",
                 textTransform: "uppercase",
                 fontSize: "13px",
@@ -156,7 +156,7 @@ export default function Header({ symbol, onLoginClick }) {
               }}
               style={styles.logoutBtn}
             >
-              Sign Out
+              Log Out
             </button>
           </div>
         ) : (
@@ -213,21 +213,22 @@ const styles = {
   statValue: { fontSize: "14px", fontWeight: "600", color: "#fff" },
   price: { fontSize: "18px", fontWeight: "bold" },
   loginBtn: {
-    backgroundColor: "transparent",
-    color: "#ff4500",
-    border: "1px solid rgba(255, 69, 0, 0.3)",
+    backgroundColor: "#5AF2B5",
+    color: "#0D0D0D",
+    border: "none",
     borderRadius: "0px",
-    fontWeight: "600",
+    fontWeight: "700",
     padding: "8px 16px",
     cursor: "pointer",
     fontSize: "12px",
     textTransform: "uppercase",
     letterSpacing: "1px",
+    boxShadow: "0 0 12px rgba(90, 242, 181, 0.3)",
   },
   signupBtn: {
-    backgroundColor: "rgba(255, 69, 0, 0.1)",
-    color: "#ff4500",
-    border: "1px solid rgba(255, 69, 0, 0.3)",
+    backgroundColor: "rgba(90, 242, 181, 0.1)",
+    color: "#5AF2B5",
+    border: "1px solid rgba(90, 242, 181, 0.3)",
     borderRadius: "0px",
     fontWeight: "600",
     padding: "8px 16px",
@@ -237,9 +238,9 @@ const styles = {
     letterSpacing: "1px",
   },
   profileBtn: {
-    backgroundColor: "rgba(255, 69, 0, 0.1)",
-    color: "#ff4500",
-    border: "1px solid rgba(255, 69, 0, 0.3)",
+    backgroundColor: "rgba(90, 242, 181, 0.1)",
+    color: "#5AF2B5",
+    border: "1px solid rgba(90, 242, 181, 0.3)",
     borderRadius: "0px",
     fontWeight: "600",
     padding: "6px 14px",

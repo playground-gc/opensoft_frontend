@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Header from "./components/Header/Header";
 import MarketWatch from "./components/MarketWatch/MarketWatch";
 import ChartGrid from "./components/ChartGrid/ChartGrid";
@@ -14,10 +14,11 @@ import { useTutorialStore } from "./store/index.js";
 
 function TradingTerminal() {
   const { token } = useAuthStore();
-  const startTutorial = useTutorialStore((state) => state.startTutorial);
+
   const [activeSymbol, setActiveSymbol] = useState("AAPL_S");
   const [isAuthenticated, setIsAuthenticated] = useState(!!token);
   const [showAuth, setShowAuth] = useState(!token);
+  const [authInitialSignUp, setAuthInitialSignUp] = useState(startSignUp);
 
   const [comparisonSymbols, setComparisonSymbols] = useState([]);
 
@@ -91,6 +92,7 @@ function TradingTerminal() {
 
       {showAuth && (
         <AuthModal
+          initialSignUp={authInitialSignUp}
           onClose={() => setShowAuth(false)}
           onSuccess={handleLoginSuccess}
         />
@@ -101,10 +103,10 @@ function TradingTerminal() {
 
 function App() {
   return (
-    // <ProfilePage/>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/trading-charts" replace />} />
+        <Route path="/terminal" element={<TradingTerminal />} />
         <Route path="/trading-charts" element={<TradingTerminal />} />
         <Route path="/portfolio" element={<ProfilePage />} />
         <Route path="/portfolio/*" element={<ProfilePage />} />

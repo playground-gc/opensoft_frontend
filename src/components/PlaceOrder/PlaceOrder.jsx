@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useOrderSubmit } from "../../hooks/useOrderSubmit";
 import { usePortfolio } from "../../hooks/usePortfolio";
 import { dataManager } from "../../services/dataManager";
+import AuthModal from "../AuthModal/AuthModal";
 
 // Must be defined OUTSIDE the parent component so React doesn't
 // treat it as a new component type on every render (which would
@@ -41,6 +42,7 @@ export default function PlaceOrder({ symbol, isAuthenticated }) {
   const [sellError, setSellError] = useState("");
   const [isBuying, setIsBuying] = useState(false);
   const [isSelling, setIsSelling] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const availableBalanceUSD = cashBalance;
   const heldPosition = holdings.find((h) => h.symbol === symbol);
@@ -166,6 +168,13 @@ export default function PlaceOrder({ symbol, isAuthenticated }) {
 
   return (
     <div id="tour-place-order" style={styles.container}>
+      {showAuthModal && (
+        <AuthModal
+          initialSignUp={false}
+          onClose={() => setShowAuthModal(false)}
+          onSuccess={() => { setShowAuthModal(false); window.location.reload(); }}
+        />
+      )}
       {/* Order-type tabs */}
       <div style={styles.tabsStrip}>
         {["Limit", "Market", "Stop Limit", "Stop Market"].map((t) => (
@@ -173,11 +182,11 @@ export default function PlaceOrder({ symbol, isAuthenticated }) {
             key={t}
             style={{
               ...styles.tab,
-              color: orderType === t ? "#ff4500" : "rgba(255, 255, 255, 0.5)",
+              color: orderType === t ? "#5AF2B5" : "rgba(255, 255, 255, 0.5)",
               borderBottom:
-                orderType === t ? "2px solid #ff4500" : "2px solid transparent",
+                orderType === t ? "2px solid #5AF2B5" : "2px solid transparent",
               textShadow:
-                orderType === t ? "0 0 8px rgba(255, 69, 0, 0.4)" : "none",
+                orderType === t ? "0 0 8px rgba(90, 242, 181, 0.4)" : "none",
             }}
             onClick={() => setOrderType(t)}
           >
@@ -190,7 +199,7 @@ export default function PlaceOrder({ symbol, isAuthenticated }) {
         {/* ── BUY COLUMN ── */}
         <div style={styles.formCol}>
           <div style={styles.balanceRow}>
-            <span style={styles.balanceAvbl}>Avbl</span>
+            <span style={styles.balanceAvbl}>Avl</span>
             <span>
               {availableBalanceUSD.toLocaleString()} {quoteAsset}
             </span>
@@ -271,12 +280,12 @@ export default function PlaceOrder({ symbol, isAuthenticated }) {
           <button
             style={{
               ...styles.buyBtn,
-              opacity: isBuying || !isAuthenticated ? 0.5 : 1,
-              cursor: isBuying || !isAuthenticated ? "not-allowed" : "pointer",
+              opacity: isBuying ? 0.5 : 1,
+              cursor: isBuying ? "not-allowed" : "pointer",
             }}
-            onClick={isAuthenticated ? placeBuy : undefined}
-            disabled={isBuying || !isAuthenticated}
-            title={!isAuthenticated ? "Please log in to trade" : ""}
+            onClick={isAuthenticated ? placeBuy : () => setShowAuthModal(true)}
+            disabled={isBuying}
+            title={!isAuthenticated ? "Sign in to trade" : ""}
           >
             {isBuying
               ? "Placing…"
@@ -289,7 +298,7 @@ export default function PlaceOrder({ symbol, isAuthenticated }) {
         {/* ── SELL COLUMN ── */}
         <div style={styles.formCol}>
           <div style={styles.balanceRow}>
-            <span style={styles.balanceAvbl}>Avbl</span>
+            <span style={styles.balanceAvbl}>Avl</span>
             <span>
               {availableBalanceCrypto.toLocaleString()} {baseAsset}
             </span>
@@ -367,12 +376,12 @@ export default function PlaceOrder({ symbol, isAuthenticated }) {
           <button
             style={{
               ...styles.sellBtn,
-              opacity: isSelling || !isAuthenticated ? 0.5 : 1,
-              cursor: isSelling || !isAuthenticated ? "not-allowed" : "pointer",
+              opacity: isSelling ? 0.5 : 1,
+              cursor: isSelling ? "not-allowed" : "pointer",
             }}
-            onClick={isAuthenticated ? placeSell : undefined}
-            disabled={isSelling || !isAuthenticated}
-            title={!isAuthenticated ? "Please log in to trade" : ""}
+            onClick={isAuthenticated ? placeSell : () => setShowAuthModal(true)}
+            disabled={isSelling}
+            title={!isAuthenticated ? "Sign in to trade" : ""}
           >
             {isSelling
               ? "Placing…"
