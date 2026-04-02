@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Joyride, STATUS } from 'react-joyride';
 import { useTutorialStore } from '../../store';
 
@@ -52,16 +52,6 @@ const TOUR_STEPS = [
 const TutorialTour = () => {
   const { runTutorial, tourKey, stopTutorial } = useTutorialStore();
 
-  useEffect(() => {
-    // Slight delay to ensure DOM id nodes are fully painted before Joyride parses them
-    const timer = setTimeout(() => {
-      const hasCompleted = localStorage.getItem('hasCompletedTutorial');
-      if (!hasCompleted) {
-        useTutorialStore.getState().startTutorial();
-      }
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
 
   const handleJoyrideCallback = (data) => {
     const { status } = data;

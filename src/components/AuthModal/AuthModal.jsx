@@ -33,7 +33,7 @@ export default function AuthModal({ onClose, onSuccess }) {
           username: res.username,
           userId: res.user_id,
         });
-        onSuccess(res.username);
+        onSuccess({ username: res.username, authType: "signup" });
       } else {
         const res = await login({ username: username || email, password });
         setAuth({
@@ -41,7 +41,7 @@ export default function AuthModal({ onClose, onSuccess }) {
           username: res.username,
           userId: res.user_id,
         });
-        onSuccess(res.username);
+        onSuccess({ username: res.username, authType: "login" });
       }
       onClose();
     } catch (err) {
@@ -54,7 +54,7 @@ export default function AuthModal({ onClose, onSuccess }) {
   const googleLogin = useGoogleLogin({
     onSuccess: (tokenResponse) => {
       console.log("Google Login Successful Token:", tokenResponse);
-      onSuccess("Google User");
+      onSuccess({ username: "Google User", authType: "google-login" });
     },
     onError: (err) => {
       console.error("Google Login Error:", err);
