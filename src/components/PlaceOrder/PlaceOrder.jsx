@@ -122,7 +122,7 @@ export default function PlaceOrder({ symbol, isAuthenticated }) {
     if (result.success) {
       alert("Buy Order Placed Successfully!");
       setAmountBuy("");
-      setTimeout(refresh, 1500);
+      setTimeout(refresh, 1000);
     } else {
       setBuyError(result.error || "Order failed");
     }
@@ -155,7 +155,7 @@ export default function PlaceOrder({ symbol, isAuthenticated }) {
     if (result.success) {
       alert("Sell Order Placed Successfully!");
       setAmountSell("");
-      setTimeout(refresh, 1500);
+      setTimeout(refresh, 1000);
     } else {
       setSellError(result.error || "Order failed");
     }
