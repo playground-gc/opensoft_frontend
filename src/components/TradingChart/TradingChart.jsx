@@ -48,7 +48,7 @@ const DEFAULT_CONFIG = {
           period: 7,
           source: "close",
           lineWidth: 1,
-          color: "#ff4500",
+          color: "#5AF2B5",
         },
         {
           enabled: true,
@@ -175,9 +175,9 @@ function applyMainOverlays(chart, candles, indicatorConfig, overlaySeriesRef) {
       p.period || 20,
       p.stdDev || 2,
     );
-    const uS = addLine(upper, p.upperColor || "#ff4500", 1);
-    const mS = addLine(middle, p.middleColor || "#ff4500", 1, { lineStyle: 1 });
-    const lS = addLine(lower, p.lowerColor || "#ff4500", 1);
+    const uS = addLine(upper, p.upperColor || "#5AF2B5", 1);
+    const mS = addLine(middle, p.middleColor || "#A8FFD8", 1, { lineStyle: 1 });
+    const lS = addLine(lower, p.lowerColor || "#5AF2B5", 1);
     overlaySeriesRef.current["BOLL"] = [uS, mS, lS].filter(Boolean);
   }
 
@@ -522,15 +522,15 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
     } else if (chartType === "Area") {
       mainSeries = chart.addSeries(AreaSeries, {
         ...fmt,
-        lineColor: "#ff4500",
-        topColor: "rgba(255, 69, 0, 0.4)",
-        bottomColor: "rgba(255, 69, 0, 0.05)",
+        lineColor: "#5AF2B5",
+        topColor: "rgba(90, 242, 181, 0.3)",
+        bottomColor: "rgba(90, 242, 181, 0.04)",
         crosshairMarkerVisible: true,
       });
     } else {
       mainSeries = chart.addSeries(LineSeries, {
         ...fmt,
-        color: "#ff4500",
+        color: "#5AF2B5",
         lineWidth: 2,
         crosshairMarkerVisible: true,
       });
@@ -564,7 +564,7 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
 
 
     // Comparison symbols
-    const compColors = ["#ff4500", "#ff4500", "#E040FB"];
+    const compColors = ["#5AF2B5", "#7af7c8", "#E040FB"];
     comparisonSymbols.forEach((sym, idx) => {
       const ls = chart.addSeries(LineSeries, {
         color: compColors[idx % compColors.length],
@@ -705,12 +705,12 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
                 .map((ser) => param.seriesData.get(ser)?.value)
                 .filter((v) => v !== undefined);
               if (vals.length > 0) {
-                indHtml += `<span>${key}: <span style="color:#ff4500">${vals.map((v) => v.toFixed(priceScale)).join(", ")}</span></span>`;
+                indHtml += `<span>${key}: <span style="color:#5AF2B5">${vals.map((v) => v.toFixed(priceScale)).join(", ")}</span></span>`;
               }
             } else {
               const val = param.seriesData.get(s)?.value;
               if (val !== undefined) {
-                indHtml += `<span>${key}: <span style="color:#ff4500">${val.toFixed(priceScale)}</span></span>`;
+                indHtml += `<span>${key}: <span style="color:#5AF2B5">${val.toFixed(priceScale)}</span></span>`;
               }
             }
           });
@@ -788,7 +788,7 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
 
     (v) => v?.enabled,
   ).length;
-  const compColors = ["#ff4500", "#ff4500", "#E040FB"];
+  const compColors = ["#5AF2B5", "#7af7c8", "#E040FB"];
 
   // Cursor style based on active tool
   const toolCursor =
@@ -840,7 +840,7 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
                 style={{
                   color:
                     activeTimeframe === tf
-                      ? "#ff4500"
+                      ? "#5AF2B5"
                       : "var(--color-text-muted)",
                   cursor: "pointer",
                   fontWeight: "500",
@@ -1125,8 +1125,8 @@ const s = {
     position: "relative",
   },
   badge: {
-    background: "#ff4500",
-    color: "transparent",
+    background: "#5AF2B5",
+    color: "#0D0D0D",
     borderRadius: "0px",
     padding: "0 5px",
     fontSize: "10px",
@@ -1142,7 +1142,7 @@ const s = {
     color: "#fff",
     padding: "8px 16px",
     borderRadius: "0px",
-    border: "1px solid #ff4500",
+    border: "1px solid #5AF2B5",
     zIndex: 100000,
     fontSize: "13px",
     pointerEvents: "none",
