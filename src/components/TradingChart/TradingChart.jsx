@@ -243,8 +243,11 @@ function applyMainOverlays(chart, candles, indicatorConfig, overlaySeriesRef) {
   }
 }
 
+// Stable empty array so the default prop never changes reference between renders
+const EMPTY_ARRAY = [];
+
 // ─── Component ────────────────────────────────────────────────────────────────
-export default function TradingChart({ symbol, comparisonSymbols = [] }) {
+export default function TradingChart({ symbol, comparisonSymbols = EMPTY_ARRAY }) {
   const wrapperRef = useRef();
   const legendCandleRef = useRef(null);
   const legendIndicatorsRef = useRef(null);
@@ -450,14 +453,24 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
 
   // ── Main chart creation ──────────────────────────────────────────────────
   useEffect(() => {
-    const handleResize = () => {
+    let resizeTimer = null;
+    const doResize = () => {
       if (chartRef.current && chartContainerRef.current) {
-        chartRef.current.applyOptions({
-          width: chartContainerRef.current.clientWidth,
-          height: chartContainerRef.current.clientHeight,
-        });
+        const w = chartContainerRef.current.clientWidth;
+        const h = chartContainerRef.current.clientHeight;
+        if (w > 0 && h > 0) {
+          chartRef.current.applyOptions({ width: w, height: h });
+        }
       }
       resizeCanvas();
+    };
+    const handleResize = () => {
+      if (resizeTimer) clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(doResize, 50);
+    };
+    const handleFullscreenChange = () => {
+      // Give the browser time to finish layout after entering/exiting fullscreen
+      setTimeout(handleResize, 100);
     };
 
     const isCrypto = symbol.includes("USDT") && symbol !== "BTC/USDT";
@@ -723,19 +736,26 @@ export default function TradingChart({ symbol, comparisonSymbols = [] }) {
       }
     });
 
-    window.addEventListener("resize", handleResize);
+    // Use ResizeObserver on the chart container — far more precise than window.resize.
+    // It only fires when the chart's actual container dimensions change, not on every
+    // window resize event (which can fire even when the chart size hasn't changed).
+    const ro = new ResizeObserver(handleResize);
+    if (chartContainerRef.current) ro.observe(chartContainerRef.current);
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
 
-    handleResize();
+    doResize();
     // Increment version → reliably triggers the [indicatorConfig, chartVersion] effect
     setChartVersion((v) => v + 1);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      if (resizeTimer) clearTimeout(resizeTimer);
+      ro.disconnect();
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
       unsubs.forEach((u) => u());
       chart.remove();
       compSeriesRefs.current = {};
       overlaySeriesRef.current = {};
-      historyLoadedRef.current = false; // reset so next symbol/interval load triggers reload
+      historyLoadedRef.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [symbol, comparisonSymbols, chartType]);
