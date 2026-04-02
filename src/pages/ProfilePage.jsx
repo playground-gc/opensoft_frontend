@@ -114,10 +114,12 @@ const buildPointsFromTrades = (trades, initialBalance = 100000) => {
 };
 
 const normalizeBalancePoints = (history = [], currentBalance = 0) => {
+  console.log('Balance history sample:', history[0]); // Debug log
   const pts = history
     .map((item, index) => {
       const x = index + 1;
-      const y = numberOrZero(item.balance);
+      // Use total_account_value if available, otherwise fall back to balance
+      const y = numberOrZero(item.total_account_value ?? item.account_value ?? item.balance);
       return {
         x,
         y,
@@ -246,7 +248,7 @@ const BalanceChart = ({ points }) => {
   
   const width = 860;
   const height = 300;
-  const padLeft = 60;
+  const padLeft = 80;
   const padRight = 20;
   const padTop = 20;
   const padBottom = 40;
@@ -254,43 +256,43 @@ const BalanceChart = ({ points }) => {
   // Calculate initial balance (100000 as per PnL calculation)
   const initialBalance = 100000;
   
-  // Transform points to show net profit instead of balance (reversed so oldest is left, newest is right)
+  // Transform points to show balance (reversed so oldest is left, newest is right)
   const profitPoints = [...points].reverse().map(p => ({
     ...p,
     profit: p.y - initialBalance,
     balance: p.y
   }));
 
-  const profits = profitPoints.map((p) => p.profit);
-  const minProfit = Math.min(...profits, 0);
-  const maxProfit = Math.max(...profits, 0);
-  const profitSpan = Math.max(maxProfit - minProfit, 1000);
+  const balances = profitPoints.map((p) => p.balance);
+  const minBalance = Math.min(...balances);
+  const maxBalance = Math.max(...balances);
+  const balanceSpan = Math.max(maxBalance - minBalance, 1000);
   
   // Add 10% padding to y-axis
-  const yMin = minProfit - profitSpan * 0.1;
-  const yMax = maxProfit + profitSpan * 0.1;
+  const yMin = minBalance - balanceSpan * 0.1;
+  const yMax = maxBalance + balanceSpan * 0.1;
   const yRange = yMax - yMin;
 
   const xSpan = Math.max(profitPoints.length - 1, 1);
 
   const toX = (i) => padLeft + (i / xSpan) * (width - padLeft - padRight);
-  const toY = (profit) =>
-    padTop + ((yMax - profit) / yRange) * (height - padTop - padBottom);
+  const toY = (balance) =>
+    padTop + ((yMax - balance) / yRange) * (height - padTop - padBottom);
 
-  // Zero line position
-  const zeroY = toY(0);
+  // Zero line position (initial balance line)
+  const zeroY = toY(initialBalance);
 
   const linePath = profitPoints
-    .map((p, i) => `${i === 0 ? "M" : "L"}${toX(i)} ${toY(p.profit)}`)
+    .map((p, i) => `${i === 0 ? "M" : "L"}${toX(i)} ${toY(p.balance)}`)
     .join(" ");
 
   // Create horizontal grid lines
   const gridLines = [];
   const numGridLines = 5;
   for (let i = 0; i <= numGridLines; i++) {
-    const profit = yMin + (yRange * i) / numGridLines;
-    const y = toY(profit);
-    gridLines.push({ y, label: fmtCurrency(profit) });
+    const balance = yMin + (yRange * i) / numGridLines;
+    const y = toY(balance);
+    gridLines.push({ y, label: fmtCurrency(balance) });
   }
 
   // Format date for x-axis
@@ -368,19 +370,19 @@ const BalanceChart = ({ points }) => {
         {/* Fill area - split into profit and loss zones */}
         {profitPoints.length > 0 && (
           <>
-            {/* Profit area (above zero) */}
+            {/* Profit area (above initial balance) */}
             <path
               d={`M ${toX(0)} ${zeroY} ${profitPoints.map((p, i) => {
-                const y = Math.min(toY(p.profit), zeroY);
+                const y = Math.min(toY(p.balance), zeroY);
                 return `L ${toX(i)} ${y}`;
               }).join(" ")} L ${toX(profitPoints.length - 1)} ${zeroY} Z`}
               fill="url(#profitGradient)"
             />
             
-            {/* Loss area (below zero) */}
+            {/* Loss area (below initial balance) */}
             <path
               d={`M ${toX(0)} ${zeroY} ${profitPoints.map((p, i) => {
-                const y = Math.max(toY(p.profit), zeroY);
+                const y = Math.max(toY(p.balance), zeroY);
                 return `L ${toX(i)} ${y}`;
               }).join(" ")} L ${toX(profitPoints.length - 1)} ${zeroY} Z`}
               fill="url(#lossGradient)"
@@ -406,7 +408,7 @@ const BalanceChart = ({ points }) => {
             <g key={`point-${i}`}>
               <circle
                 cx={toX(i)}
-                cy={toY(p.profit)}
+                cy={toY(p.balance)}
                 r={isHovered ? "7" : "5"}
                 fill={isProfit ? "#0ECB81" : "#F6465D"}
                 stroke="#000"
@@ -440,11 +442,12 @@ const BalanceChart = ({ points }) => {
 
         {/* Axis labels */}
         <text
-          x={padLeft}
+          x={width - padRight}
           y={height - 5}
           fill="rgba(255,255,255,0.5)"
           fontSize="12"
           fontWeight="600"
+          textAnchor="end"
         >
           Time →
         </text>
@@ -456,7 +459,7 @@ const BalanceChart = ({ points }) => {
           fontWeight="600"
           transform={`rotate(-90, ${padLeft - 45}, ${padTop + 10})`}
         >
-          ← Net Profit
+          ← Cash Balance
         </text>
       </svg>
 
@@ -494,7 +497,7 @@ const BalanceChart = ({ points }) => {
             {hoveredPoint.delta >= 0 ? "+" : ""}{fmtCurrency(hoveredPoint.delta)}
           </div>
           <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "11px", marginTop: "6px" }}>
-            Balance: {fmtCurrency(hoveredPoint.balance)}
+            Estimated Balance: {fmtCurrency(hoveredPoint.balance)}
           </div>
           <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "11px" }}>
             Net Profit: {fmtCurrency(hoveredPoint.profit)}
@@ -577,13 +580,13 @@ export default function ProfilePage() {
 
   const points = useMemo(() => {
     if (balanceHistory.length > 0) {
-      return normalizeBalancePoints(balanceHistory, me.cashBalance || 0);
+      return normalizeBalancePoints(balanceHistory, me.totalAccountValue || 0);
     }
     if (trades.length > 0) {
       return buildPointsFromTrades(trades, 100000);
     }
-    return normalizeBalancePoints([], me.cashBalance || 0);
-  }, [balanceHistory, trades, me.cashBalance]);
+    return normalizeBalancePoints([], me.totalAccountValue || 0);
+  }, [balanceHistory, trades, me.totalAccountValue]);
 
   // Subscribe to real-time prices for all holdings
   useEffect(() => {
