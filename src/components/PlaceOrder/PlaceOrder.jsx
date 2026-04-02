@@ -24,7 +24,7 @@ function InputRow({ label, value, onChange, disabled, placeholder, suffix }) {
 
 export default function PlaceOrder({ symbol, isAuthenticated }) {
   const { submit } = useOrderSubmit();
-  const { cashBalance, holdings } = usePortfolio(isAuthenticated);
+  const { cashBalance, holdings, refresh } = usePortfolio(isAuthenticated);
   const [orderType, setOrderType] = useState("Limit");
 
   // Limit / Market
@@ -122,6 +122,7 @@ export default function PlaceOrder({ symbol, isAuthenticated }) {
     if (result.success) {
       alert("Buy Order Placed Successfully!");
       setAmountBuy("");
+      setTimeout(refresh, 1500);
     } else {
       setBuyError(result.error || "Order failed");
     }
@@ -154,6 +155,7 @@ export default function PlaceOrder({ symbol, isAuthenticated }) {
     if (result.success) {
       alert("Sell Order Placed Successfully!");
       setAmountSell("");
+      setTimeout(refresh, 1500);
     } else {
       setSellError(result.error || "Order failed");
     }
