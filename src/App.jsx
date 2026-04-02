@@ -10,19 +10,30 @@ import AuthModal from "./components/AuthModal/AuthModal";
 import { useAuthStore } from "./store";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import TutorialTour from "./components/TutorialTour/TutorialTour";
+import { useTutorialStore } from "./store/index.js";
 
 function TradingTerminal() {
   const { token } = useAuthStore();
+  const startTutorial = useTutorialStore((state) => state.startTutorial);
   const [activeSymbol, setActiveSymbol] = useState("AAPL_S");
   const [isAuthenticated, setIsAuthenticated] = useState(!!token);
   const [showAuth, setShowAuth] = useState(!token);
 
   const [comparisonSymbols, setComparisonSymbols] = useState([]);
 
-  const handleLoginSuccess = (username) => {
+  const handleLoginSuccess = (authPayload) => {
+    const username = typeof authPayload === "string" ? authPayload : authPayload?.username;
     void username;
     setIsAuthenticated(true);
     setShowAuth(false);
+
+    const hasCompleted = localStorage.getItem("hasCompletedTutorial");
+    if (!hasCompleted) {
+      // Delay launch so target panels are mounted when Joyride resolves selectors.
+      setTimeout(() => {
+        startTutorial();
+      }, 500);
+    }
   };
 
   const toggleComparison = (symbol) => {
